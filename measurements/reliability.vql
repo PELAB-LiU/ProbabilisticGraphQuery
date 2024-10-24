@@ -1,0 +1,116 @@
+package hu.bme.mit.inf.dslreasoner.domains.satellite1.queries
+
+import "http://www.example.org/satellite1"
+
+import java hu.bme.mit.inf.querytransformation.query.KGate
+
+///*
+@Weight(lhsname="coverage",	 
+	class="hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability",
+	function="P"
+)
+pattern onlineWithPayload(sat: Spacecraft, coverage: java Double){
+	Spacecraft.payload(sat,pld);
+	coverage == KGate find payloadAvailable(pld);
+}
+
+@Weight(lhsname="coverage",	 
+	class="hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability",
+	function="calculate"
+)
+pattern coverage(coverage: java Double){
+	coverage == KGate find payloadAvailable(_);
+}
+
+pattern payloadAvailable(pld: Payload){
+	Spacecraft.payload(sat, pld);
+	find online(sat);
+}
+
+pattern ready(comm: CommSubsystem){
+	GroundStationNetwork.commSubsystem(_, comm);
+} or {
+	Spacecraft.commSubsystem(sat,comm);
+	find commHW(comm);
+	find online(sat);
+}
+
+pattern online(sat:Spacecraft){
+	Spacecraft.commSubsystem(sat,src);
+	find satHW(sat);
+	find commHW(src);
+	find link(src, trg); 
+	find ready(trg);
+}
+pattern nolink(comm:CommSubsystem){
+	neg find link(comm,_);
+}
+
+pattern link(src:CommSubsystem,trg:CommSubsystem){
+	CommSubsystem.target(src,trg);
+} or {
+	CommSubsystem.fallback(src,trg);
+}
+
+@NoEvent
+pattern clean_satHW(element:Spacecraft){
+	find satHW(element);
+	neg find commHW(element);
+	a == count find satHW(_); 
+}
+
+pattern satHW(element:Spacecraft){
+	find defC3U(element,_);
+} or {
+	find defC6U(element);
+} or {
+	find defSS(element);
+}
+
+pattern commHW(element:CommSubsystem){
+	find defXComm(element);
+} or {
+	find defKaComm(element);
+} or {
+	find defUHFComm(element);
+}
+
+ @BasicEvent(probability=p) 
+pattern defC3U(element:CubeSat3U,p: java Double){
+	CubeSat3U(element);
+	p==0.98400034407713;
+}
+
+@BasicEvent(probability=0.98496269152523) 
+pattern defC6U(element:CubeSat6U){
+	CubeSat6U(element);
+}
+@BasicEvent(probability=0.98581584235241) 
+pattern defSS(element:SmallSat){
+	SmallSat(element);
+}
+//                      0.9259610734996049
+@BasicEvent(probability=0.92596107864232) 
+pattern defXComm(element:XCommSubsystem){
+	XCommSubsystem(element);
+	Spacecraft.commSubsystem(_, element);
+}
+@BasicEvent(probability=0.90483741803596) 
+pattern defKaComm(element:KaCommSubsystem){
+	KaCommSubsystem(element);
+	Spacecraft.commSubsystem(_, element);
+}
+@BasicEvent(probability=0.92004441462932) 
+pattern defUHFComm(element:UHFCommSubsystem){
+	UHFCommSubsystem(element);
+	Spacecraft.commSubsystem(_, element);
+}
+pattern stochasticCount(cnt: java Integer){
+	cnt1 == count find commHW(_);
+	cnt2 == count find satHW(_);
+	cnt3 == count find online(_);
+	cnt4 == count find ready(_);
+	cnt5 == count find payloadAvailable(_);
+	cnt == eval(cnt1+cnt2+cnt3+cnt4+cnt5);
+}
+//*/
