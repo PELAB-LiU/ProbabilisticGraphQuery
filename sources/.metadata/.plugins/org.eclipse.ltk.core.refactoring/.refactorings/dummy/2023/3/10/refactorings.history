@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 5 elements from project &apos;dummy&apos;&#x0A;- Original project: &apos;dummy&apos;&#x0A;- Original elements:&#x0A;     dummy/src/dummy.impl&#x0A;     dummy/src/dummy.util&#x0A;     dummy.DummyFactory.java&#x0A;     dummy.DummyPackage.java&#x0A;     dummy.Root.java" description="Delete elements" element1="/src&lt;dummy{Root.java" element2="/src&lt;dummy{DummyPackage.java" element3="/src&lt;dummy{DummyFactory.java" element4="/src&lt;dummy.util" element5="/src&lt;dummy.impl" elements="5" flags="589830" id="org.eclipse.jdt.ui.delete" resources="0" stamp="1678091866458" subPackages="false" version="1.0"/>
+</session>

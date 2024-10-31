@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><?eclipse version="3.0"?><!--
+--><plugin>
+  <extension point="org.eclipse.emf.ecore.generated_package">
+    <!-- @generated smarthome -->
+    <package class="smarthome.SmarthomePackage" genModel="model/smarthome.genmodel" uri="http://www.example.org/smarthome"/>
+  </extension>
+  <extension id="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.Smarthome" point="org.eclipse.viatra.query.runtime.queryspecification">
+    <group group="org.eclipse.viatra.query.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.Smarthome" id="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.Smarthome">
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.tempIncr"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.tempIncrBE"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.incrementbase"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.tempWarning"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.fourWarning"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.incrementAfter3"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.incrementAfter2"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.warningbase"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.coHigh"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.fireWarning"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.nobodyHome"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.personBE"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.call"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.callProbability"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.stochasticCount"/>
+    </group>
+  </extension>
+  <extension id="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.Smarthome_clean" point="org.eclipse.viatra.query.runtime.queryspecification">
+    <group group="org.eclipse.viatra.query.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.Smarthome_clean" id="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.Smarthome_clean">
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.tempIncr"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.tempIncrBE"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.incrementbase"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.tempWarning"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.tempWarning_ua"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.fourWarning"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.incrementAfter3"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.incrementAfter2"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.warningbase"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.coHigh"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.fireWarning"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.fireWarning_ua"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.nobodyHome"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.personBE"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.call"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.callProbability"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean.stochasticCount"/>
+    </group>
+  </extension>
+</plugin>

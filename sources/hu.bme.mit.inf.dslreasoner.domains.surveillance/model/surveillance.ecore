@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="surveillance" nsURI="http://www.example.org/surveillance" nsPrefix="surveillance">
+  <eClassifiers xsi:type="ecore:EDataType" name="UReal" instanceClassName="uncertaindatatypes.UReal"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="UInteger" instanceClassName="uncertaindatatypes.UInteger"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="UBoolean" instanceClassName="uncertaindatatypes.UBoolean"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MovingObject" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="speed" lowerBound="1" eType="#//UReal"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="position" lowerBound="1"
+        eType="#//Coordinate"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="angle" lowerBound="1" eType="#//UReal"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Drone" eSuperTypes="#//MovingObject">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="shots" upperBound="-1"
+        eType="#//Shot" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UnidentifiedObject" eSuperTypes="#//MovingObject">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="confidence" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SurveillanceModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="objects" upperBound="-1"
+        eType="#//MovingObject" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Coordinate" instanceClassName="hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Shot">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="at" lowerBound="1" eType="#//UnidentifiedObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="probability" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+  </eClassifiers>
+</ecore:EPackage>

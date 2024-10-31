@@ -1,0 +1,144 @@
+package hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean
+
+import "http://www.example.org/smarthome"
+import "http://www.eclipse.org/emf/2002/Ecore"
+import java hu.bme.mit.inf.dslreasoner.domains.smarthome.utilities.SmarthomeHelper
+import java hu.bme.mit.inf.dslreasoner.domains.smarthome.utilities.IndependentOr
+//every time the temperature of the house has increased 2 or more degrees in less than one minute
+pattern tempIncr(measurement:Measurement, time: UReal, p: java Double){
+	p1 == IndependentOr find tempIncrBE(_, measurement,#_);
+	Measurement.time(measurement, time);
+	find incrementbase(_,p2);
+	p == eval(p1*p2);
+}
+
+pattern tempIncrBE(m1: Measurement, m2: Measurement, p: java Double){
+	Home.measurements(home, m1);
+	Home.measurements(home, m2);
+	Measurement.time(m1,ti1);
+	Measurement.time(m2,ti2);
+	Measurement.temp(m1,te1);
+	Measurement.temp(m2,te2);
+	check(SmarthomeHelper.incrementable(te1,ti1,te2,ti2));
+	p == eval(SmarthomeHelper.incrementConfidence(te1,ti1,te2,ti2));
+}
+
+pattern incrementbase(h:Smarthome, p: java Double){
+	Smarthome(h);
+	p == 0.925;
+}
+
+//when four TempIncr events are detected in less than 5 minutes, while temperature remains above 33 degrees
+pattern tempWarning(home: Home, m4: Measurement, p: java Double){
+	p1 == IndependentOr find tempWarning_ua(home,_,_,_,m4,#);
+	find warningbase(_,p5);
+	p == eval(p1*p5);
+}
+pattern tempWarning_ua(home: Home, m1: Measurement, m2: Measurement, m3: Measurement, m4: Measurement, p: java Double){
+	find fourWarning(home,m1,m2,m3,m4);
+	find tempIncr(m1,_,p1);
+	find tempIncr(m2,_,p2);
+	find tempIncr(m3,_,p3);
+	find tempIncr(m4,_,p4);
+	p == eval(p1*p2*p3*p4);
+}
+
+pattern fourWarning(home: Home, m1: Measurement, m2: Measurement, m3: Measurement, m4: Measurement){
+	find incrementAfter3(m1,m2, m3);
+	find incrementAfter2(m3,m4);
+	Measurement.time(m1,t1);
+	Measurement.time(m4,t4);
+	Home.measurements(home, m4);
+	check(SmarthomeHelper.within5m(t1,t4));
+}
+
+pattern incrementAfter3(m1: Measurement, m2: Measurement, m3: Measurement){
+	Home.measurements(home, m1);
+	Home.measurements(home, m3);
+	find incrementAfter2(m1,m2);
+	find incrementAfter2(m2,m3);
+	Home.measurements(home,m2);
+	Measurement.time(m1,t1);
+	Measurement.time(m2,t2);
+	Measurement.time(m3,t3);
+	m1!=m3;
+	m2!=m3;
+	check(SmarthomeHelper.within5m(t1,t3));
+}
+
+pattern incrementAfter2(m1: Measurement, m2: Measurement){
+	Home.measurements(home,m1);
+	Home.measurements(home,m2);
+	Measurement.time(m1,t1);
+	Measurement.time(m2,t2);
+	find tempIncrBE(_,m1,_);
+	find tempIncrBE(_,m2,_);
+	m1!=m2;
+	check(SmarthomeHelper.after(t1,t2));
+	check(SmarthomeHelper.within5m(t1,t2));
+}
+
+pattern warningbase(h:Smarthome, p: java Double){
+	Smarthome(h);
+	p == 0.925;
+}
+
+//each time the CO levels exceed 5000 units
+pattern coHigh(meas: Measurement, p: java Double){
+	Measurement.co(meas, co);
+	check(SmarthomeHelper.gt5000(co));
+	p == eval(SmarthomeHelper.gt5000Confidence(co));
+}
+
+//a COHigh event is detected, followed by a TempWarning event within less than 5 seconds
+pattern fireWarning(home: Home, co: Measurement, p: java Double){
+	find coHigh(co, p1);
+	p2 == IndependentOr find fireWarning_ua(home, co, _, #);
+	p == eval(p1*p2);
+}
+pattern fireWarning_ua(home: Home, co: Measurement, m4: Measurement, p: java Double){
+	Home.measurements(home,co);
+	find coHigh(co, _);
+	Measurement.time(co,cotime);
+	find tempWarning(home,m4,p);
+	Measurement.time(m4,twtime);
+	check(SmarthomeHelper.within5s(cotime,twtime));
+}
+
+//the main door of the house is closed and there is no person is at home
+pattern nobodyHome(m: Measurement, pr: java Double){
+	find atHome(m,p);
+	find personBE(p,p1);
+	pr == eval(1-p1);
+} or {
+	neg find atHome(m,_);
+	pr == 1.0;
+}
+private pattern atHome(m:Measurement, p: Person){
+	Measurement.athome(m,p);
+}
+
+pattern personBE(person: Person, p: EDouble){
+	Person.confidence(person,p);
+}
+//if a FireWarning occurs after a NobodyHome object is created
+pattern call(home: Home, measurement: Measurement, p: java Double){
+	Home.measurements(home, measurement);
+	find fireWarning(home, measurement, p1);
+	find nobodyHome(measurement, p2);
+	p == eval(p1*p2);
+}
+
+
+pattern callProbability(home: Home, measurement: Measurement, p:java Double){
+	p == IndependentOr find call(home, measurement,#);
+}
+
+pattern stochasticCount(cnt: java Integer){
+	cnt1 == count find call(_,_,_);
+	cnt2 == count find nobodyHome(_,_);
+	cnt3 == count find fireWarning(_,_,_);
+	cnt4 == count find tempWarning(_,_,_);
+	cnt5 == count find tempIncr(_,_,_);
+	cnt == eval(cnt1+cnt2+cnt3+cnt4+cnt5);
+}

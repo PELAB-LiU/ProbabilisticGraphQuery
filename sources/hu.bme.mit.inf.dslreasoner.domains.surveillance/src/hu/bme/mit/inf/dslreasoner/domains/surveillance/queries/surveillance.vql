@@ -1,0 +1,85 @@
+package hu.bme.mit.inf.dslreasoner.domains.surveillance.queries;
+
+import "http://www.example.org/surveillance"
+import "http://www.eclipse.org/emf/2002/Ecore"
+
+import java hu.bme.mit.inf.querytransformation.query.KGate
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.IndependentOr
+
+/**
+ * Event definitions
+ */
+@BasicEvent(probability=probability) 
+pattern targetToShoot(trg: UnidentifiedObject, probability: EDouble){
+	find targettableObject(trg, probability);
+}
+pattern targettableObject(trg: UnidentifiedObject, confidence: EDouble){
+	UnidentifiedObject.confidence(trg,confidence);
+	UnidentifiedObject.speed(trg,speed);
+	check(confidence > 0.65);
+	check(SurveillanceHelper.spd30(speed));
+}
+
+@BasicEvent(probability=probability)
+pattern gunshot(from: Drone, to: UnidentifiedObject, probability: java Double){
+	neg find killed(to);
+	Drone.position(from, dp);
+	find targettableObject(to,_);
+	UnidentifiedObject.position(to,tp);
+	check(SurveillanceHelper.dst1000(dp,tp));
+	UnidentifiedObject.speed(to,speed);
+	UnidentifiedObject.confidence(to, confidence);
+	probability == eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
+}
+
+pattern killed(object: UnidentifiedObject){
+	Shot.probability(s,p);
+	Shot.at(s,object);
+	check(p>0.95);
+}
+
+
+/**
+ * Interface pattern for SurveillanceRunner to make objects move
+ */
+pattern move(o: MovingObject, c: java Coordinate){
+	MovingObject.position(o, from);
+	MovingObject.speed(o, speed);
+	MovingObject.angle(o, angle);
+	c == eval(SurveillanceHelper.move(from,speed,angle,1));
+}
+@Weight(lhsname="p",	 
+	class="hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper",
+	function="P"
+)
+pattern shoot(d: Drone, at: UnidentifiedObject, p: java Double){
+	p == KGate find attempt(d,at);
+}
+
+/**
+ * Assess probability of elimination
+ * + add shot for next iteration
+ */
+pattern attempt(from: Drone, to: UnidentifiedObject){
+	find gunshot(from, to, _);
+	find targetToShoot(to,_);
+}
+
+@Weight(lhsname="probability",	 
+	class="hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper",
+	function="P"
+)
+pattern elimination(target: UnidentifiedObject, probability: java Double){
+	probability == KGate find attempt(_, target);
+}
+
+
+pattern stochasticCount(cnt: java Integer){
+	cnt1 == count find elimination(_,_);
+	cnt2 == count find attempt(_,_);
+	cnt == eval(cnt1+cnt2);
+}
+
+

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><?eclipse version="3.0"?><!--
+--><plugin>
+  <extension point="org.eclipse.emf.ecore.generated_package">
+    <!-- @generated surveillance -->
+    <package class="surveillance.SurveillancePackage" genModel="model/surveillance.genmodel" uri="http://www.example.org/surveillance"/>
+  </extension>
+  <extension id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.Surveillance" point="org.eclipse.viatra.query.runtime.queryspecification">
+    <group group="org.eclipse.viatra.query.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.Surveillance" id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.Surveillance">
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.targetToShoot"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.targettableObject"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.gunshot"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.killed"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.move"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.shoot"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.attempt"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.elimination"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.stochasticCount"/>
+    </group>
+  </extension>
+  <extension id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean" point="org.eclipse.viatra.query.runtime.queryspecification">
+    <group group="org.eclipse.viatra.query.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean" id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean">
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.targettableObject"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.gunshot"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.killed"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.move"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.shoot"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.attempt"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.elimination"/>
+    </group>
+  </extension>
+</plugin>

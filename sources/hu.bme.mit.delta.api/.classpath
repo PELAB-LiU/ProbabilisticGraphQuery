@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="libs/delta.jar"/>
+	<classpathentry kind="lib" path="libs/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="libs/koloboke-api-jdk8-1.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/koloboke-impl-common-jdk8-1.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/koloboke-impl-jdk8-1.0.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

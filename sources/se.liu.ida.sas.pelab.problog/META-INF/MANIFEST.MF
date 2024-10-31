@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Problog
+Bundle-SymbolicName: se.liu.ida.sas.pelab.problog
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: se.liu.ida.sas.pelab.problog
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ hu.bme.mit.inf.measurement.utilities;bundle-version="1.0.0"
+Export-Package: se.liu.ida.sas.pelab.problog.run,
+ se.liu.ida.sas.pelab.problog.transformation

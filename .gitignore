@@ -1,0 +1,6 @@
+# Ignore the .git for the private repository
+StochasticQuery/.git/
+
+# Block source code of delta (not permitted to release)
+**/hu.bme.mit.delta.plugin/
+**/hu.bme.mit.delta.collections.plugin/

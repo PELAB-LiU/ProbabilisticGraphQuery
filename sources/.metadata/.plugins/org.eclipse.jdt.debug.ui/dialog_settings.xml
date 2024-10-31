@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="expressionHistory">
+		<item key="expressionHistoryEntry_0" value="D"/>
+		<item key="expressionHistoryEntryCount" value="1"/>
+	</section>
+	<section name="org.eclipse.jdt.internal.debug.ui.ExpressionInformationControlCreator$ExpressionInformationControl">
+		<item key="WIDTH" value="706"/>
+		<item key="HEIGHT" value="210"/>
+		<item key="SashWeightTree" value="500"/>
+		<item key="SashWeightDetails" value="500"/>
+	</section>
+	<section name="conditionHistory">
+		<item key="conditionHistoryEntry_0" value="operator.getName().equals(&quot;collect&quot;) &amp;&amp; (!oldValue.equals(newValue))"/>
+		<item key="conditionHistoryEntryCount" value="2"/>
+		<item key="conditionHistoryEntry_1" value="(operator instanceof MddCollectorOperator) &amp;&amp; (!oldValue.equals(newValue))"/>
+	</section>
+</section>

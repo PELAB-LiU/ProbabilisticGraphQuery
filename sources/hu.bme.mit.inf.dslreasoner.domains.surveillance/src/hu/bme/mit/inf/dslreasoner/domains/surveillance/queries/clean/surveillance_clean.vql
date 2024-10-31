@@ -1,0 +1,67 @@
+package hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean;
+
+import "http://www.example.org/surveillance"
+import "http://www.eclipse.org/emf/2002/Ecore"
+
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.IndependentOr
+
+
+/**
+ * "Event" definitions
+ */
+pattern targettableObject(trg: UnidentifiedObject, confidence: EDouble){
+	UnidentifiedObject.confidence(trg,confidence);
+	UnidentifiedObject.speed(trg,speed);
+	check(confidence > 0.65);
+	check(SurveillanceHelper.spd30(speed));
+}
+
+pattern gunshot(from: Drone, to: UnidentifiedObject, probability: java Double){
+	neg find killed(to);
+	Drone.position(from, dp);
+	find targettableObject(to,_);
+	UnidentifiedObject.position(to,tp);
+	check(SurveillanceHelper.dst1000(dp,tp));
+	UnidentifiedObject.speed(to,speed);
+	UnidentifiedObject.confidence(to, confidence);
+	probability == eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
+}
+
+pattern killed(object: UnidentifiedObject){
+	Shot.probability(s,p);
+	Shot.at(s,object);
+	check(p>0.95);
+}
+
+
+/**
+ * Interface pattern for SurveillanceRunner to make objects move
+ */
+pattern move(o: MovingObject, c: java Coordinate){
+	MovingObject.position(o, from);
+	MovingObject.speed(o, speed);
+	MovingObject.angle(o, angle);
+	c == eval(SurveillanceHelper.move(from,speed,angle,1));
+}
+
+pattern shoot(d: Drone, at: UnidentifiedObject, p: java Double){
+	find attempt(d,at, p);
+}
+
+/**
+ * Assess probability of elimination
+ * + add shot for next iteration
+ */
+pattern attempt(from: Drone, to: UnidentifiedObject, probability: java Double){
+	find gunshot(from, to, p1);
+	find targettableObject(to,p2);
+	probability == p1;//eval(p1*p2);
+}
+
+pattern elimination(target: UnidentifiedObject, probability: java Double){
+	find targettableObject(target, pt);
+	tmp == IndependentOr find attempt(_, target,#_);
+	probability == eval(tmp*pt);
+}

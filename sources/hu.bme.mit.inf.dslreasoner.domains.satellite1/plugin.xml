@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><?eclipse version="3.0"?><!--
+--><plugin>
+  <extension point="org.eclipse.emf.ecore.generated_package">
+    <!-- @generated satellite -->
+    <package class="satellite1.SatellitePackage" genModel="model/satellite.genmodel" uri="http://www.example.org/satellite1"/>
+  </extension>
+  <extension point="org.eclipse.viatra.query.patternlanguage.emf.annotation"/>
+  <extension id="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.Reliability" point="org.eclipse.viatra.query.runtime.queryspecification">
+    <group group="org.eclipse.viatra.query.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.Reliability" id="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.Reliability">
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.onlineWithPayload"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.coverage"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.payloadAvailable"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.ready"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.online"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.nolink"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.link"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.clean_satHW"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.satHW"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.commHW"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.defC3U"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.defC6U"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.defSS"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.defXComm"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.defKaComm"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.defUHFComm"/>
+      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.satellite1.queries.stochasticCount"/>
+    </group>
+  </extension>
+</plugin>

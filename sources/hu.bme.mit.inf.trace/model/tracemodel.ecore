@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="tracemodel" nsURI="http://www.example.org/tracemodel" nsPrefix="tracemodel">
+  <eClassifiers xsi:type="ecore:EClass" name="TraceModel">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="traces" upperBound="-1"
+        eType="#//Trace" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mddTrue" lowerBound="1"
+        eType="#//Handle"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mddFalse" lowerBound="1"
+        eType="#//Handle"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="probabilities" lowerBound="1"
+        eType="#//ProbabilityMap"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Trace" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="event" lowerBound="1" eType="#//Handle"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="probability" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="generator" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="index" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Trace1" eSuperTypes="#//Trace">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="arg1" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Handle" instanceClassName="reliability.events.Event"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="ProbabilityMap" instanceClassName="reliability.mdd.ProbabilityMap"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Trace2" eSuperTypes="#//Trace">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="arg1" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="arg2" eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EObject"/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Api
+Bundle-SymbolicName: hu.bme.mit.delta.api
+Bundle-Version: 1.0.0.qualifier
+Export-Package: hu.bme.mit.delta,
+ hu.bme.mit.delta.collections,
+ hu.bme.mit.delta.collections.impl,
+ hu.bme.mit.delta.java,
+ hu.bme.mit.delta.java.mdd,
+ hu.bme.mit.delta.java.mdd.impl,
+ hu.bme.mit.delta.mdd,
+ hu.bme.mit.delta.testutil
+Automatic-Module-Name: hu.bme.mit.delta.api
+Bundle-RequiredExecutionEnvironment: JavaSE-21

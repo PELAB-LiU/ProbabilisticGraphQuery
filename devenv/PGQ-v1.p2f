@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?p2f version='1.0.0'?>
+<p2f version='1.0.0'>
+  <ius size='47'>
+    <iu id='org.eclipse.jdt.bcoview.feature.feature.group' name='Bytecode Outline View' version='1.2.300.v20240118-1157'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.cdo.sdk.feature.group' name='CDO Model Repository SDK' version='5.14.1.v20231218-1001'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.collections.feature.source.feature.group' name='Eclipse Collections Developer Resources' version='11.1.0.v20220705-1455'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.e4.core.tools.feature.feature.group' name='Eclipse e4 Tools' version='4.30.100.v20240211-0942'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.jdt.feature.group' name='Eclipse Java Development Tools' version='3.19.400.v20240229-0520'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='epp.package.modeling' name='Eclipse Modeling Tools' version='4.31.0.20240307-1200'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/technology/epp/packages/latest/'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.pde.feature.group' name='Eclipse Plug-in Development Environment' version='3.15.300.v20240229-0520'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.pde.spies.feature.group' name='Eclipse Plug-in Development Environment Spies' version='1.0.300.v20240207-1047'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.sdk.feature.group' name='Eclipse Project SDK' version='4.31.0.v20240229-1022'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.ecoretools.design.feature.group' name='Ecore Diagram Editor' version='3.5.0.202306021647'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.sdk.feature.group' name='EMF - Eclipse Modeling Framework SDK' version='2.37.0.v20240203-1010'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.ecp.emfforms.sdk.feature.feature.group' name='EMF Forms SDK' version='1.27.0.20221109-1132'>
+      <repositories size='1'>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.query.sdk.feature.group' name='EMF Model Query SDK' version='1.12.1.202208101410'>
+      <repositories size='1'>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.transaction.sdk.feature.group' name='EMF Model Transaction SDK' version='1.13.0.202208110935'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.parsley.sdk.feature.group' name='EMF Parsley SDK' version='1.16.0.v20240227-1720'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.parsley.sdk.source.feature.group' name='EMF Parsley SDK Developer Resources' version='1.16.0.v20240227-1720'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.validation.sdk.feature.group' name='EMF Validation Framework SDK' version='1.13.3.202305230712'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.gef.sdk.feature.group' name='GEF SDK' version='5.5.0.202311221639'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.egit.feature.group' name='Git integration for Eclipse' version='6.9.0.202403050737-r'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.gmf.runtime.sdk.feature.group' name='Graphical Modeling Framework (GMF) Runtime SDK' version='1.16.3.202403010913'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.jgit.feature.group' name='Java implementation of Git' version='6.9.0.202403050737-r'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.justj.epp.feature.group' name='JustJ JRE for IDE Packages' version='17.0.0.v20240120-1430'>
+      <repositories size='1'>
+        <repository location='https://download.eclipse.org/justj/epp/release/latest'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.epp.mpc.feature.group' name='Marketplace Client' version='1.10.3.v20240228-1000'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.compare.source.feature.group' name='Model comparison (EMF Compare) - Core - SDK' version='3.3.24.202401051648'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.compare.egit.feature.group' name='Model comparison (EMF Compare) - EGit support' version='3.3.24.202401051648'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.compare.ide.ui.source.feature.group' name='Model comparison (EMF Compare) - SDK' version='3.3.24.202401051648'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.emf.compare.diagram.sirius.source.feature.group' name='Model comparison (EMF Compare) - Sirius support (Experimental)- SDK' version='3.3.24.202401051648'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.jenkins.feature.feature.group' name='Mylyn Builds Connector: Jenkins' version='4.2.0.v20240212-0246'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.commons.activity.feature.feature.group' name='Mylyn Commons Activity' version='4.2.0.v20240203-1124'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.ide.feature.feature.group' name='Mylyn Context Connector: Eclipse IDE' version='4.2.0.v20240220-1733'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.jdt.feature.feature.group' name='Mylyn Context Connector: Java Development' version='4.2.0.v20240220-1733'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.pde.feature.feature.group' name='Mylyn Context Connector: Plug-in Development' version='4.2.0.v20240220-1733'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.egit.feature.feature.group' name='Mylyn Git integration - Task focused interface' version='4.2.0.v20240202-0700'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.reviews.feature.feature.group' name='Mylyn Reviews' version='4.2.0.v20240207-0731'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.github.feature.feature.group' name='Mylyn Tasks Connector: GitHub' version='6.4.0.v20240209-1319'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.git.feature.feature.group' name='Mylyn Versions Connector: Git' version='4.2.0.v20240208-0919'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.mylyn.wikitext.feature.feature.group' name='Mylyn WikiText' version='4.2.0.v20240302-0923'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.ocl.all.sdk.feature.group' name='OCL Classic SDK: Ecore/UML Parsers,Evaluator,Edit' version='5.20.0.v20240305-1416'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.oomph.setup.feature.group' name='Oomph Setup' version='1.31.0.v20240306-1109'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.tips.feature.feature.group' name='Tip of the Day UI Feature' version='0.4.300.v20240207-1044'>
+      <repositories size='3'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/eclipse/updates/4.31'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.tm.terminal.feature.feature.group' name='TM Terminal' version='11.5.0.202312062348'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.uml2.sdk.feature.group' name='UML2 Extender SDK' version='5.5.3.v20221116-1811'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.viatra.query.sdk.feature.source.feature.group' name='VIATRA Query and Transformation SDK' version='2.8.0.202310201322'>
+      <repositories size='3'>
+        <repository location='http://download.eclipse.org/viatra/updates/release/2.8.0'/>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.viatra.query.sdk.feature.feature.group' name='VIATRA Query SDK without Sources' version='2.8.0.202310201322'>
+      <repositories size='3'>
+        <repository location='http://download.eclipse.org/viatra/updates/release/2.8.0'/>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.xsd.sdk.feature.group' name='XSD - XML Schema Definition SDK' version='2.36.0.v20231205-1420'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.xtend.sdk.feature.group' name='Xtend IDE' version='2.34.0.v20240227-0940'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+    <iu id='org.eclipse.xtext.redist.feature.group' name='Xtext Redistributable' version='2.34.0.v20240227-0940'>
+      <repositories size='2'>
+        <repository location='https://download.eclipse.org/releases/latest'/>
+        <repository location='https://download.eclipse.org/releases/2024-03'/>
+      </repositories>
+    </iu>
+  </ius>
+</p2f>
