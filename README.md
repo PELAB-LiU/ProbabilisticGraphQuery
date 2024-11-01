@@ -4,7 +4,7 @@ This repository contains the source code, measurement data, and development envi
 
 ## Structure
 * [Devenv](devenv) folder contains a directory with docker files. The provided dockerfile builds a container that has all dependencies configured for running our measurement campaign. Furthermore, it contains a web-based remote desktop to access a configured development environment.
-* [Measurements](measurements) contains our measurement data and post processing scrips. (Access via [localhost:3000](localhost:3000))
+* [Measurements](measurements) contains our measurement data and post processing scrips. (Access via RDP  at `localhost:4100`)
 * [Sources](sources) contains the project source code.
 
 ## Setup
@@ -12,7 +12,9 @@ This repository contains the source code, measurement data, and development envi
 ### Install docker
 * Install docker engine following the [official guide](https://docs.docker.com/engine/install/).
     * Ensure that you can run docker as a non-root user. See [post-installation guide](https://docs.docker.com/engine/install/linux-postinstall/).
-
+* Install a Remote Desktop Client
+    * Windows: [Microsoft Remote Desktop](https://apps.microsoft.com/detail/9wzdncrfj3ps)
+    * Ubuntu: [Remmina](https://remmina.org/how-to-install-remmina/)
 #### Build
 
 Change directory to the repository. Expected location is `.../ProbabilisticGraphQuery$`
@@ -35,8 +37,7 @@ Create container with the following command
 docker run -d -u root \
   --name=pgq-devenv \
   --security-opt seccomp=unconfined \
-  -p 3000:3000 \
-  -p 3001:3001 \
+  -p 4100:3389 \
   --shm-size="1gb" \
   -v $(pwd):/config/ProbabilisticGraphQuery \
   pgq-devenv
@@ -58,7 +59,7 @@ docker container stop pgq-devenv
 
 ### Configuring container
 
-* Connect to the running container from a browser of your choice via [localhost:3000](localhost:3000)
+* Connect to the running container from an RDP client (address: `localhost:4100`, username: `abc`, password: `abc`)
 * Donload jar dependencies.
   * `/config/ProbabilisticGraphQuery/sources/hu.bme.mit.delta.api/libs/download.sh`
   * `/config/ProbabilisticGraphQuery/sources/hu.bme.mit.inf.measurement.utilities/libs/download.sh`
@@ -86,7 +87,17 @@ Run measurements the following commands. (Expected runtime is a few days.)
 
 ### Post process measurement data
 
-TODO 
+Connect to the container via RDP as before.
+
+* Stat a jupyter notebook from `Applications -> Development -> Jupyter Notebook`
+* Open the notebooks from `ProbabilisticGraphQuery -> measurements -> diagrams[-scale].ipynb`
+* Run notebook. `Run -> Run All Cells`
+
+Alternatively, run the following script from the host machine.
+```
+docker exec -u abc -it -w /config/ProbabilisticGraphQuery/measurements pgq-devenv jupyter execute diagrams-scale.ipynb
+docker exec -u abc -it -w /config/ProbabilisticGraphQuery/measurements pgq-devenv jupyter execute diagrams.ipynb
+```
 
 ## License
 * Source code is provided under [Eclipse Public License - v 2.0](https://www.eclipse.org/legal/epl-2.0/) unless other license is indicated

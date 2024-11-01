@@ -1,11 +1,10 @@
-FROM --platform=x86-64 linuxserver/webtop:ubuntu-xfce
+FROM --platform=x86-64 linuxserver/rdesktop:ubuntu-xfce
 
 ENV PUID=1000 
 ENV PGID=1000
 ENV TZ=Etc/UTC 
 
-EXPOSE 3000
-EXPOSE 3001
+EXPOSE 3389
 
 # Initialize misc
 USER root
@@ -43,3 +42,11 @@ Categories=Development\n\' > /usr/share/applications/eclipse.desktop
 USER root
 RUN /opt/eclipse/eclipse -application org.eclipse.equinox.p2.director -repository https://download.eclipse.org/releases/2024-03 -installIU org.eclipse.collections.feature.source.feature.group/11.1.0.v20220705-1455,org.eclipse.xtend.sdk.feature.group/2.34.0.v20240227-0940,org.eclipse.xtext.redist.feature.group/0.0.0
 RUN /opt/eclipse/eclipse -application org.eclipse.equinox.p2.director -repository http://download.eclipse.org/viatra/updates/release/2.8.0 -installIU org.eclipse.viatra.query.sdk.feature.source.feature.group/2.8.0.202310201322,org.eclipse.viatra.query.sdk.feature.feature.group/2.8.0.202310201322
+
+# Install python packages for diagrams
+USER root
+RUN pip install --break-system-packages notebook
+RUN pip install --break-system-packages pandas==1.5.3 seaborn==0.12.2 matplotlib==3.7.1 numpy==1.26.4
+
+RUN apt install webext-ublock-origin-firefox -y
+RUN rm -rf /config/.cache
