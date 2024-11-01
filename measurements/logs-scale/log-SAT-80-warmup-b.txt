@@ -1,0 +1,7 @@
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout
+SAT,80,0,0,24485.294295000003,0.23025981198846582,47.272776,24272.935903,false,,,,,,1200048.021237,0,8.421141,1200039.600096,true
+SAT,80,1,0,305399.618839,0.30139845376977015,20.344038,305194.607194,false,,,,,,1200221.2664430002,0,5.356306,1200215.910137,true
+SAT,80,2,0,267239.904124,0.31539763352201844,21.539789,266987.903492,false,,,,,,,,,,
+SAT,80,3,0,1215.944501,0.14372268576633318,34.496385000000004,1028.135792,false,,,,,,,,,,
+SAT,80,4,0,18163.983496,0.2593712789708317,5.428934,18088.299295,false,,,,,,,,,,
+SAT,80,5,0,34649.248536,0.21141213164108338,5.111144,34604.016567,false,,,,,,,,,,

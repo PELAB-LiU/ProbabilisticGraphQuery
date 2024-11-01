@@ -3,13 +3,15 @@
 PGQ_JAR=pgq-sip.jar
 LOGDIR=../logs-sip/
 
+cd "$(dirname "$0")"
+
 #################
 ### SATELLITE ###
 #################
 
 CASE=SAT
 SIZE=45
-VQL=reliability.vql
+VQL=satellite.vql
 STDOUT=std-sat.txt
 
 java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \

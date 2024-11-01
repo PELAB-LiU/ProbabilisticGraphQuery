@@ -1,0 +1,1058 @@
+
+/**
+ * Imports for stochastic queries
+ */
+import "http://www.eclipse.org/emf/2002/Ecore"
+import "http://www.example.org/tracemodel"
+
+import java reliability.mdd.COLLECT;
+import java reliability.mdd.OR;
+import java reliability.mdd.NOT;
+import java reliability.intreface.D;
+import java hu.bme.mit.delta.mdd.MddHandle; 
+import java reliability.mdd.MddHandleCollection;
+import java reliability.events.Event;
+
+/**
+ * Imports for weight functions
+ */
+import java hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+import java hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+
+/**
+ * Imports from the original model
+ */
+import "http://www.example.org/satellite1"
+
+import java hu.bme.mit.inf.querytransformation.query.KGate
+/**
+ * User defined patterns
+ */
+ pattern onlineWithPayload(sat:Spacecraft,coverage:java ^java.lang.Double)
+{
+	Spacecraft.payload(sat,pld);
+	collectionOf_coverage == COLLECT find payloadAvailable(pld,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	coverage == eval(D.WeightCollection(collectionOf_coverage as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability.P(cnt)], internal_probabilities));
+}
+ pattern coverage(coverage:java ^java.lang.Double)
+{
+	collectionOf_coverage == COLLECT find payloadAvailable(_,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	coverage == eval(D.WeightCollection(collectionOf_coverage as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability.calculate(cnt)], internal_probabilities));
+}
+ pattern payloadAvailable(pld:Payload,event: java Event){
+	find ua_payloadAvailable(pld,_);
+	event == OR find ua_payloadAvailable(pld,#_);
+}
+private pattern ua_payloadAvailable(pld:Payload,event: java Event)
+{
+	Spacecraft.payload(sat,pld);
+	find online(sat,event);
+}
+ pattern ready(comm:CommSubsystem,event: java Event){
+	find ua_ready(comm,_);
+	event == OR find ua_ready(comm,#_);
+}
+private pattern ua_ready(comm:CommSubsystem,event: java Event)
+{
+	GroundStationNetwork.commSubsystem(_,comm);
+	TraceModel.mddTrue(_, event);
+} or 
+{
+	Spacecraft.commSubsystem(sat,comm);
+	find commHW(comm,event0);
+	find online(sat,event1);
+	event==eval(D.AND(event0,event1));
+}
+ pattern online(sat:Spacecraft,event: java Event){
+	find ua_online(sat,_);
+	event == OR find ua_online(sat,#_);
+}
+private pattern ua_online(sat:Spacecraft,event: java Event)
+{
+	Spacecraft.commSubsystem(sat,src);
+	find satHW(sat,event0);
+	find commHW(src,event1);
+	find link(src,trg);
+	find ready(trg,event2);
+	event==eval(D.AND(event0,event1,event2));
+}
+ pattern nolink(comm:CommSubsystem)
+{
+	neg find link(comm,_);
+}
+ pattern link(src:CommSubsystem,trg:CommSubsystem)
+{
+	CommSubsystem.target(src,trg);
+} or 
+{
+	CommSubsystem.fallback(src,trg);
+}
+ pattern clean_satHW(element:Spacecraft)
+{
+	find satHW(element,_);
+	//Stochastic constraint is ignored (always match):
+	//event_idx == NOT find commHW(element,#_);
+	a==count find satHW(_,_);
+}
+ pattern satHW(element:Spacecraft,event: java Event){
+	find ua_satHW(element,_);
+	event == OR find ua_satHW(element,#_);
+}
+private pattern ua_satHW(element:Spacecraft,event: java Event)
+{
+	find use_defC3U(element,_,event);
+} or 
+{
+	find use_defC6U(element,event);
+} or 
+{
+	find use_defSS(element,event);
+}
+ pattern commHW(element:CommSubsystem,event: java Event){
+	find ua_commHW(element,_);
+	event == OR find ua_commHW(element,#_);
+}
+private pattern ua_commHW(element:CommSubsystem,event: java Event)
+{
+	find use_defXComm(element,event);
+} or 
+{
+	find use_defKaComm(element,event);
+} or 
+{
+	find use_defUHFComm(element,event);
+}
+ pattern defC3U(element:CubeSat3U,p:java ^java.lang.Double)
+{
+	CubeSat3U(element);
+	p==0.98400034407713;
+}
+ pattern defC6U(element:CubeSat6U)
+{
+	CubeSat6U(element);
+}
+ pattern defSS(element:SmallSat)
+{
+	SmallSat(element);
+}
+ pattern defXComm(element:XCommSubsystem)
+{
+	XCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern defKaComm(element:KaCommSubsystem)
+{
+	KaCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern defUHFComm(element:UHFCommSubsystem)
+{
+	UHFCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern stochasticCount(cnt:java ^java.lang.Integer)
+{
+	cnt1==count find commHW(_,_);
+	cnt2==count find satHW(_,_);
+	cnt3==count find online(_,_);
+	cnt4==count find ready(_,_);
+	cnt5==count find payloadAvailable(_,_);
+	cnt==eval(cnt1 +
+	 cnt2 +
+	 cnt3 +
+	 cnt4 +
+	 cnt5);
+}
+
+/**
+ * Event require pattern
+ */
+pattern BERequiredName1(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find BERequiredName1_many(arg1,name, index, _);
+	probability == max find BERequiredName1_many(arg1,name, index, #_);
+}
+
+pattern BERequiredName1_many(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find defC3U(arg1,probability);
+	name == "defC3U";
+	index == 1;
+} or 
+{
+	find defC6U(arg1);
+	probability == 0.98496269152523;
+	name == "defC6U";
+	index == 1;
+} or 
+{
+	find defSS(arg1);
+	probability == 0.98581584235241;
+	name == "defSS";
+	index == 1;
+} or 
+{
+	find defXComm(arg1);
+	probability == 0.92596107864232;
+	name == "defXComm";
+	index == 1;
+} or 
+{
+	find defKaComm(arg1);
+	probability == 0.90483741803596;
+	name == "defKaComm";
+	index == 1;
+} or 
+{
+	find defUHFComm(arg1);
+	probability == 0.92004441462932;
+	name == "defUHFComm";
+	index == 1;
+}
+
+private pattern use_defC3U(element:CubeSat3U,p:java ^java.lang.Double, event: java Event){
+	//find defC3U(element,p);
+	find HandleOf1(element,"defC3U",event);
+	find BETrace1(element,"defC3U",1,trace);
+	Trace.probability(trace,p);
+	 
+}
+private pattern use_defC6U(element:CubeSat6U, event: java Event){
+	//find defC6U(element);
+	find HandleOf1(element,"defC6U",event);
+	 
+}
+private pattern use_defSS(element:SmallSat, event: java Event){
+	//find defSS(element);
+	find HandleOf1(element,"defSS",event);
+	 
+}
+private pattern use_defXComm(element:XCommSubsystem, event: java Event){
+	//find defXComm(element);
+	find HandleOf1(element,"defXComm",event);
+	 
+}
+private pattern use_defKaComm(element:KaCommSubsystem, event: java Event){
+	//find defKaComm(element);
+	find HandleOf1(element,"defKaComm",event);
+	 
+}
+private pattern use_defUHFComm(element:UHFCommSubsystem, event: java Event){
+	//find defUHFComm(element);
+	find HandleOf1(element,"defUHFComm",event);
+	 
+}
+
+/**
+ * Interface queries for event management
+ */
+pattern BETrace1(arg1:EObject, name: EString, index: EInt, trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, index);
+}
+
+pattern Insertion1(arg1:EObject, name: java String, from: java Integer, to: java Integer, probability: java Double){
+	find BERequiredName1(arg1, name, to, probability);
+	neg find BETrace1(arg1, name, _, _);
+	from == 0;
+} or {
+	find BERequiredName1(arg1, name, to, probability);
+	find BETrace1(arg1, name, _, _);
+	from == max find BETrace1(arg1, name, #_, _);
+	check(to > from);
+}
+
+pattern Removal1(trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	neg find BERequiredName1(arg1, name, _, _);
+} or {
+	find BERequiredName1(arg1, name, multiplicity, _);
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, idx);
+	check(idx > multiplicity);
+}
+
+pattern Update1(trace: Trace1, probability: java Double){
+	find BERequiredName1(arg1, name, multiplicity, probability);
+	find BETrace1(arg1, name, index, trace);
+	Trace.probability(trace, old);
+	old != probability;
+	check(index <= multiplicity);
+}
+
+pattern HandleOf1(arg1:EObject, name: EString, event: Handle){
+	find BETrace1(arg1, name, _, trace);
+	Trace.event(trace, event);
+}
+
+
+
+[WARMUP 0 of 6]===============================================================
+Model seed is 0
+Removed: 0
+Updated: 0
+Insertions: 66
+UNARY
+Specification found: coverage
+	"coverage"=0.23025981198846582
+incremental.total[ms] --> 24485.294295000003
+incremental.sync[ms] --> 47.272776
+incremental.prop[ms] --> 24272.935903
+incremental.result --> 0.23025981198846582
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200048.021237
+problog.trafo[ms] --> 8.421141
+problog.evaluation[ms] --> 1200039.600096
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 0
+prefix --> SAT
+size --> 80
+[WARMUP 1 of 6]===============================================================
+Model seed is 1
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.30139845376977015
+incremental.total[ms] --> 305399.618839
+incremental.sync[ms] --> 20.344038
+incremental.prop[ms] --> 305194.607194
+incremental.result --> 0.30139845376977015
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200221.2664430002
+problog.trafo[ms] --> 5.356306
+problog.evaluation[ms] --> 1200215.910137
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 1
+prefix --> SAT
+size --> 80
+[WARMUP 2 of 6]===============================================================
+Model seed is 2
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.31539763352201844
+incremental.total[ms] --> 267239.904124
+incremental.sync[ms] --> 21.539789
+incremental.prop[ms] --> 266987.903492
+incremental.result --> 0.31539763352201844
+incremental.timeout --> false
+Finally block executed.
+iteration --> 0
+run --> 2
+prefix --> SAT
+size --> 80
+[WARMUP 3 of 6]===============================================================
+Model seed is 3
+Removed: 0
+Updated: 0
+Insertions: 68
+UNARY
+Specification found: coverage
+	"coverage"=0.14372268576633318
+incremental.total[ms] --> 1215.944501
+incremental.sync[ms] --> 34.496385000000004
+incremental.prop[ms] --> 1028.135792
+incremental.result --> 0.14372268576633318
+incremental.timeout --> false
+Finally block executed.
+iteration --> 0
+run --> 3
+prefix --> SAT
+size --> 80
+[WARMUP 4 of 6]===============================================================
+Model seed is 4
+Removed: 0
+Updated: 0
+Insertions: 63
+UNARY
+Specification found: coverage
+	"coverage"=0.2593712789708317
+incremental.total[ms] --> 18163.983496
+incremental.sync[ms] --> 5.428934
+incremental.prop[ms] --> 18088.299295
+incremental.result --> 0.2593712789708317
+incremental.timeout --> false
+Finally block executed.
+iteration --> 0
+run --> 4
+prefix --> SAT
+size --> 80
+[WARMUP 5 of 6]===============================================================
+Model seed is 5
+Removed: 0
+Updated: 0
+Insertions: 65
+UNARY
+Specification found: coverage
+	"coverage"=0.21141213164108338
+incremental.total[ms] --> 34649.248536
+incremental.sync[ms] --> 5.111144
+incremental.prop[ms] --> 34604.016567
+incremental.result --> 0.21141213164108338
+incremental.timeout --> false
+Finally block executed.
+iteration --> 0
+run --> 5
+prefix --> SAT
+size --> 80
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout
+SAT,80,0,0,24485.294295000003,0.23025981198846582,47.272776,24272.935903,false,,,,,,1200048.021237,0,8.421141,1200039.600096,true
+SAT,80,1,0,305399.618839,0.30139845376977015,20.344038,305194.607194,false,,,,,,1200221.2664430002,0,5.356306,1200215.910137,true
+SAT,80,2,0,267239.904124,0.31539763352201844,21.539789,266987.903492,false,,,,,,,,,,
+SAT,80,3,0,1215.944501,0.14372268576633318,34.496385000000004,1028.135792,false,,,,,,,,,,
+SAT,80,4,0,18163.983496,0.2593712789708317,5.428934,18088.299295,false,,,,,,,,,,
+SAT,80,5,0,34649.248536,0.21141213164108338,5.111144,34604.016567,false,,,,,,,,,,
+[MEASURE 26 of 25]===============================================================
+Model seed is 26
+Removed: 0
+Updated: 0
+Insertions: 66
+UNARY
+Specification found: coverage
+	"coverage"=0.21204488683834385
+incremental.total[ms] --> 42095.450786
+incremental.sync[ms] --> 17.376948
+incremental.prop[ms] --> 41976.82369
+incremental.result --> 0.21204488683834385
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.212044886838345):
+Debug: 1
+problog.total[ms] --> 984508.6650700001
+problog.trafo[ms] --> 6.253328000000001
+problog.evaluation[ms] --> 984502.411742
+problog.result --> 0.212044886838345
+problog.timeout --> false
+iteration --> 0
+run --> 26
+prefix --> SAT
+size --> 80
+[MEASURE 27 of 25]===============================================================
+Model seed is 27
+Removed: 0
+Updated: 0
+Insertions: 64
+UNARY
+Specification found: coverage
+	"coverage"=0.25655902639483097
+incremental.total[ms] --> 9796.297045
+incremental.sync[ms] --> 23.109542
+incremental.prop[ms] --> 9667.952484
+incremental.result --> 0.25655902639483097
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200096.9206700001
+problog.trafo[ms] --> 2.9116709999999997
+problog.evaluation[ms] --> 1200094.008999
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 27
+prefix --> SAT
+size --> 80
+[MEASURE 28 of 25]===============================================================
+Model seed is 28
+Removed: 0
+Updated: 0
+Insertions: 64
+UNARY
+Specification found: coverage
+	"coverage"=0.23372908764517955
+incremental.total[ms] --> 16396.480062000002
+incremental.sync[ms] --> 10.832163000000001
+incremental.prop[ms] --> 16277.033659
+incremental.result --> 0.23372908764517955
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200119.499477
+problog.trafo[ms] --> 1.752675
+problog.evaluation[ms] --> 1200117.746802
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 28
+prefix --> SAT
+size --> 80
+[MEASURE 29 of 25]===============================================================
+Model seed is 29
+Removed: 0
+Updated: 0
+Insertions: 63
+UNARY
+Specification found: coverage
+	"coverage"=0.2734736243444922
+incremental.total[ms] --> 32001.434619
+incremental.sync[ms] --> 20.250095
+incremental.prop[ms] --> 31797.117564
+incremental.result --> 0.2734736243444922
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200121.798957
+problog.trafo[ms] --> 8.490197
+problog.evaluation[ms] --> 1200113.30876
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 29
+prefix --> SAT
+size --> 80
+[MEASURE 30 of 25]===============================================================
+Model seed is 30
+Removed: 0
+Updated: 0
+Insertions: 67
+UNARY
+Specification found: coverage
+	"coverage"=0.16287814845683288
+incremental.total[ms] --> 6951.047673
+incremental.sync[ms] --> 20.030092
+incremental.prop[ms] --> 6754.766279
+incremental.result --> 0.16287814845683288
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.162878148456835):
+Debug: 1
+problog.total[ms] --> 36966.458793
+problog.trafo[ms] --> 11.559081
+problog.evaluation[ms] --> 36954.899712
+problog.result --> 0.162878148456835
+problog.timeout --> false
+iteration --> 0
+run --> 30
+prefix --> SAT
+size --> 80
+[MEASURE 31 of 25]===============================================================
+Model seed is 31
+Removed: 0
+Updated: 0
+Insertions: 63
+UNARY
+Specification found: coverage
+	"coverage"=0.27124891595142886
+incremental.total[ms] --> 53013.225295000004
+incremental.sync[ms] --> 23.254417
+incremental.prop[ms] --> 52773.902649999996
+incremental.result --> 0.27124891595142886
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200142.17665
+problog.trafo[ms] --> 6.925804
+problog.evaluation[ms] --> 1200135.250846
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 31
+prefix --> SAT
+size --> 80
+[MEASURE 32 of 25]===============================================================
+Model seed is 32
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.280280249343444
+incremental.total[ms] --> 164862.275755
+incremental.sync[ms] --> 26.607985
+incremental.prop[ms] --> 164580.59171399998
+incremental.result --> 0.280280249343444
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200180.2263210001
+problog.trafo[ms] --> 14.325107
+problog.evaluation[ms] --> 1200165.901214
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 32
+prefix --> SAT
+size --> 80
+[MEASURE 33 of 25]===============================================================
+Model seed is 33
+Removed: 0
+Updated: 0
+Insertions: 65
+UNARY
+Specification found: coverage
+	"coverage"=0.2130463114224707
+incremental.total[ms] --> 7748.887248
+incremental.sync[ms] --> 34.56841
+incremental.prop[ms] --> 7486.293204
+incremental.result --> 0.2130463114224707
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.213046311422471):
+Debug: 1
+problog.total[ms] --> 995752.6138609999
+problog.trafo[ms] --> 7.689209
+problog.evaluation[ms] --> 995744.924652
+problog.result --> 0.213046311422471
+problog.timeout --> false
+iteration --> 0
+run --> 33
+prefix --> SAT
+size --> 80
+[MEASURE 34 of 25]===============================================================
+Model seed is 34
+Removed: 0
+Updated: 0
+Insertions: 64
+UNARY
+Specification found: coverage
+	"coverage"=0.260241481518403
+incremental.total[ms] --> 28389.12848
+incremental.sync[ms] --> 28.192979
+incremental.prop[ms] --> 28124.411152
+incremental.result --> 0.260241481518403
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200068.101965
+problog.trafo[ms] --> 10.851790999999999
+problog.evaluation[ms] --> 1200057.250174
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 34
+prefix --> SAT
+size --> 80
+[MEASURE 35 of 25]===============================================================
+Model seed is 35
+Removed: 0
+Updated: 0
+Insertions: 65
+UNARY
+Run cancelled with timeout.
+timeout --> true
+Specification found: coverage
+	"coverage"=0.15064122368684085
+incremental.total[ms] --> 1347658.2643829999
+incremental.sync[ms] --> 28.502807
+incremental.prop[ms] --> 1347377.4743589999
+incremental.result --> 0.15064122368684085
+incremental.timeout --> true
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200114.130058
+problog.trafo[ms] --> 7.384716
+problog.evaluation[ms] --> 1200106.745342
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 35
+prefix --> SAT
+size --> 80
+[MEASURE 36 of 25]===============================================================
+Model seed is 36
+Removed: 0
+Updated: 0
+Insertions: 68
+UNARY
+Specification found: coverage
+	"coverage"=0.14324009902631155
+incremental.total[ms] --> 5055.727227
+incremental.sync[ms] --> 31.102591
+incremental.prop[ms] --> 4813.182309999999
+incremental.result --> 0.14324009902631155
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.14324009902631):
+Debug: 1
+problog.total[ms] --> 8905.848861
+problog.trafo[ms] --> 2.369169
+problog.evaluation[ms] --> 8903.479691999999
+problog.result --> 0.14324009902631
+problog.timeout --> false
+iteration --> 0
+run --> 36
+prefix --> SAT
+size --> 80
+[MEASURE 37 of 25]===============================================================
+Model seed is 37
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.3360598225440356
+incremental.total[ms] --> 138006.47881099998
+incremental.sync[ms] --> 6.332207
+incremental.prop[ms] --> 137955.212536
+incremental.result --> 0.3360598225440356
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200723.961097
+problog.trafo[ms] --> 14.379192
+problog.evaluation[ms] --> 1200709.581905
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 37
+prefix --> SAT
+size --> 80
+[MEASURE 38 of 25]===============================================================
+Model seed is 38
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.31771165455445405
+incremental.total[ms] --> 257560.82273500002
+incremental.sync[ms] --> 31.97566
+incremental.prop[ms] --> 257359.356068
+incremental.result --> 0.31771165455445405
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200411.034642
+problog.trafo[ms] --> 13.455154
+problog.evaluation[ms] --> 1200397.579488
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 38
+prefix --> SAT
+size --> 80
+[MEASURE 39 of 25]===============================================================
+Model seed is 39
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.28841744040384065
+incremental.total[ms] --> 142272.623141
+incremental.sync[ms] --> 34.086594
+incremental.prop[ms] --> 142095.790409
+incremental.result --> 0.28841744040384065
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200227.499642
+problog.trafo[ms] --> 9.594006
+problog.evaluation[ms] --> 1200217.905636
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 39
+prefix --> SAT
+size --> 80
+[MEASURE 40 of 25]===============================================================
+Model seed is 40
+Removed: 0
+Updated: 0
+Insertions: 63
+UNARY
+Specification found: coverage
+	"coverage"=0.2517887900333049
+incremental.total[ms] --> 30331.976298
+incremental.sync[ms] --> 19.407696
+incremental.prop[ms] --> 30199.84426
+incremental.result --> 0.2517887900333049
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200167.4417390001
+problog.trafo[ms] --> 3.979993
+problog.evaluation[ms] --> 1200163.461746
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 40
+prefix --> SAT
+size --> 80
+[MEASURE 41 of 25]===============================================================
+Model seed is 41
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.28030747492363184
+incremental.total[ms] --> 49439.793702
+incremental.sync[ms] --> 14.817452999999999
+incremental.prop[ms] --> 49313.168118
+incremental.result --> 0.28030747492363184
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200134.666308
+problog.trafo[ms] --> 8.184718
+problog.evaluation[ms] --> 1200126.48159
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 41
+prefix --> SAT
+size --> 80
+[MEASURE 42 of 25]===============================================================
+Model seed is 42
+Removed: 0
+Updated: 0
+Insertions: 66
+UNARY
+Specification found: coverage
+	"coverage"=0.18770903891185708
+incremental.total[ms] --> 11220.575508
+incremental.sync[ms] --> 27.640769
+incremental.prop[ms] --> 10942.574577
+incremental.result --> 0.18770903891185708
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.187709038911859):
+Debug: 1
+problog.total[ms] --> 176026.012623
+problog.trafo[ms] --> 7.484088
+problog.evaluation[ms] --> 176018.528535
+problog.result --> 0.187709038911859
+problog.timeout --> false
+iteration --> 0
+run --> 42
+prefix --> SAT
+size --> 80
+[MEASURE 43 of 25]===============================================================
+Model seed is 43
+Removed: 0
+Updated: 0
+Insertions: 65
+UNARY
+Specification found: coverage
+	"coverage"=0.23099007311669797
+incremental.total[ms] --> 40467.708995
+incremental.sync[ms] --> 30.973373
+incremental.prop[ms] --> 40184.443372
+incremental.result --> 0.23099007311669797
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200109.051311
+problog.trafo[ms] --> 9.998834
+problog.evaluation[ms] --> 1200099.052477
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 43
+prefix --> SAT
+size --> 80
+[MEASURE 44 of 25]===============================================================
+Model seed is 44
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.3176236081294995
+incremental.total[ms] --> 63257.266678
+incremental.sync[ms] --> 31.545883999999997
+incremental.prop[ms] --> 62971.399943000004
+incremental.result --> 0.3176236081294995
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200391.378761
+problog.trafo[ms] --> 3.678359
+problog.evaluation[ms] --> 1200387.700402
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 44
+prefix --> SAT
+size --> 80
+[MEASURE 45 of 25]===============================================================
+Model seed is 45
+Removed: 0
+Updated: 0
+Insertions: 65
+UNARY
+Specification found: coverage
+	"coverage"=0.26150649316531743
+incremental.total[ms] --> 25540.060649
+incremental.sync[ms] --> 19.139991000000002
+incremental.prop[ms] --> 25292.074397
+incremental.result --> 0.26150649316531743
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200104.8094869999
+problog.trafo[ms] --> 9.266489
+problog.evaluation[ms] --> 1200095.5429979998
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 45
+prefix --> SAT
+size --> 80
+[MEASURE 46 of 25]===============================================================
+Model seed is 46
+Removed: 0
+Updated: 0
+Insertions: 64
+UNARY
+Specification found: coverage
+	"coverage"=0.2334310952828436
+incremental.total[ms] --> 9984.622269
+incremental.sync[ms] --> 24.72507
+incremental.prop[ms] --> 9760.877571
+incremental.result --> 0.2334310952828436
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200098.944286
+problog.trafo[ms] --> 7.729942
+problog.evaluation[ms] --> 1200091.2143440002
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 46
+prefix --> SAT
+size --> 80
+[MEASURE 47 of 25]===============================================================
+Model seed is 47
+Removed: 0
+Updated: 0
+Insertions: 68
+UNARY
+Specification found: coverage
+	"coverage"=0.1876239186609703
+incremental.total[ms] --> 31329.905361
+incremental.sync[ms] --> 31.124379
+incremental.prop[ms] --> 31056.785009
+incremental.result --> 0.1876239186609703
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.187623918660972):
+Debug: 1
+problog.total[ms] --> 172208.212819
+problog.trafo[ms] --> 6.612304
+problog.evaluation[ms] --> 172201.600515
+problog.result --> 0.187623918660972
+problog.timeout --> false
+iteration --> 0
+run --> 47
+prefix --> SAT
+size --> 80
+[MEASURE 48 of 25]===============================================================
+Model seed is 48
+Removed: 0
+Updated: 0
+Insertions: 62
+UNARY
+Specification found: coverage
+	"coverage"=0.2808819497879301
+incremental.total[ms] --> 140015.748072
+incremental.sync[ms] --> 29.849865
+incremental.prop[ms] --> 139744.211188
+incremental.result --> 0.2808819497879301
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200112.517125
+problog.trafo[ms] --> 7.9937309999999995
+problog.evaluation[ms] --> 1200104.523394
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 48
+prefix --> SAT
+size --> 80
+[MEASURE 49 of 25]===============================================================
+Model seed is 49
+Removed: 0
+Updated: 0
+Insertions: 65
+UNARY
+Specification found: coverage
+	"coverage"=0.2467015829634757
+incremental.total[ms] --> 215429.75062099998
+incremental.sync[ms] --> 28.17124
+incremental.prop[ms] --> 215158.165357
+incremental.result --> 0.2467015829634757
+incremental.timeout --> false
+Finally block executed.
+Run cancelled with timeout.
+problog.total[ms] --> 1200119.37694
+problog.trafo[ms] --> 15.588548000000001
+problog.evaluation[ms] --> 1200103.788392
+problog.result --> 0
+problog.timeout --> true
+iteration --> 0
+run --> 49
+prefix --> SAT
+size --> 80
+[MEASURE 50 of 25]===============================================================
+Model seed is 50
+Removed: 0
+Updated: 0
+Insertions: 67
+UNARY
+Specification found: coverage
+	"coverage"=0.20860826446025754
+incremental.total[ms] --> 205566.121921
+incremental.sync[ms] --> 38.856853
+incremental.prop[ms] --> 205271.071832
+incremental.result --> 0.20860826446025754
+incremental.timeout --> false
+Finally block executed.
+Debug: expected(0.208608264460257):
+Debug: 1
+problog.total[ms] --> 997270.4883760001
+problog.trafo[ms] --> 11.580083
+problog.evaluation[ms] --> 997258.908293
+problog.result --> 0.208608264460257
+problog.timeout --> false
+iteration --> 0
+run --> 50
+prefix --> SAT
+size --> 80
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout
+SAT,80,26,0,42095.450786,0.21204488683834385,17.376948,41976.82369,false,,,,,,984508.6650700001,0.212044886838345,6.253328000000001,984502.411742,false
+SAT,80,27,0,9796.297045,0.25655902639483097,23.109542,9667.952484,false,,,,,,1200096.9206700001,0,2.9116709999999997,1200094.008999,true
+SAT,80,28,0,16396.480062000002,0.23372908764517955,10.832163000000001,16277.033659,false,,,,,,1200119.499477,0,1.752675,1200117.746802,true
+SAT,80,29,0,32001.434619,0.2734736243444922,20.250095,31797.117564,false,,,,,,1200121.798957,0,8.490197,1200113.30876,true
+SAT,80,30,0,6951.047673,0.16287814845683288,20.030092,6754.766279,false,,,,,,36966.458793,0.162878148456835,11.559081,36954.899712,false
+SAT,80,31,0,53013.225295000004,0.27124891595142886,23.254417,52773.902649999996,false,,,,,,1200142.17665,0,6.925804,1200135.250846,true
+SAT,80,32,0,164862.275755,0.280280249343444,26.607985,164580.59171399998,false,,,,,,1200180.2263210001,0,14.325107,1200165.901214,true
+SAT,80,33,0,7748.887248,0.2130463114224707,34.56841,7486.293204,false,,,,,,995752.6138609999,0.213046311422471,7.689209,995744.924652,false
+SAT,80,34,0,28389.12848,0.260241481518403,28.192979,28124.411152,false,,,,,,1200068.101965,0,10.851790999999999,1200057.250174,true
+SAT,80,35,0,1347658.2643829999,0.15064122368684085,28.502807,1347377.4743589999,true,,,,,,1200114.130058,0,7.384716,1200106.745342,true
+SAT,80,36,0,5055.727227,0.14324009902631155,31.102591,4813.182309999999,false,,,,,,8905.848861,0.14324009902631,2.369169,8903.479691999999,false
+SAT,80,37,0,138006.47881099998,0.3360598225440356,6.332207,137955.212536,false,,,,,,1200723.961097,0,14.379192,1200709.581905,true
+SAT,80,38,0,257560.82273500002,0.31771165455445405,31.97566,257359.356068,false,,,,,,1200411.034642,0,13.455154,1200397.579488,true
+SAT,80,39,0,142272.623141,0.28841744040384065,34.086594,142095.790409,false,,,,,,1200227.499642,0,9.594006,1200217.905636,true
+SAT,80,40,0,30331.976298,0.2517887900333049,19.407696,30199.84426,false,,,,,,1200167.4417390001,0,3.979993,1200163.461746,true
+SAT,80,41,0,49439.793702,0.28030747492363184,14.817452999999999,49313.168118,false,,,,,,1200134.666308,0,8.184718,1200126.48159,true
+SAT,80,42,0,11220.575508,0.18770903891185708,27.640769,10942.574577,false,,,,,,176026.012623,0.187709038911859,7.484088,176018.528535,false
+SAT,80,43,0,40467.708995,0.23099007311669797,30.973373,40184.443372,false,,,,,,1200109.051311,0,9.998834,1200099.052477,true
+SAT,80,44,0,63257.266678,0.3176236081294995,31.545883999999997,62971.399943000004,false,,,,,,1200391.378761,0,3.678359,1200387.700402,true
+SAT,80,45,0,25540.060649,0.26150649316531743,19.139991000000002,25292.074397,false,,,,,,1200104.8094869999,0,9.266489,1200095.5429979998,true
+SAT,80,46,0,9984.622269,0.2334310952828436,24.72507,9760.877571,false,,,,,,1200098.944286,0,7.729942,1200091.2143440002,true
+SAT,80,47,0,31329.905361,0.1876239186609703,31.124379,31056.785009,false,,,,,,172208.212819,0.187623918660972,6.612304,172201.600515,false
+SAT,80,48,0,140015.748072,0.2808819497879301,29.849865,139744.211188,false,,,,,,1200112.517125,0,7.9937309999999995,1200104.523394,true
+SAT,80,49,0,215429.75062099998,0.2467015829634757,28.17124,215158.165357,false,,,,,,1200119.37694,0,15.588548000000001,1200103.788392,true
+SAT,80,50,0,205566.121921,0.20860826446025754,38.856853,205271.071832,false,,,,,,997270.4883760001,0.208608264460257,11.580083,997258.908293,false

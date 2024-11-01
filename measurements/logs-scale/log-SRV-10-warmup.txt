@@ -1,0 +1,1240 @@
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout
+SRV,10,0,0,149.525014,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",31.636819,45.869921999999995,false,,,,,,157.088155,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",6.5236719999999995,150.564483,false
+SRV,10,1,0,110.648,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	}
+	]
+}
+",9.6691,25.149416000000002,false,,,,,,152.227633,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",2.710032,149.51760099999998,false
+SRV,10,2,0,40.629188,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	}
+	]
+}
+",5.363783000000001,7.382026,false,,,,,,151.24281299999998,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		}
+	]
+}
+",2.046736,149.196077,false
+SRV,10,3,0,38.298819,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	}
+	]
+}
+",4.398165,6.6459790000000005,false,,,,,,151.063593,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		}
+	]
+}
+",1.6151739999999999,149.448419,false
+SRV,10,4,0,31.359312999999997,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.938192,5.493153,false,,,,,,152.86589600000002,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.768954,151.096942,false
+SRV,10,5,0,32.766848,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.623155,5.295634,false,,,,,,154.598991,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		}
+	]
+}
+",1.7272370000000001,152.87175399999998,false
+SRV,10,6,0,35.407773999999996,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	}
+	]
+}
+",3.503596,8.304765,false,,,,,,150.774949,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		}
+	]
+}
+",1.5291510000000001,149.245798,false
+SRV,10,7,0,28.046919000000003,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	}
+	]
+}
+",3.486774,5.254469,false,,,,,,215.37503,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		}
+	]
+}
+",1.53689,213.83814,false
+SRV,10,8,0,23.530034,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.342514,3.875748,false,,,,,,151.455113,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		}
+	]
+}
+",1.613296,149.84181700000002,false
+SRV,10,9,0,24.795109,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.1322620000000003,4.9113549999999995,false,,,,,,158.167239,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.1852989999999999,156.98194,false
+SRV,10,10,0,22.069444999999998,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",2.9025459999999996,3.960233,false,,,,,,148.31777,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.5508309999999998,146.766939,false
+SRV,10,11,0,21.74898,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	}
+	]
+}
+",3.6575189999999997,3.354683,false,,,,,,151.256524,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.2521010000000001,150.004423,false
+SRV,10,12,0,21.635006,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.542377,3.6712919999999998,false,,,,,,152.257248,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		}
+	]
+}
+",1.088567,151.16868100000002,false
+SRV,10,13,0,21.002899000000003,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",2.847482,3.772881,false,,,,,,152.26784700000002,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		}
+	]
+}
+",1.507535,150.760312,false
+SRV,10,14,0,20.174917,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.601476,3.199974,false,,,,,,151.48032,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		}
+	]
+}
+",1.438749,150.041571,false
+SRV,10,15,0,21.809788,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",2.921185,3.401492,false,,,,,,149.731813,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.382202,148.349611,false
+SRV,10,16,0,17.999949,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	}
+	]
+}
+",2.911149,2.730524,false,,,,,,150.666881,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		}
+	]
+}
+",1.342603,149.324278,false
+SRV,10,17,0,17.949702000000002,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",2.5389369999999998,2.826275,false,,,,,,169.757668,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.335911,168.421757,false
+SRV,10,18,0,19.060936,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",3.14362,2.9570459999999996,false,,,,,,151.29363800000002,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		}
+	]
+}
+",1.309559,149.984079,false
+SRV,10,19,0,20.989126,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	}
+	]
+}
+",2.81404,3.154494,false,,,,,,154.709483,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+",1.438394,153.27108900000002,false
+SRV,10,20,0,28.41689,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+",6.388571,3.548923,false,,,,,,152.014676,"{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		}
+	]
+}
+",1.2852190000000001,150.729457,false

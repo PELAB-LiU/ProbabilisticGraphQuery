@@ -1,14 +1,16 @@
 #!/bin/bash
 
-PGQ_JAR=pgq-scale.jar
-LOGDIR=../logs-scale/
+PGQ_JAR=pgq.jar
+LOGDIR=logs-scale/
+
+cd "$(dirname "$0")"
 
 #################
 ### SATELLITE ###
 #################
 
 CASE=SAT
-VQL=reliability.vql
+VQL=satellite.vql
 
 SIZE=20
 STDOUT=std-sat-$SIZE.txt
@@ -51,23 +53,9 @@ java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \
 	--iterations 0 \
 	--logto System.out $LOGDIR$()log-$CASE-$SIZE-run.txt \
 	--warmuplogto System.out $LOGDIR$()log-$CASE-$SIZE-warmup.txt | tee $LOGDIR$()$STDOUT
-	
-SIZE=80
-STDOUT=std-sat-$SIZE-a.txt
-java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -Xss128m -jar $PGQ_JAR \
-	--case $CASE \
-	--vql $VQL\
-	--size $SIZE \
-	--seed 0..25 \
-	--prefix $CASE \
-	--warmups 0..5 \
-	--gctime 20 \
-	--iterations 0 \
-	--logto System.out $LOGDIR$()log-$CASE-$SIZE-run-a.txt \
-	--warmuplogto System.out $LOGDIR$()log-$CASE-$SIZE-warmup-a.txt |& tee $LOGDIR$()$STDOUT
 
 SIZE=80
-STDOUT=std-sat-$SIZE-b.txt
+STDOUT=std-sat-$SIZE.txt
 java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -Xss128m -jar $PGQ_JAR \
 	--case $CASE \
 	--vql $VQL\
@@ -77,8 +65,8 @@ java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -Xss128m -jar $PGQ_
 	--warmups 0..5 \
 	--gctime 20 \
 	--iterations 0 \
-	--logto System.out $LOGDIR$()log-$CASE-$SIZE-run-b.txt \
-	--warmuplogto System.out $LOGDIR$()log-$CASE-$SIZE-warmup-b.txt |& tee $LOGDIR$()$STDOUT
+	--logto System.out $LOGDIR$()log-$CASE-$SIZE-run.txt \
+	--warmuplogto System.out $LOGDIR$()log-$CASE-$SIZE-warmup.txt |& tee $LOGDIR$()$STDOUT
 
 ####################
 ### SURVEILLANCE ###
