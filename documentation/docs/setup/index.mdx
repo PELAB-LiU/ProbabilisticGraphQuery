@@ -1,0 +1,75 @@
+---
+sidebar_position: 2
+---
+# Setup
+
+We provide a docker container capable of building and running our measurement campaign.
+The container also functions as a Remote Desktop Server (RDP) with preconfigured development envioronments to inspet and edit the source code.
+
+## Install docker
+* Install docker engine following the [official guide](https://docs.docker.com/engine/install/).
+    * Ensure that you can run docker as a non-root user. See [post-installation guide](https://docs.docker.com/engine/install/linux-postinstall/).
+* Install a Remote Desktop Client
+    * Windows: [Microsoft Remote Desktop](https://apps.microsoft.com/detail/9wzdncrfj3ps)
+    * Ubuntu: [Remmina](https://remmina.org/how-to-install-remmina/)
+
+## Build docker image
+
+Change directory to the repository. Expected location is `.../ProbabilisticGraphQuery$`
+
+Build your own docker image with the following command:
+```
+docker build -t pgq-devenv devenv/dockerfile
+```
+:::tip[Note]
+Downloading eclipse takes a lot of time. Be patient, or download the eclipse instance manually and replace `RUN wget 'https://www.eclipse.org/downloads ...` with `COPY <your file> eclipse.tar.gz`
+:::
+
+Alternatively, import the image using the following command:
+```
+docker image load -i <my image file>
+``` 
+
+
+## Create container
+
+Create container with the following command
+```
+docker run -d -u root \
+  --name=pgq-devenv \
+  --security-opt seccomp=unconfined \
+  -p 4100:3389 \
+  --shm-size="1gb" \
+  -v $(pwd):/config/ProbabilisticGraphQuery \
+  pgq-devenv
+```
+
+(Delayed) You can stop the container with:
+```
+docker container stop pgq-devenv
+```
+(Delayed) You can restart the container with:
+```
+docker container start pgq-devenv
+```
+:::tip[Note]
+If you use `docker exec`, don't forget to set the user to `abc`.
+```
+docker exec -u abc -it -w /config pgq-devenv /bin/bash
+```
+:::
+
+## Configuring container
+
+* Connect to the running container from an RDP client (address: `localhost:4100`, username: `abc`, password: `abc`)
+* Donload jar dependencies.
+  * `/config/ProbabilisticGraphQuery/sources/hu.bme.mit.delta.api/libs/download.sh`
+  * `/config/ProbabilisticGraphQuery/sources/hu.bme.mit.inf.measurement.utilities/libs/download.sh`
+* Launch Eclipse from `Applications -> Development -> Modeling 2024-03`
+* Pick a workplace. (Any directory works, but we recommend picking `/config/ProbabilisticGraphQuery/devenv/workplace`)
+* Import all projects from  `/config/ProbabilisticGraphQuery/sources` (`File -> Import -> General -> Existing Projects into Workspace -> Next -> Select root directory -> /config/ProbabilisticGraphQuery/sources -> Projects -> Select All -> Finish`)
+* Change missing API baseline preferences for `org.eclipse.viatra.query.runtime.rete` to `Warning` or `Ignore`. (`Window -> Preferences -> Plug-in Development -> API Baselines -> Missing API baseline -> Ignore`)
+* Import launch configurations from `/config/ProbabilisticGraphQuery/devenv/launch_configs` (`File -> Import -> Run/Debug -> Launch Configurations -> Next -> From Directory -> /config/ProbabilisticGraphQuery/devenv/launch_configs -> tick launch_configs -> Finish`)
+
+## Using the container
+* Export runnable jar for measurements: `File -> Export -> Java -> Runnable JAR file -> Next -> Launch configuration (select any, e.g., SAT - Scale - hu.bme.mit.inf.measurement) -> Export destination: /config/ProbabilisticGraphQuery/measurements/pgq.jar -> select Extract required libraries into generated JAR -> Finish -> (Ignore warnings)` 
