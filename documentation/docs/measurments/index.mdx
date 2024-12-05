@@ -1,4 +1,42 @@
 ---
 sidebar_position: 3
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {os2} from '@site/src/helpers/os.ts';
+
 # Measurement campaign
+
+## Collecting performance data
+Connect to a bash shell in the running container.
+``` bash
+docker exec -u abc -it -w /config/ProbabilisticGraphQuery/measurements pgq-devenv /bin/bash
+```
+The following coomand executes the *incremental* measurement campaign.
+``` bash
+./measure.sh
+```
+The following coomand executes the measurement campaign for *scaling*.
+``` bash
+./measure-scale.sh
+```
+:::tip[Note]
+Running the measurements may take days. Ensure that the campagin is not interrupted.
+:::
+## Processing the data
+
+<Tabs groupId="data" defaultValue="cmd">
+    <TabItem value="cmd" label="Terminal">
+    Run the following commands to gnereate the diagrams.
+     ```bash
+    docker exec -u abc -it -w /config/ProbabilisticGraphQuery/measurements pgq-devenv jupyter execute diagrams-scale.ipynb
+    docker exec -u abc -it -w /config/ProbabilisticGraphQuery/measurements pgq-devenv jupyter execute diagrams.ipynb
+    ```
+    </TabItem>
+    <TabItem value="gui" label="GUI">
+        Connect to the container via RDP as before.
+        * Stat a jupyter notebook from `Applications -> Development -> Jupyter Notebook`
+        * Open the notebooks from `ProbabilisticGraphQuery -> measurements -> diagrams[-scale].ipynb`
+        * Run notebook. `Run -> Run All Cells`
+    </TabItem>
+</Tabs>

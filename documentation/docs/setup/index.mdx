@@ -1,6 +1,11 @@
 ---
 sidebar_position: 2
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import {os2} from '@site/src/helpers/os.ts';
+import BrowserOnly from '@docusaurus/BrowserOnly';
+
 # Setup
 
 We provide a docker container capable of building and running our measurement campaign.
@@ -33,16 +38,31 @@ docker image load -i <my image file>
 
 ## Create container
 
-Create container with the following command
-```
-docker run -d -u root \
-  --name=pgq-devenv \
-  --security-opt seccomp=unconfined \
-  -p 4100:3389 \
-  --shm-size="1gb" \
-  -v $(pwd):/config/ProbabilisticGraphQuery \
-  pgq-devenv
-```
+Create container with the following command.
+<Tabs groupId="data">
+    <TabItem value="posix" label="Linux">
+    ```
+    docker run -d -u root \
+      --name=pgq-devenv \
+      --security-opt seccomp=unconfined \
+      -p 4100:3389 \
+      --shm-size="1gb" \
+      -v $(pwd):/config/ProbabilisticGraphQuery \
+      pgq-devenv
+    ```
+    </TabItem>
+    <TabItem value="win" label="Windows">
+    ```
+    docker run -d -u root ^
+      --name=pgq-devenv ^
+      --security-opt seccomp=unconfined ^
+      -p 4100:3389 ^
+      --shm-size="1gb" ^
+      -v $(pwd):/config/ProbabilisticGraphQuery ^
+      pgq-devenv
+    ```
+    </TabItem>
+</Tabs>
 
 (Delayed) You can stop the container with:
 ```
