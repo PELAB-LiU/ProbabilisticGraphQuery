@@ -10,17 +10,17 @@ const config: Config = {
   favicon: 'img/pelab-logo.png',
 
   // Set the production url of your site here
-  url: 'https://PELAB-LiU.github.io/',
+  url: 'https://pelab-liu.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
-
+  baseUrl: '/ProbabilisticGraphQuery/',
+  trailingSlash: false,
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'PELAB-LiU.github.io', // Usually your GitHub org/user name.
+  organizationName: 'pelab-liu.github.io', // Usually your GitHub org/user name.
   projectName: 'ProbabilisticGraphQuery', // Usually your repo name.
-  deploymentBranch: 'gh-pages',
-  trailingSlash: false,
+  //deploymentBranch: 'main',
+  //trailingSlash: false,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
