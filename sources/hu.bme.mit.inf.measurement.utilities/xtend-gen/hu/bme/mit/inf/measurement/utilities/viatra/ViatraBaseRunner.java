@@ -6,21 +6,16 @@ import hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.viatra.query.patternlanguage.emf.EMFPatternLanguageStandaloneSetup;
 import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder;
 import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults;
 import org.eclipse.viatra.query.runtime.api.IPatternMatch;
 import org.eclipse.viatra.query.runtime.api.IQuerySpecification;
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine;
 import org.eclipse.viatra.query.runtime.api.ViatraQueryEngineOptions;
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
-import org.eclipse.viatra.query.runtime.emf.EMFScope;
 import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory;
 import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory;
 import org.eclipse.xtend2.lib.StringConcatenation;
@@ -30,7 +25,6 @@ import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IntegerRange;
-import reliability.mdd.MddModel;
 
 @SuppressWarnings("all")
 public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
@@ -38,60 +32,22 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 
   protected final StochasticPatternGenerator generator;
 
-  protected final PatternParsingResults parsed;
+  protected final String transformed;
 
-  protected SuspendedQueryEngine incremental;
+  protected EngineConfig batch;
 
-  protected final MddModel incrementalMDD;
+  protected EngineConfig incremental;
 
-  protected final ResourceSet incrementalResourceSet;
+  protected Resource model;
 
-  protected final Resource incrementalDomainResource;
-
-  protected SuspendedQueryEngine standalone;
-
-  protected final MddModel standaloneMDD;
-
-  protected final ResourceSet standaloneResourceSet;
-
-  public void initStandalone() {
-    try {
-      MddModel.changeTo("standalone");
-      this.standaloneMDD.resetModel();
-      this.standaloneResourceSet.getResources().clear();
-      final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function = (IQuerySpecification<? extends ViatraQueryMatcher> specification) -> {
-        this.standaloneMDD.registerSpecificationIfNeeded(specification);
-      };
-      this.parsed.getQuerySpecifications().forEach(_function);
-      final Resource traceRes = this.standaloneResourceSet.createResource(URI.createFileURI("trace-tmp-std.xmi"));
-      traceRes.getContents().add(this.standaloneMDD.getTraceModel());
-      EMFScope _eMFScope = new EMFScope(this.standaloneResourceSet);
-      this.standalone = SuspendedQueryEngine.create(_eMFScope);
-      this.standaloneMDD.initializePatterns(this.standalone);
-      this.standalone.enableAndPropagate();
-      this.standalone.suspend();
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
+  public void initBatch() {
+    EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone");
+    this.batch = _engineConfig;
   }
 
   public void initIncremental() {
-    try {
-      MddModel.changeTo("incremental");
-      this.incrementalMDD.resetModel();
-      this.incrementalDomainResource.getContents().clear();
-      this.incrementalMDD.invalidateCache();
-      final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function = (IQuerySpecification<? extends ViatraQueryMatcher> specification) -> {
-        this.incrementalMDD.registerSpecificationIfNeeded(specification);
-      };
-      this.parsed.getQuerySpecifications().forEach(_function);
-      EMFScope _eMFScope = new EMFScope(this.incrementalResourceSet);
-      this.incremental = SuspendedQueryEngine.create(_eMFScope);
-      this.incrementalMDD.initializePatterns(this.incremental);
-      this.incremental.suspend();
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
+    EngineConfig _engineConfig = new EngineConfig(this.transformed, "incremental");
+    this.incremental = _engineConfig;
   }
 
   /**
@@ -109,27 +65,7 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
     ViatraQueryEngineOptions.setSystemDefaultBackends(ReteBackendFactory.INSTANCE, ReteBackendFactory.INSTANCE, 
       LocalSearchEMFBackendFactory.INSTANCE);
     EPackage.Registry.INSTANCE.put(domain.getNsURI(), domain);
-    final String transformed = this.generator.transformPatternFile(cfg.vql());
-    this.parsed = this.parseQueries(transformed);
-    boolean _hasError = this.parsed.hasError();
-    if (_hasError) {
-      final Consumer<Issue> _function = (Issue it) -> {
-        StringConcatenation _builder = new StringConcatenation();
-        _builder.append("Parse error: ");
-        _builder.append(it);
-        InputOutput.<String>println(_builder.toString());
-      };
-      this.parsed.getErrors().forEach(_function);
-    }
-    this.incrementalMDD = MddModel.getInstanceOf("incremental");
-    ResourceSetImpl _resourceSetImpl = new ResourceSetImpl();
-    this.incrementalResourceSet = _resourceSetImpl;
-    final Resource traceRes = this.incrementalResourceSet.createResource(URI.createFileURI("trace-tmp-inc.xmi"));
-    traceRes.getContents().add(this.incrementalMDD.getTraceModel());
-    this.incrementalDomainResource = this.incrementalResourceSet.createResource(URI.createFileURI("tmp-domain-model.xmi"));
-    this.standaloneMDD = MddModel.getInstanceOf("standalone");
-    ResourceSetImpl _resourceSetImpl_1 = new ResourceSetImpl();
-    this.standaloneResourceSet = _resourceSetImpl_1;
+    this.transformed = this.generator.transformPatternFile(cfg.vql());
   }
 
   public void gc() {
@@ -175,37 +111,20 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
         _builder.append("]===============================================================");
         InputOutput.<String>println(_builder.toString());
         this.initIncremental();
-        this.preRun((i).intValue());
-        this.gc();
-        this.initStandalone();
-        MddModel.changeTo("standalone");
-        this.runStandalone(log);
-        this.standalone.dispose();
-        this.gc();
-        MddModel.changeTo("incremental");
-        this.runIncremental(log);
-        this.incremental.suspend();
-        this.gc();
-        this.runProblog(log);
-        log.log("iteration", Integer.valueOf(0));
-        log.log("run", i);
-        log.log("prefix", this.cfg.getPrefix());
-        log.log("size", Integer.valueOf(this.cfg.getSize()));
-        log.commit();
+        this.setupInitialModel((i).intValue());
         int _iterations = this.cfg.getIterations();
-        IntegerRange _upTo = new IntegerRange(1, _iterations);
+        IntegerRange _upTo = new IntegerRange(0, _iterations);
         for (final Integer iter : _upTo) {
           {
-            this.applyIncrement();
             this.gc();
-            this.initStandalone();
-            MddModel.changeTo("standalone");
-            this.runStandalone(log);
-            this.standalone.dispose();
-            this.gc();
-            MddModel.changeTo("incremental");
+            this.incremental.acquire();
             this.runIncremental(log);
             this.incremental.suspend();
+            this.gc();
+            this.initBatch();
+            this.batch.acquire();
+            this.runBatch(log);
+            this.batch.dispose();
             this.gc();
             this.runProblog(log);
             log.log("iteration", iter);
@@ -213,6 +132,7 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
             log.log("prefix", this.cfg.getPrefix());
             log.log("size", Integer.valueOf(this.cfg.getSize()));
             log.commit();
+            this.applyIncrement();
           }
         }
         this.incremental.dispose();
@@ -233,44 +153,26 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
         _builder.append("]===============================================================");
         InputOutput.<String>println(_builder.toString());
         this.initIncremental();
-        this.preRun((seed).intValue());
-        this.gc();
-        this.initStandalone();
-        MddModel.changeTo("standalone");
-        this.runStandalone(log);
-        this.standalone.dispose();
-        this.gc();
-        MddModel.changeTo("incremental");
-        this.runIncremental(log);
-        this.incremental.suspend();
-        this.gc();
-        this.runProblog(log);
-        log.log("iteration", Integer.valueOf(0));
-        log.log("run", seed);
-        log.log("prefix", this.cfg.getPrefix());
-        log.log("size", Integer.valueOf(this.cfg.getSize()));
-        log.commit();
+        this.setupInitialModel((seed).intValue());
         int _iterations = this.cfg.getIterations();
-        IntegerRange _upTo = new IntegerRange(1, _iterations);
+        IntegerRange _upTo = new IntegerRange(0, _iterations);
         for (final Integer iter : _upTo) {
           {
-            this.applyIncrement();
             this.gc();
-            this.initStandalone();
-            MddModel.changeTo("standalone");
-            this.runStandalone(log);
-            this.standalone.dispose();
+            this.initBatch();
+            this.batch.acquire();
+            this.runBatch(log);
+            this.batch.dispose();
             this.gc();
-            MddModel.changeTo("incremental");
+            this.incremental.acquire();
             this.runIncremental(log);
             this.incremental.suspend();
-            this.gc();
-            this.runProblog(log);
             log.log("iteration", iter);
             log.log("prefix", this.cfg.getPrefix());
             log.log("run", seed);
             log.log("size", Integer.valueOf(this.cfg.getSize()));
             log.commit();
+            this.applyIncrement();
           }
         }
         this.incremental.dispose();
@@ -278,11 +180,11 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
     }
   }
 
-  public abstract void preRun(final int seed);
+  public abstract void setupInitialModel(final int seed);
 
   public abstract void runIncremental(final CSVLog log);
 
-  public abstract void runStandalone(final CSVLog log);
+  public abstract void runBatch(final CSVLog log);
 
   public abstract void applyIncrement();
 
@@ -305,41 +207,41 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
     return result;
   }
 
-  public int countBasicEvents(final PatternParsingResults parsed, final ViatraQueryEngine engine) {
+  public int countBasicEvents(final EngineConfig engine) {
     final int[] cnt = new int[2];
     final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
-      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
+      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getEngine().getMatcher(specification);
       cnt[0] = matcher.countMatches();
     };
-    parsed.getQuerySpecification("BERequiredName1").ifPresent(_function);
+    engine.getParsed().getQuerySpecification("BERequiredName1").ifPresent(_function);
     final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function_1 = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
-      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
+      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getEngine().getMatcher(specification);
       cnt[1] = matcher.countMatches();
     };
-    parsed.getQuerySpecification("BERequiredName2").ifPresent(_function_1);
+    engine.getParsed().getQuerySpecification("BERequiredName2").ifPresent(_function_1);
     int _get = cnt[0];
     int _get_1 = cnt[1];
     return (_get + _get_1);
   }
 
-  public int countStochasticPatterns(final PatternParsingResults parsed, final ViatraQueryEngine engine) {
+  public int countStochasticPatterns(final EngineConfig engine) {
     final int[] cnt = new int[1];
     final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
-      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
+      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getEngine().getMatcher(specification);
       final Consumer<IPatternMatch> _function_1 = (IPatternMatch match) -> {
         Object _get = match.get(0);
         cnt[0] = (((Integer) _get)).intValue();
       };
       matcher.getOneArbitraryMatch().ifPresent(_function_1);
     };
-    parsed.getQuerySpecification("stochasticCount").ifPresent(_function);
+    engine.getParsed().getQuerySpecification("stochasticCount").ifPresent(_function);
     return cnt[0];
   }
 
-  public double checkMatches(final String name, final PatternParsingResults parsed, final ViatraQueryEngine engine) {
+  public double checkMatches(final String name, final EngineConfig engine) {
     final double[] cnt = new double[1];
     final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
-      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
+      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getEngine().getMatcher(specification);
       String _simpleName = specification.getSimpleName();
       String _plus = ("Specification found: " + _simpleName);
       InputOutput.<String>println(_plus);
@@ -355,13 +257,13 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
       };
       matcher.getOneArbitraryMatch().ifPresent(_function_2);
     };
-    parsed.getQuerySpecification(name).ifPresent(_function);
+    engine.getParsed().getQuerySpecification(name).ifPresent(_function);
     return cnt[0];
   }
 
-  public void printMatches(final String name, final PatternParsingResults parsed, final ViatraQueryEngine engine) {
+  public void printMatches(final String name, final EngineConfig engine) {
     final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
-      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
+      final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getEngine().getMatcher(specification);
       String _simpleName = specification.getSimpleName();
       String _plus = ("Specification found: " + _simpleName);
       InputOutput.<String>println(_plus);
@@ -372,15 +274,15 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
       };
       matcher.forEachMatch(_function_1);
     };
-    parsed.getQuerySpecification(name).ifPresent(_function);
+    engine.getParsed().getQuerySpecification(name).ifPresent(_function);
   }
 
-  public void initializePatterns(final ViatraQueryEngine engine, final String... queries) {
+  public void initializePatterns(final EngineConfig engine, final String... queries) {
     final Consumer<String> _function = (String name) -> {
       final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function_1 = (IQuerySpecification<? extends ViatraQueryMatcher> specification) -> {
-        final int cnt = engine.getMatcher(specification).countMatches();
+        final int cnt = engine.getEngine().getMatcher(specification).countMatches();
       };
-      this.parsed.getQuerySpecification(name).ifPresent(_function_1);
+      engine.getParsed().getQuerySpecification(name).ifPresent(_function_1);
     };
     ((List<String>)Conversions.doWrapArray(queries)).forEach(_function);
   }

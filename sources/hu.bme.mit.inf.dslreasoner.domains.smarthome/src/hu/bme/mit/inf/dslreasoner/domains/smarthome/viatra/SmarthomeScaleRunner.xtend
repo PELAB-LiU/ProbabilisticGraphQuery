@@ -153,7 +153,6 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 				"matches" : [
 				«FOR match : engine.getMatcher(matcher).allMatches SEPARATOR ","»
 					{
-						"home" : "«index.get(match.get(0))»",
 						"measurement" : "«index.get(match.get(1))»",
 						"probability" : «match.get(2)»
 					}

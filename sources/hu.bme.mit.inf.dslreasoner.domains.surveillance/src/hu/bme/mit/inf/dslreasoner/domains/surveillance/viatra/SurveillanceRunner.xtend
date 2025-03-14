@@ -26,30 +26,56 @@ import org.eclipse.emf.ecore.util.EcoreUtil.Copier
 import org.eclipse.emf.ecore.EObject
 import java.util.concurrent.atomic.AtomicBoolean
 import java.lang.ProcessBuilder.Redirect
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.debug.DebugUtil
+import org.eclipse.xtext.xbase.lib.Functions.Function0
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceCopier
+import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig
 
 class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 	val modelgen = new SurveillanceModelGenerator
 	var SurveillanceWrapper instance
 	
 	new(SurveillanceConfiguration cfg) {
+		/*super((new Function0<SurveillanceConfiguration>{
+			
+			override apply() {
+				cfg.CSVcolumns.addAll(#["standalone.matches","incremental.matches","standalone.dst","standalone.prob","incremental.dst","incremental.prob"])
+				return cfg
+			}
+			
+			}).apply(), SurveillancePackage.eINSTANCE)*/
 		super(cfg, SurveillancePackage.eINSTANCE)
 	}
 	
-	override initStandalone(){
-		super.initStandalone
-		initializePatterns(standalone, "elimination")
+	override setupInitialModel(int seed){
+		instance = modelgen.make(cfg.size, seed)
+		incremental.model.contents.add(instance.model)
 	}
 	
-	override runStandalone(CSVLog log){
+	override applyIncrement() {
+		modelgen.iterate(instance, 0.1)
+		println("Incremental query engine status after increment (is tainted): "+incremental.engine.tainted)
+	}
+	
+	override initBatch(){
+		super.initBatch
+		initializePatterns(batch, "elimination")
+	}
+	
+	override runBatch(CSVLog log){
+		SurveillanceHelper.logger = log
+
 		Configuration.enable
-				
+		val resource = batch.model
+			
 		try {
 			/**
 			 * Setup instance model 
 			 */
-			val resource = standaloneResourceSet.createResource(URI.createFileURI("tmp-domain-standalone.xmi"))
+			
 			//resource.contents.add(EcoreUtil.copy(instance.model, copy))
-			val copier = new Copier
+			val copier = new SurveillanceCopier
 			val result = copier.copy(instance.model)
 			copier.copyReferences
 			resource.contents.add(result)
@@ -63,15 +89,13 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 			val timeout = Config.timeout(cfg.timeoutS, [|
 				println("Run cancelled with timeout.")
 				Configuration.cancel
-				if(!standalone.isDisposed){
-					standalone.dispose
-				}
+				batch.dispose
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			standalone.enableAndPropagate
-			val it0sync = standaloneMDD.unaryForAll(standalone)
-			val coverage = getMatchesJSON(parsed, standalone, index)
+			batch.enable
+			val it0sync = batch.mdd.unaryForAll(batch.engine)
+			val coverage = getMatchesJSON(batch, index)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -79,6 +103,8 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 			/**
 			 * Make logs
 			 */
+			//log.log("standalone.matches", (new DebugUtil{}).getMatchesJSON(batch, index))
+			
 			log.log("standalone.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
@@ -86,14 +112,10 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 		} catch (Exception e) {
 			println("Cancellation caught.")
 		} finally {
+			resource.contents.clear
 			log.log("standalone.timeout", Configuration.isCancelled)
 			println("Finally block executed.")
 		}
-	}
-	
-	override preRun(int seed){
-		instance = modelgen.make(cfg.size, seed)
-		incrementalDomainResource.contents.add(instance.model)
 	}
 	
 	override initIncremental(){
@@ -103,6 +125,8 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 	
 	override runIncremental(CSVLog log) {
 		Configuration.enable
+		
+		SurveillanceHelper.logger = log
 		try{
 			/**
 			 * Setup instance model 
@@ -115,15 +139,13 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 			val timeout = Config.timeout(cfg.timeoutS, [|
 				println("Run cancelled with timeout.")
 				Configuration.cancel
-				if(!incremental.isDisposed){
-					incremental.dispose
-				}
+				incremental.dispose
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			incremental.enableAndPropagate
-			val it0sync = incrementalMDD.unaryForAll(incremental)
-			val coverage = getMatchesJSON(parsed, incremental, instance.ordering)
+			incremental.enable
+			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
+			val coverage = getMatchesJSON(incremental, instance.ordering)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -131,20 +153,19 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 			/**
 			 * Make logs
 			 */
+			//log.log("incremental.matches", (new DebugUtil{}).getMatchesJSON(incremental, instance.ordering))
+			
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
 			log.log("incremental.result", coverage)
 		} catch(Exception e){
+			e.printStackTrace
 			println("Cancellation caught.")
 		} finally{
 			log.log("incremental.timeout", Configuration.isCancelled)
 			println("Finally block executed.")
 		}
-	}
-	
-	override applyIncrement() {
-		modelgen.iterate(instance, 0.1)
 	}
 	
 	override runProblog(CSVLog log) {
@@ -207,15 +228,15 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 		'''
 	}
 	
-	def String getMatchesJSON(PatternParsingResults parsed, SuspendedQueryEngine engine, Map<EObject,Integer> index){
-		val opt = parsed.getQuerySpecification("elimination")
+	def String getMatchesJSON(EngineConfig engine, Map<EObject,Integer> index){
+		val opt = engine.parsed.getQuerySpecification("elimination")
 		if(opt.isPresent){
 			val matcher = opt.get
 			'''
 			{
 				"valid" : true,
 				"matches" : [
-				«FOR match : engine.getMatcher(matcher).allMatches SEPARATOR ","»
+				«FOR match : engine.engine.getMatcher(matcher).allMatches SEPARATOR ","»
 					{
 						"object" : "object«index.get(match.get(0))»",
 						"probability" : «match.get(1)»

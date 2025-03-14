@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PGQ_JAR=pgq-sip.jar
-LOGDIR=../logs-sip/
+PGQ_JAR=pgq.jar
+LOGDIR=logs-incremental/
 
 cd "$(dirname "$0")"
 
@@ -9,22 +9,22 @@ cd "$(dirname "$0")"
 ### SATELLITE ###
 #################
 
-CASE=SAT
-SIZE=45
-VQL=satellite.vql
-STDOUT=std-sat.txt
-
-java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \
-	--case $CASE \
-	--vql $VQL\
-	--size $SIZE \
-	--seed 0..50 \
-	--prefix $CASE \
-	--warmups 0..20 \
-	--gctime 4 \
-	--iterations 4 \
-	--logto System.out $LOGDIR$()log-$CASE-run.txt \
-	--warmuplogto System.out $LOGDIR$()log-$CASE-warmup.txt | tee $LOGDIR$()$STDOUT
+#CASE=SAT
+#SIZE=45
+#VQL=satellite.vql
+#STDOUT=std-sat.txt
+#
+#java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \
+#	--case $CASE \
+#	--vql $VQL\
+#	--size $SIZE \
+#	--seed 0..50 \
+#	--prefix $CASE \
+#	--warmups 0..20 \
+#	--gctime 4 \
+#	--iterations 4 \
+#	--logto System.out $LOGDIR$()log-$CASE-run.txt \
+#	--warmuplogto System.out $LOGDIR$()log-$CASE-warmup.txt | tee $LOGDIR$()$STDOUT
 
 ####################
 ### SURVEILLANCE ###
@@ -51,19 +51,19 @@ java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \
 ### SMARTHOME ###
 #################
 
-CASE=SH
-SIZE=150
-VQL=smarthome.vql
-STDOUT=std-sh.txt
-
-java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \
-	--case $CASE \
-	--vql $VQL\
-	--size $SIZE \
-	--seed 0..50 \
-	--prefix $CASE \
-	--warmups 0..20 \
-	--gctime 4 \
-	--iterations 4 \
-	--logto System.out $LOGDIR$()log-$CASE-run.txt \
-	--warmuplogto System.out $LOGDIR$()log-$CASE-warmup.txt | tee $LOGDIR$()$STDOUT
+#CASE=SH
+#SIZE=150
+#VQL=smarthome.vql
+#STDOUT=std-sh.txt
+#
+#java -XX:InitialRAMPercentage=70.0 -XX:MaxRAMPercentage=95.0 -jar $PGQ_JAR \
+#	--case $CASE \
+#	--vql $VQL\
+#	--size $SIZE \
+#	--seed 0..50 \
+#	--prefix $CASE \
+#	--warmups 0..20 \
+#	--gctime 4 \
+#	--iterations 4 \
+#	--logto System.out $LOGDIR$()log-$CASE-run.txt \
+#	--warmuplogto System.out $LOGDIR$()log-$CASE-warmup.txt | tee $LOGDIR$()$STDOUT

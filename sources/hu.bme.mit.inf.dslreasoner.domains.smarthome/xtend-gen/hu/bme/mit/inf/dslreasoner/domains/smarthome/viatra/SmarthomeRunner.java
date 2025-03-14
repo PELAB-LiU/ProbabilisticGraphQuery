@@ -6,6 +6,7 @@ import hu.bme.mit.inf.dslreasoner.domains.smarthome.utilities.SmarthomeModelGene
 import hu.bme.mit.inf.measurement.utilities.CSVLog;
 import hu.bme.mit.inf.measurement.utilities.Config;
 import hu.bme.mit.inf.measurement.utilities.configuration.SmarthomeConfiguration;
+import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig;
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner;
 import java.io.File;
 import java.io.FileWriter;
@@ -20,12 +21,9 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults;
-import org.eclipse.viatra.query.runtime.api.AdvancedViatraQueryEngine;
 import org.eclipse.viatra.query.runtime.api.IPatternMatch;
 import org.eclipse.viatra.query.runtime.api.IQuerySpecification;
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
@@ -51,16 +49,16 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
   }
 
   @Override
-  public void initStandalone() {
-    super.initStandalone();
-    this.initializePatterns(this.standalone, "callProbability");
+  public void initBatch() {
+    super.initBatch();
+    this.initializePatterns(this.batch, "callProbability");
   }
 
   @Override
-  public void runStandalone(final CSVLog log) {
+  public void runBatch(final CSVLog log) {
     Configuration.enable();
     try {
-      final Resource resource = this.standaloneResourceSet.createResource(URI.createFileURI("tmp-domain-standalone.xmi"));
+      final Resource resource = this.batch.getModel();
       final EcoreUtil.Copier copier = new EcoreUtil.Copier();
       final EObject result = copier.copy(this.instance.model);
       copier.copyReferences();
@@ -80,18 +78,14 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
       final Procedure0 _function_1 = () -> {
         InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        boolean _isDisposed = this.standalone.isDisposed();
-        boolean _not = (!_isDisposed);
-        if (_not) {
-          this.standalone.dispose();
-        }
+        this.batch.dispose();
         log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function_1);
       final long it0start = System.nanoTime();
-      this.standalone.enableAndPropagate();
-      final long it0sync = this.standaloneMDD.unaryForAll(this.standalone);
-      final String coverage = this.getMatchesJSON(this.parsed, this.standalone, index);
+      this.batch.enable();
+      final long it0sync = this.batch.getMdd().unaryForAll(this.batch.getEngine());
+      final String coverage = this.getMatchesJSON(this.batch, index);
       final long it0end = System.nanoTime();
       timeout.cancel();
       final long it0prop = ExecutionTime.time();
@@ -112,9 +106,9 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
   }
 
   @Override
-  public void preRun(final int seed) {
+  public void setupInitialModel(final int seed) {
     this.instance = this.modelgen.make(this.cfg.getHomes(), this.cfg.getPersons(), this.cfg.getSize());
-    this.incrementalDomainResource.getContents().add(this.instance.model);
+    this.incremental.getModel().getContents().add(this.instance.model);
   }
 
   @Override
@@ -131,18 +125,14 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
       final Procedure0 _function = () -> {
         InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        boolean _isDisposed = this.incremental.isDisposed();
-        boolean _not = (!_isDisposed);
-        if (_not) {
-          this.incremental.dispose();
-        }
+        this.incremental.dispose();
         log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       final long it0start = System.nanoTime();
-      this.incremental.enableAndPropagate();
-      final long it0sync = this.incrementalMDD.unaryForAll(this.incremental);
-      final String coverage = this.getMatchesJSON(this.parsed, this.incremental, this.instance.idmap);
+      this.incremental.enable();
+      final long it0sync = this.incremental.getMdd().unaryForAll(this.incremental.getEngine());
+      final String coverage = this.getMatchesJSON(this.incremental, this.instance.idmap);
       final long it0end = System.nanoTime();
       timeout.cancel();
       final long it0prop = ExecutionTime.time();
@@ -266,10 +256,10 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
     return _builder.toString();
   }
 
-  public String getMatchesJSON(final PatternParsingResults parsed, final AdvancedViatraQueryEngine engine, final Map<EObject, String> index) {
+  public String getMatchesJSON(final EngineConfig engine, final Map<EObject, String> index) {
     String _xblockexpression = null;
     {
-      final Optional<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> opt = parsed.getQuerySpecification("callProbability");
+      final Optional<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> opt = engine.getParsed().getQuerySpecification("callProbability");
       String _xifexpression = null;
       boolean _isPresent = opt.isPresent();
       if (_isPresent) {
@@ -286,7 +276,7 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
           _builder.append("\"matches\" : [");
           _builder.newLine();
           {
-            Collection<? extends IPatternMatch> _allMatches = engine.getMatcher(matcher).getAllMatches();
+            Collection<? extends IPatternMatch> _allMatches = engine.getEngine().getMatcher(matcher).getAllMatches();
             boolean _hasElements = false;
             for(final IPatternMatch match : _allMatches) {
               if (!_hasElements) {
@@ -299,23 +289,16 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
               _builder.newLine();
               _builder.append("\t");
               _builder.append("\t");
-              _builder.append("\"home\" : \"");
-              String _get = index.get(match.get(0));
+              _builder.append("\"measurement\" : \"");
+              String _get = index.get(match.get(1));
               _builder.append(_get, "\t\t");
               _builder.append("\",");
               _builder.newLineIfNotEmpty();
               _builder.append("\t");
               _builder.append("\t");
-              _builder.append("\"measurement\" : \"");
-              String _get_1 = index.get(match.get(1));
-              _builder.append(_get_1, "\t\t");
-              _builder.append("\",");
-              _builder.newLineIfNotEmpty();
-              _builder.append("\t");
-              _builder.append("\t");
               _builder.append("\"probability\" : ");
-              Object _get_2 = match.get(2);
-              _builder.append(_get_2, "\t\t");
+              Object _get_1 = match.get(2);
+              _builder.append(_get_1, "\t\t");
               _builder.newLineIfNotEmpty();
               _builder.append("\t");
               _builder.append("}");

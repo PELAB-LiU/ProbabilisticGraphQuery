@@ -34,6 +34,44 @@ pattern gunshot(from: Drone, to: UnidentifiedObject, probability: java Double){
 	probability == eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
 }
 
+/*
+pattern gunshot_mirror1(from: Drone, to: UnidentifiedObject, probability: java Double){
+	neg find killed(to);
+	Drone.position(from, dp);
+	find targettableObject(to,_);
+	UnidentifiedObject.position(to,tp);
+	//check(SurveillanceHelper.dst1000(dp,tp));
+	UnidentifiedObject.speed(to,speed);
+	UnidentifiedObject.confidence(to, confidence);
+	probability == eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
+}
+pattern gunshot_mirror2(from: Drone, to: UnidentifiedObject, probability: java Double){
+	neg find killed(to);
+	Drone.position(from, dp);
+	find targettableObject(to,_);
+	UnidentifiedObject.position(to,tp);
+	check(SurveillanceHelper.dst1000(dp,tp));
+	UnidentifiedObject.speed(to,speed);
+	UnidentifiedObject.confidence(to, confidence);
+	probability == 0.0;//eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
+}
+pattern gunshot_mirror3(from: Drone, to: UnidentifiedObject, probability: java Double){
+	neg find killed(to);
+	Drone.position(from, dp);
+	find targettableObject(to,_);
+	UnidentifiedObject.position(to,tp);
+	//check(SurveillanceHelper.dst1000(dp,tp));
+	UnidentifiedObject.speed(to,speed);
+	UnidentifiedObject.confidence(to, confidence);
+	probability == 0.0;//eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
+}*/
+/*pattern allDrones(from: Drone){
+	Drone(from);
+}
+pattern allUnidentifiedObject(to: UnidentifiedObject){
+	UnidentifiedObject(to);
+}*/
+
 pattern killed(object: UnidentifiedObject){
 	Shot.probability(s,p);
 	Shot.at(s,object);
@@ -44,19 +82,20 @@ pattern killed(object: UnidentifiedObject){
 /**
  * Interface pattern for SurveillanceRunner to make objects move
  */
-pattern move(o: MovingObject, c: java Coordinate){
+/*pattern move(o: MovingObject, c: java Coordinate){
 	MovingObject.position(o, from);
 	MovingObject.speed(o, speed);
 	MovingObject.angle(o, angle);
 	c == eval(SurveillanceHelper.move(from,speed,angle,1));
-}
+}*/
+/*
 @Weight(lhsname="p",	 
 	class="hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper",
 	function="P"
 )
 pattern shoot(d: Drone, at: UnidentifiedObject, p: java Double){
 	p == KGate find attempt(d,at);
-}
+}*/
 
 /**
  * Assess probability of elimination
@@ -76,10 +115,10 @@ pattern elimination(target: UnidentifiedObject, probability: java Double){
 }
 
 
-pattern stochasticCount(cnt: java Integer){
+/*pattern stochasticCount(cnt: java Integer){
 	cnt1 == count find elimination(_,_);
 	cnt2 == count find attempt(_,_);
 	cnt == eval(cnt1+cnt2);
-}
+}*/
 
 

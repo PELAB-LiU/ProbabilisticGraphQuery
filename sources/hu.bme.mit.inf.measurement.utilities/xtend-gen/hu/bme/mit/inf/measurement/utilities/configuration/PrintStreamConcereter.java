@@ -1,14 +1,15 @@
 package hu.bme.mit.inf.measurement.utilities.configuration;
 
+import com.beust.jcommander.IStringConverter;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 
 @SuppressWarnings("all")
-public class PrintStreamConcereter /* implements IStringConverter<OutputStream>  */{
+public class PrintStreamConcereter implements IStringConverter<OutputStream> {
   @Override
-  public PrintStream convert(final String arg) {
+  public OutputStream convert(final String arg) {
     try {
       if (arg != null) {
         switch (arg) {

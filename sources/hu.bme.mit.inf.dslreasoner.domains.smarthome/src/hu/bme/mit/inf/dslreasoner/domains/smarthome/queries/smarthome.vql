@@ -86,7 +86,7 @@ pattern coHigh(meas: Measurement, p: java Double){
 }
 
 //a COHigh event is detected, followed by a TempWarning event within less than 5 seconds
-pattern fireWarning(home: Home, co: Measurement){
+pattern fireWarning(co: Measurement){
 	Home.measurements(home,co);
 	find coHigh(co, _);
 	Measurement.time(co,cotime);
@@ -111,9 +111,8 @@ pattern personBE(person: Person, p: EDouble){
 	Person.confidence(person,p);
 }
 //if a FireWarning occurs after a NobodyHome object is created
-pattern call(home: Home, measurement: Measurement){
-	Home.measurements(home, measurement);
-	find fireWarning(home, measurement);
+pattern call(measurement: Measurement){
+	find fireWarning(measurement);
 	find nobodyHome(measurement);
 }
 
@@ -121,14 +120,14 @@ pattern call(home: Home, measurement: Measurement){
 	class="hu.bme.mit.inf.dslreasoner.domains.smarthome.utilities.SmarthomeHelper",
 	function="P"
 )
-pattern callProbability(home: Home, measurement: Measurement, p:java Double){
-	p == KGate find call(home, measurement);
+pattern callProbability(measurement: Measurement, p:java Double){
+	p == KGate find call(measurement);
 }
 
 pattern stochasticCount(cnt: java Integer){
-	cnt1 == count find call(_,_);
+	cnt1 == count find call(_);
 	cnt2 == count find nobodyHome(_);
-	cnt3 == count find fireWarning(_,_);
+	cnt3 == count find fireWarning(_);
 	cnt4 == count find tempWarning(_,_);
 	cnt5 == count find tempIncr(_,_);
 	cnt == eval(cnt1+cnt2+cnt3+cnt4+cnt5);

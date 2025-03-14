@@ -29,55 +29,85 @@ import hu.bme.mit.inf.measurement.utilities.configuration.SatelliteConfiguration
 import java.io.File
 import org.eclipse.emf.ecore.EPackage
 import reliability.intreface.CacheMode
+import java.util.List
+import org.eclipse.xtend.lib.annotations.Accessors
+
+class EngineConfig{
+	static List<EngineConfig> configs = newLinkedList
+	
+	val String mddInstanceName
+	val ResourceSet resourceSet
+	@Accessors(PUBLIC_GETTER) val Resource model
+	@Accessors(PUBLIC_GETTER) val SuspendedQueryEngine engine
+	@Accessors(PUBLIC_GETTER) val PatternParsingResults parsed
+	@Accessors(PUBLIC_GETTER) val MddModel mdd
+	
+	
+	new(String queries, String name){
+		mddInstanceName = name
+		resourceSet = new ResourceSetImpl
+		model = resourceSet.createResource(URI.createFileURI("model-tmp-"+mddInstanceName+this.hashCode+".xmi"))
+		mdd = MddModel.getInstanceOf(mddInstanceName)
+		MddModel.changeTo(mddInstanceName)
+		mdd.resetModel
+		mdd.invalidateCache
+		
+		parsed = PatternParserBuilder.instance.parse(queries)
+		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher> specification |
+			mdd.registerSpecificationIfNeeded(specification)
+		]
+		
+		val traceRes = resourceSet.createResource(URI.createFileURI("trace-tmp-"+mddInstanceName+this.hashCode+".xmi"))
+		traceRes.contents.add(mdd.traceModel)
+		
+		engine = 
+			SuspendedQueryEngine.create(new EMFScope(resourceSet))
+		
+		mdd.initializePatterns(engine)
+		engine.enableAndPropagate
+		engine.suspend()
+		
+		configs.add(this)
+	}
+	
+	def acquire(){
+		configs.forEach(cfg | cfg.suspend)
+		MddModel.changeTo(mddInstanceName)
+	}
+	def suspend(){
+		engine.suspend
+	}
+	def enable(){
+		if(engine.tainted){
+			throw new IllegalStateException("Attempting to use tainted query engine.")
+		}
+		engine.enableAndPropagate
+	}
+	def dispose(){
+		if(!engine.disposed){
+			configs.remove(this)
+			//suspend?
+			engine.dispose	
+		}
+	}
+}
 
 abstract class ViatraBaseRunner<Config extends BaseConfiguration> { 
 	protected val Config cfg
 	
 	protected val StochasticPatternGenerator generator
-	protected val PatternParsingResults parsed
+	protected val String transformed
 	
-	protected var SuspendedQueryEngine incremental
-	protected val MddModel incrementalMDD
-	protected val ResourceSet incrementalResourceSet
-	protected val Resource incrementalDomainResource
+	protected var EngineConfig batch
+	protected var EngineConfig incremental
 	
-	protected var SuspendedQueryEngine standalone
-	protected val MddModel standaloneMDD
-	protected val ResourceSet standaloneResourceSet
+	protected var Resource model
 	
-	def void initStandalone(){
-		MddModel.changeTo("standalone")
-		standaloneMDD.resetModel
-		standaloneResourceSet.resources.clear
-		
-		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher> specification |
-			standaloneMDD.registerSpecificationIfNeeded(specification)
-		]
-		
-		val traceRes = standaloneResourceSet.createResource(URI.createFileURI("trace-tmp-std.xmi"))
-		traceRes.contents.add(standaloneMDD.traceModel)
-		
-		standalone = 
-			SuspendedQueryEngine.create(new EMFScope(standaloneResourceSet))
-			
-		standaloneMDD.initializePatterns(standalone)
-		standalone.enableAndPropagate
-		standalone.suspend()
+	def void initBatch(){
+		batch = new EngineConfig(transformed, "standalone")
 	}
 	def void initIncremental(){
-		MddModel.changeTo("incremental")
-		incrementalMDD.resetModel
-		incrementalDomainResource.contents.clear
-		incrementalMDD.invalidateCache
-		
-		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher> specification |
-			incrementalMDD.registerSpecificationIfNeeded(specification)
-		]
-		
-		incremental = 
-			SuspendedQueryEngine.create(new EMFScope(incrementalResourceSet))
-		incrementalMDD.initializePatterns(incremental)
-		incremental.suspend
+		incremental = new EngineConfig(transformed, "incremental")
 	}
 	
 	/**
@@ -96,27 +126,7 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 		
 		EPackage.Registry.INSTANCE.put(domain.nsURI, domain)
 
-		val transformed = generator.transformPatternFile(cfg.vql)
-		parsed = parseQueries(transformed)
-		if(parsed.hasError){
-			parsed.errors.forEach[println('''Parse error: «it»''')]
-		}
-		
-		/**
-		 * Incremental 
-		 */
-		incrementalMDD = MddModel.getInstanceOf("incremental")
-		incrementalResourceSet = new ResourceSetImpl
-		val traceRes = incrementalResourceSet.createResource(URI.createFileURI("trace-tmp-inc.xmi"))
-		traceRes.contents.add(incrementalMDD.traceModel)
-		
-		incrementalDomainResource = incrementalResourceSet.createResource(URI.createFileURI("tmp-domain-model.xmi"))
-		
-		/**
-		 * Standalone
-		 */
-		standaloneMDD = MddModel.getInstanceOf("standalone")
-		standaloneResourceSet = new ResourceSetImpl
+		transformed = generator.transformPatternFile(cfg.vql)
 	}
 	
 	
@@ -144,53 +154,21 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 		for(i : cfg.warmups){
 			println('''[WARMUP «i» of «cfg.warmups.size»]===============================================================''')
 			initIncremental()
-			preRun(i)
-			//val log = new CSVLog(emptyList,"")
-			/**
-			 * Iteration 0
-			 */
-			
-			gc()
-			initStandalone()
-			MddModel.changeTo("standalone")
-			runStandalone(log)
-			standalone.dispose
-			
-			
-			gc()
-			MddModel.changeTo("incremental")
-			runIncremental(log)
-			incremental.suspend
-			
-			gc()
-			runProblog(log)
-			
-			
-			
-			//new CSVLog(emptyList,"").
-			log.log("iteration", 0)
-			log.log("run",i)
-			log.log("prefix", cfg.prefix)
-			log.log("size", cfg.size)
-			log.commit
-			
+			setupInitialModel(i)
 			/**
 			 * Incremental iterations
 			 */
-			for(iter : 1..cfg.iterations){
-				applyIncrement
-				
+			for(iter : 0..cfg.iterations){
 				gc()
-				initStandalone
-				MddModel.changeTo("standalone")
-				runStandalone(log)
-				standalone.dispose
-				
-				
-				gc()
-				MddModel.changeTo("incremental")
+				incremental.acquire
 				runIncremental(log)
 				incremental.suspend
+				
+				gc()
+				initBatch
+				batch.acquire
+				runBatch(log)
+				batch.dispose
 				
 				gc()
 				runProblog(log)
@@ -200,6 +178,8 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 				log.log("prefix", cfg.prefix)
 				log.log("size", cfg.size)
 				log.commit
+				
+				applyIncrement
 			}
 			incremental.dispose
 		}
@@ -208,64 +188,41 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 		for(seed : cfg.seeds){
 			println('''[MEASURE «seed» of «cfg.seeds.size»]===============================================================''')
 			initIncremental()
-			preRun(seed)
-			
-			/**
-			 * Iteration 0
-			 */
-			gc()
-			initStandalone()
-			MddModel.changeTo("standalone")
-			runStandalone(log)
-			standalone.dispose
-			
-			gc()
-			MddModel.changeTo("incremental")
-			runIncremental(log)
-			incremental.suspend
-			
-			gc()
-			runProblog(log)
-			
-			log.log("iteration", 0)
-			log.log("run",seed)
-			log.log("prefix", cfg.prefix)
-			log.log("size", cfg.size)
-			log.commit
-			
+			setupInitialModel(seed)
+				
 			/**
 			 * Incremental iterations
 			 */
-			for(iter : 1..cfg.iterations){
-				applyIncrement
+			for(iter : 0..cfg.iterations){
+				gc()
+				initBatch
+				batch.acquire
+				runBatch(log)
+				batch.dispose
 				
 				gc()
-				initStandalone
-				MddModel.changeTo("standalone")
-				runStandalone(log)
-				standalone.dispose
-				
-				gc()
-				MddModel.changeTo("incremental")
+				incremental.acquire
 				runIncremental(log)
 				incremental.suspend
 				
-				gc()
-				runProblog(log)
+				//gc()
+				//runProblog(log)
 			
 				log.log("iteration", iter)
 				log.log("prefix", cfg.prefix)
 				log.log("run",seed)
 				log.log("size", cfg.size)
 				log.commit
+				
+				applyIncrement
 			}
 			incremental.dispose
 		}
 	}
 	
-	def abstract void preRun(int seed)
+	def abstract void setupInitialModel(int seed)
 	def abstract void runIncremental(CSVLog log)
-	def abstract void runStandalone(CSVLog log)
+	def abstract void runBatch(CSVLog log)
 	def abstract void applyIncrement()
 	def abstract void runProblog(CSVLog log)
 	
@@ -283,32 +240,32 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 		return result
 	}
 	
-	def int countBasicEvents(PatternParsingResults parsed, ViatraQueryEngine engine){
+	def int countBasicEvents(EngineConfig engine){
 		val cnt = newIntArrayOfSize(2)
-		parsed.getQuerySpecification("BERequiredName1").ifPresent([specification |
-			val matcher = engine.getMatcher(specification)
+		engine.parsed.getQuerySpecification("BERequiredName1").ifPresent([specification |
+			val matcher = engine.engine.getMatcher(specification)
 			cnt.set(0,matcher.countMatches)
 		])
-		parsed.getQuerySpecification("BERequiredName2").ifPresent([specification |
-			val matcher = engine.getMatcher(specification)
+		engine.parsed.getQuerySpecification("BERequiredName2").ifPresent([specification |
+			val matcher = engine.engine.getMatcher(specification)
 			cnt.set(1,matcher.countMatches)
 		])
 		return cnt.get(0)+cnt.get(1)
 	}
-	def countStochasticPatterns(PatternParsingResults parsed, ViatraQueryEngine engine){
+	def countStochasticPatterns(EngineConfig engine){
 		val cnt = newIntArrayOfSize(1)
-		parsed.getQuerySpecification("stochasticCount").ifPresent([specification |
-			val matcher = engine.getMatcher(specification)
+		engine.parsed.getQuerySpecification("stochasticCount").ifPresent([specification |
+			val matcher = engine.engine.getMatcher(specification)
 			matcher.oneArbitraryMatch.ifPresent([match |
 				cnt.set(0, match.get(0) as Integer)
 			])
 		])
 		return cnt.get(0)
 	}
-	def checkMatches(String name, PatternParsingResults parsed, ViatraQueryEngine engine){
+	def checkMatches(String name, EngineConfig engine){
 		val cnt = newDoubleArrayOfSize(1)
-		parsed.getQuerySpecification(name).ifPresent([specification |
-			val matcher = engine.getMatcher(specification)	
+		engine.parsed.getQuerySpecification(name).ifPresent([specification |
+			val matcher = engine.engine.getMatcher(specification)	
 			println("Specification found: "+specification.simpleName)
 			matcher.forEachMatch([match |
 				println("\t"+match.prettyPrint)
@@ -319,19 +276,19 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 		])
 		return cnt.get(0)
 	}
-	def printMatches(String name, PatternParsingResults parsed, ViatraQueryEngine engine){
-		parsed.getQuerySpecification(name).ifPresent([specification |
-			val matcher = engine.getMatcher(specification)	
+	def printMatches(String name, EngineConfig engine){
+		engine.parsed.getQuerySpecification(name).ifPresent([specification |
+			val matcher = engine.engine.getMatcher(specification)	
 			println("Specification found: "+specification.simpleName)
 			matcher.forEachMatch([match |
 				println("\t"+match.prettyPrint)
 			])
 		])
 	}
-	def initializePatterns(ViatraQueryEngine engine, String... queries){
+	def initializePatterns(EngineConfig engine, String... queries){
 		queries.forEach([name | 
-			parsed.getQuerySpecification(name).ifPresent([IQuerySpecification<? extends ViatraQueryMatcher> specification |
-				val cnt = engine.getMatcher(specification).countMatches
+			engine.parsed.getQuerySpecification(name).ifPresent([IQuerySpecification<? extends ViatraQueryMatcher> specification |
+				val cnt = engine.engine.getMatcher(specification).countMatches
 			])
 		])
 	}

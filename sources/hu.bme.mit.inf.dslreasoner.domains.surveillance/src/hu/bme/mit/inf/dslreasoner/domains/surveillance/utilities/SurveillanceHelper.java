@@ -2,12 +2,15 @@ package hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities;
 
 import org.eclipse.xtext.xbase.lib.Pure;
 
+import hu.bme.mit.inf.measurement.utilities.CSVLog;
 import surveillance.Drone;
 import surveillance.UnidentifiedObject;
 import uncertaindatatypes.UBoolean;
 import uncertaindatatypes.UReal;
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.debug.DebugUtil;
 
 public class SurveillanceHelper {
+	public static CSVLog logger;
 	@Pure
 	public static Coordinate move(Coordinate from, UReal speed, UReal angle, int time) {
 		//https://github.com/atenearesearchgroup/lintra/blob/a59afb22e41542d710a2e6a8bb8b53150e65327e/lintra.examples.drones/src/transformations/confidence/surveillance/ConfidenceSurveillance.java#L104
@@ -25,7 +28,9 @@ public class SurveillanceHelper {
 	@Pure
 	public static boolean dst1000(Coordinate from, Coordinate to) {
 		//https://github.com/atenearesearchgroup/lintra/blob/a59afb22e41542d710a2e6a8bb8b53150e65327e/lintra.examples.drones/src/transformations/confidence/surveillance/ConfidenceSurveillance.java#L78
-		return from.distance(to).lt(new UReal(1000.0,0)).getC()>0.5;
+		boolean result = from.distance(to).lt(new UReal(1000.0,0)).getC()>0.5;
+		//logger.dst.add((new DebugUtil(){}).comaprtison(from, to, result));
+		return result;
 	}
 
 	/**
@@ -46,6 +51,7 @@ public class SurveillanceHelper {
 		
 		double matchingConfidence = 0.99*
 				speedGreater30.and(distanceLower1000).getC();
+		//logger.prob.add((new DebugUtil(){}).probability(from, to, speed, confidence, matchingConfidence));
 		return matchingConfidence;
 	}
 	

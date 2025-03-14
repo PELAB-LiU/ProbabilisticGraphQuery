@@ -1,0 +1,4220 @@
+1    [main] ERROR xt.validation.ResourceValidatorImpl  - The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+java.util.MissingResourceException: The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.delegatedGetString(DelegatingResourceLocator.java:586)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:450)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:605)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:597)
+	at org.eclipse.emf.ecore.util.Diagnostician.createDefaultDiagnostic(Diagnostician.java:110)
+	at org.eclipse.emf.ecore.util.Diagnostician.validate(Diagnostician.java:139)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:147)
+	at org.eclipse.xtext.xbase.annotations.validation.DerivedStateAwareResourceValidator.validate(DerivedStateAwareResourceValidator.java:33)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:91)
+	at org.eclipse.viatra.query.patternlanguage.emf.validation.PatternSetValidator.validate(PatternSetValidator.java:39)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:104)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:116)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:85)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder.parse(PatternParserBuilder.java:118)
+	at hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator.transformPatternFile(StochasticPatternGenerator.java:117)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.<init>(ViatraBaseRunner.java:68)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.<init>(SurveillanceRunner.java:47)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:57)
+
+/**
+ * Imports for stochastic queries
+ */
+import "http://www.eclipse.org/emf/2002/Ecore"
+import "http://www.example.org/tracemodel"
+
+import java reliability.mdd.COLLECT;
+import java reliability.mdd.OR;
+import java reliability.mdd.NOT;
+import java reliability.intreface.D;
+import java hu.bme.mit.delta.mdd.MddHandle; 
+import java reliability.mdd.MddHandleCollection;
+import java reliability.events.Event;
+
+/**
+ * Imports for weight functions
+ */
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+
+/**
+ * Imports from the original model
+ */
+import "http://www.example.org/surveillance"
+import "http://www.eclipse.org/emf/2002/Ecore"
+
+import java hu.bme.mit.inf.querytransformation.query.KGate
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.IndependentOr
+/**
+ * User defined patterns
+ */
+ pattern targetToShoot(trg:UnidentifiedObject,probability:EDouble)
+{
+	find targettableObject(trg,probability);
+}
+ pattern targettableObject(trg:UnidentifiedObject,confidence:EDouble)
+{
+	UnidentifiedObject.confidence(trg,confidence);
+	UnidentifiedObject.speed(trg,speed);
+	check(confidence >
+	 0.65);
+	check(SurveillanceHelper.spd30
+	(speed)
+	);
+}
+ pattern gunshot(from:Drone,to:UnidentifiedObject,probability:java ^java.lang.Double)
+{
+	neg find killed(to);
+	Drone.position(from,dp);
+	find targettableObject(to,_);
+	UnidentifiedObject.position(to,tp);
+	check(SurveillanceHelper.dst1000
+	(dp,tp)
+	);
+	UnidentifiedObject.speed(to,speed);
+	UnidentifiedObject.confidence(to,confidence);
+	probability==eval(SurveillanceHelper.shotProbability
+	(dp,tp,speed,confidence)
+	);
+}
+ pattern killed(object:UnidentifiedObject)
+{
+	Shot.probability(s,p);
+	Shot.at(s,object);
+	check(p >
+	 0.95);
+}
+ pattern move(o:MovingObject,c:java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate)
+{
+	MovingObject.position(o,from);
+	MovingObject.speed(o,speed);
+	MovingObject.angle(o,angle);
+	c==eval(SurveillanceHelper.move
+	(from,speed,angle,1)
+	);
+}
+ pattern shoot(d:Drone,at:UnidentifiedObject,p:java ^java.lang.Double)
+{
+	collectionOf_p == COLLECT find attempt(d,at,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	p == eval(D.WeightCollection(collectionOf_p as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper.P(cnt)], internal_probabilities));
+}
+ pattern attempt(from:Drone,to:UnidentifiedObject,event: java Event){
+	find ua_attempt(from,to,_);
+	event == OR find ua_attempt(from,to,#_);
+}
+private pattern ua_attempt(from:Drone,to:UnidentifiedObject,event: java Event)
+{
+	find use_gunshot(from,to,_,event0);
+	find use_targetToShoot(to,_,event1);
+	event==eval(D.AND(event0,event1));
+}
+ pattern elimination(target:UnidentifiedObject,probability:java ^java.lang.Double)
+{
+	collectionOf_probability == COLLECT find attempt(_,target,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	probability == eval(D.WeightCollection(collectionOf_probability as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper.P(cnt)], internal_probabilities));
+}
+ pattern stochasticCount(cnt:java ^java.lang.Integer)
+{
+	cnt1==count find elimination(_,_);
+	cnt2==count find attempt(_,_,_);
+	cnt==eval(cnt1 +
+	 cnt2);
+}
+
+/**
+ * Event require pattern
+ */
+pattern BERequiredName1(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find BERequiredName1_many(arg1,name, index, _);
+	probability == max find BERequiredName1_many(arg1,name, index, #_);
+}
+
+pattern BERequiredName1_many(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find targetToShoot(arg1,probability);
+	name == "targetToShoot";
+	index == 1;
+}
+pattern BERequiredName2(arg1:EObject, arg2:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find BERequiredName2_many(arg1, arg2,name, index, _);
+	probability == max find BERequiredName2_many(arg1, arg2,name, index, #_);
+}
+
+pattern BERequiredName2_many(arg1:EObject, arg2:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find gunshot(arg1,arg2,probability);
+	name == "gunshot";
+	index == 1;
+}
+
+private pattern use_targetToShoot(trg:UnidentifiedObject,probability:EDouble, event: java Event){
+	//find targetToShoot(trg,probability);
+	find HandleOf1(trg,"targetToShoot",event);
+	find BETrace1(trg,"targetToShoot",1,trace);
+	Trace.probability(trace,probability);
+	 
+}
+private pattern use_gunshot(from:Drone,to:UnidentifiedObject,probability:java ^java.lang.Double, event: java Event){
+	//find gunshot(from,to,probability);
+	find HandleOf2(from,to,"gunshot",event);
+	find BETrace2(from,to,"gunshot",1,trace);
+	Trace.probability(trace,probability);
+	 
+}
+
+/**
+ * Interface queries for event management
+ */
+pattern BETrace1(arg1:EObject, name: EString, index: EInt, trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, index);
+}
+
+pattern Insertion1(arg1:EObject, name: java String, from: java Integer, to: java Integer, probability: java Double){
+	find BERequiredName1(arg1, name, to, probability);
+	neg find BETrace1(arg1, name, _, _);
+	from == 0;
+} or {
+	find BERequiredName1(arg1, name, to, probability);
+	find BETrace1(arg1, name, _, _);
+	from == max find BETrace1(arg1, name, #_, _);
+	check(to > from);
+}
+
+pattern Removal1(trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	neg find BERequiredName1(arg1, name, _, _);
+} or {
+	find BERequiredName1(arg1, name, multiplicity, _);
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, idx);
+	check(idx > multiplicity);
+}
+
+pattern Update1(trace: Trace1, probability: java Double){
+	find BERequiredName1(arg1, name, multiplicity, probability);
+	find BETrace1(arg1, name, index, trace);
+	Trace.probability(trace, old);
+	old != probability;
+	check(index <= multiplicity);
+}
+
+pattern HandleOf1(arg1:EObject, name: EString, event: Handle){
+	find BETrace1(arg1, name, _, trace);
+	Trace.event(trace, event);
+}
+pattern BETrace2(arg1:EObject, arg2:EObject, name: EString, index: EInt, trace: Trace2){
+	Trace2.arg1(trace, arg1);
+	Trace2.arg2(trace, arg2);
+	Trace.generator(trace, name);
+	Trace.index(trace, index);
+}
+
+pattern Insertion2(arg1:EObject, arg2:EObject, name: java String, from: java Integer, to: java Integer, probability: java Double){
+	find BERequiredName2(arg1, arg2, name, to, probability);
+	neg find BETrace2(arg1, arg2, name, _, _);
+	from == 0;
+} or {
+	find BERequiredName2(arg1, arg2, name, to, probability);
+	find BETrace2(arg1, arg2, name, _, _);
+	from == max find BETrace2(arg1, arg2, name, #_, _);
+	check(to > from);
+}
+
+pattern Removal2(trace: Trace2){
+	Trace2.arg1(trace, arg1);
+	Trace2.arg2(trace, arg2);
+	Trace.generator(trace, name);
+	neg find BERequiredName2(arg1, arg2, name, _, _);
+} or {
+	find BERequiredName2(arg1, arg2, name, multiplicity, _);
+	Trace2.arg1(trace, arg1);
+	Trace2.arg2(trace, arg2);
+	Trace.generator(trace, name);
+	Trace.index(trace, idx);
+	check(idx > multiplicity);
+}
+
+pattern Update2(trace: Trace2, probability: java Double){
+	find BERequiredName2(arg1, arg2, name, multiplicity, probability);
+	find BETrace2(arg1, arg2, name, index, trace);
+	Trace.probability(trace, old);
+	old != probability;
+	check(index <= multiplicity);
+}
+
+pattern HandleOf2(arg1:EObject, arg2:EObject, name: EString, event: Handle){
+	find BETrace2(arg1, arg2, name, _, trace);
+	Trace.event(trace, event);
+}
+
+
+
+[WARMUP 0 of 21]===============================================================
+1887 [main] ERROR xt.validation.ResourceValidatorImpl  - The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+java.util.MissingResourceException: The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.delegatedGetString(DelegatingResourceLocator.java:586)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:450)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:605)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:597)
+	at org.eclipse.emf.ecore.util.Diagnostician.createDefaultDiagnostic(Diagnostician.java:110)
+	at org.eclipse.emf.ecore.util.Diagnostician.validate(Diagnostician.java:139)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:147)
+	at org.eclipse.xtext.xbase.annotations.validation.DerivedStateAwareResourceValidator.validate(DerivedStateAwareResourceValidator.java:33)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:91)
+	at org.eclipse.viatra.query.patternlanguage.emf.validation.PatternSetValidator.validate(PatternSetValidator.java:39)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:104)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:116)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:85)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder.parse(PatternParserBuilder.java:118)
+	at hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig.<init>(EngineConfig.java:54)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.initIncremental(ViatraBaseRunner.java:49)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.initIncremental(SurveillanceRunner.java:119)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:113)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+Removed: 0
+Updated: 0
+Insertions: 475
+UNARY
+incremental.total[ms] --> 1557.4572560000001
+incremental.sync[ms] --> 116.55040600000001
+incremental.prop[ms] --> 439.586516
+incremental.result --> "{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object180"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object25"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object98"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object70"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object13"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object35"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object103"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object120"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object20"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object169"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object93"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object104"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object50"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object99"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object125"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object69"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object110"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object160"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object129"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object44"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object14"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object75"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object179"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object89"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object85"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object163"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object23"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object173"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object154"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object45"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object40"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object119"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object199"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object184"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object128"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object55"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object158"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object114"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object194"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object115"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object185"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object80"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object190"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object28"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object149"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object118"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object90"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object64"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object34"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object178"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object183"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object39"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object65"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object68"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object113"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object148"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object123"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object109"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object140"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object170"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object124"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object19"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object15"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object198"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object100"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object105"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object95"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object54"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object144"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object48"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object33"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object143"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object88"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object188"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object200"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object83"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object153"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object145"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object159"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object195"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object94"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object43"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object134"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object130"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object78"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object174"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object38"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object29"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object164"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object59"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object18"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object60"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object168"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object84"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object53"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object108"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object49"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object165"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object30"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object155"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object139"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object73"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object193"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object150"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object74"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object63"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object24"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object79"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object189"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object58"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object138"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object135"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object175"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object133"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+"
+incremental.timeout --> false
+Finally block executed.
+22010 [main] ERROR xt.validation.ResourceValidatorImpl  - The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+java.util.MissingResourceException: The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.delegatedGetString(DelegatingResourceLocator.java:586)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:450)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:605)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:597)
+	at org.eclipse.emf.ecore.util.Diagnostician.createDefaultDiagnostic(Diagnostician.java:110)
+	at org.eclipse.emf.ecore.util.Diagnostician.validate(Diagnostician.java:139)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:147)
+	at org.eclipse.xtext.xbase.annotations.validation.DerivedStateAwareResourceValidator.validate(DerivedStateAwareResourceValidator.java:33)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:91)
+	at org.eclipse.viatra.query.patternlanguage.emf.validation.PatternSetValidator.validate(PatternSetValidator.java:39)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:104)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:116)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:85)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder.parse(PatternParserBuilder.java:118)
+	at hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig.<init>(EngineConfig.java:54)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.initBatch(ViatraBaseRunner.java:44)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.initBatch(SurveillanceRunner.java:66)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:124)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+Removed: 0
+Updated: 0
+Insertions: 475
+UNARY
+standalone.total[ms] --> 1224.505618
+standalone.sync[ms] --> 33.096682
+standalone.prop[ms] --> 265.24712800000003
+standalone.result --> "{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object155"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object188"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object39"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object189"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object169"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object118"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object133"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object159"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object183"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object98"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object199"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object28"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object55"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object48"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object49"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object84"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object59"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object38"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object54"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object30"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object18"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object23"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object108"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object110"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object45"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object125"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object14"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object143"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object139"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object175"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object53"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object115"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object104"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object40"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object123"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object70"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object120"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object160"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object195"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object44"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object89"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object138"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object134"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object103"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object35"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object190"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object100"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object79"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object164"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object150"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object200"",
+		""probability"" : 0.9702
+	},
+	{
+		""object"" : ""object95"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object158"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object29"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object165"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object113"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object99"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object194"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object173"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object185"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object145"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object163"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object128"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object140"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object184"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object43"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object174"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object15"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object124"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object19"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object73"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object109"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object68"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object69"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object63"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object93"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object80"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object119"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object168"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object180"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object153"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object75"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object114"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object94"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object179"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object13"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object130"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object65"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object178"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object78"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object198"",
+		""probability"" : 0.9799019999999999
+	},
+	{
+		""object"" : ""object135"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object90"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object149"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object60"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object20"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object25"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object148"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object64"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object74"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object193"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object33"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object85"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object170"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object88"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object144"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object58"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object105"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object34"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object129"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object24"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object154"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object83"",
+		""probability"" : 0.9799990199999999
+	},
+	{
+		""object"" : ""object50"",
+		""probability"" : 0.9799990199999999
+	}
+	]
+}
+"
+standalone.timeout --> false
+Finally block executed.
+Debug: result(1006708868,0.97999902):
+Debug: 1
+Debug: result(1009003607,0.97999902):
+Debug: 1
+Debug: result(1009081089,0.97999902):
+Debug: 1
+Debug: result(1022566764,0.97999902):
+Debug: 1
+Debug: result(1042701661,0.97999902):
+Debug: 1
+Debug: result(1046876149,0.97999902):
+Debug: 1
+Debug: result(1106066730,0.97999902):
+Debug: 1
+Debug: result(1148816769,0.97999902):
+Debug: 1
+Debug: result(1155925348,0.97999902):
+Debug: 1
+Debug: result(1157956659,0.97999902):
+Debug: 1
+Debug: result(1160487369,0.97999902):
+Debug: 1
+Debug: result(1171848351,0.97999902):
+Debug: 1
+Debug: result(1179434073,0.97999902):
+Debug: 1
+Debug: result(1219011224,0.97999902):
+Debug: 1
+Debug: result(1273677461,0.97999902):
+Debug: 1
+Debug: result(1276416078,0.97999902):
+Debug: 1
+Debug: result(1306944951,0.97999902):
+Debug: 1
+Debug: result(1311957497,0.97999902):
+Debug: 1
+Debug: result(1356734437,0.97999902):
+Debug: 1
+Debug: result(1357627251,0.97999902):
+Debug: 1
+Debug: result(1374809671,0.97999902):
+Debug: 1
+Debug: result(1381690281,0.97999902):
+Debug: 1
+Debug: result(1390711970,0.97999902):
+Debug: 1
+Debug: result(1432831714,0.97999902):
+Debug: 1
+Debug: result(143498656,0.97999902):
+Debug: 1
+Debug: result(1473785997,0.97999902):
+Debug: 1
+Debug: result(1539496909,0.97999902):
+Debug: 1
+Debug: result(1547957391,0.9702):
+Debug: 1
+Debug: result(1562550349,0.97999902):
+Debug: 1
+Debug: result(1578486078,0.97999902):
+Debug: 1
+Debug: result(1593054746,0.97999902):
+Debug: 1
+Debug: result(1604952928,0.97999902):
+Debug: 1
+Debug: result(1613427479,0.97999902):
+Debug: 1
+Debug: result(1615979304,0.97999902):
+Debug: 1
+Debug: result(1616734200,0.97999902):
+Debug: 1
+Debug: result(163187202,0.97999902):
+Debug: 1
+Debug: result(1644562819,0.97999902):
+Debug: 1
+Debug: result(1645537819,0.97999902):
+Debug: 1
+Debug: result(1680594780,0.97999902):
+Debug: 1
+Debug: result(1695835759,0.97999902):
+Debug: 1
+Debug: result(1708280164,0.97999902):
+Debug: 1
+Debug: result(1715088147,0.97999902):
+Debug: 1
+Debug: result(1763031653,0.97999902):
+Debug: 1
+Debug: result(1789333339,0.9702):
+Debug: 1
+Debug: result(1812053079,0.97999902):
+Debug: 1
+Debug: result(1830380361,0.97999902):
+Debug: 1
+Debug: result(1831718271,0.97999902):
+Debug: 1
+Debug: result(1831917467,0.97999902):
+Debug: 1
+Debug: result(1839119752,0.97999902):
+Debug: 1
+Debug: result(1849661707,0.97999902):
+Debug: 1
+Debug: result(1850365989,0.97999902):
+Debug: 1
+Debug: result(1851143998,0.97999902):
+Debug: 1
+Debug: result(1864536358,0.97999902):
+Debug: 1
+Debug: result(1872292140,0.97999902):
+Debug: 1
+Debug: result(1896924446,0.97999902):
+Debug: 1
+Debug: result(1912131732,0.97999902):
+Debug: 1
+Debug: result(1926286281,0.97999902):
+Debug: 1
+Debug: result(195666072,0.97999902):
+Debug: 1
+Debug: result(1967505429,0.97999902):
+Debug: 1
+Debug: result(2013498686,0.97999902):
+Debug: 1
+Debug: result(2013996784,0.97999902):
+Debug: 1
+Debug: result(2052403172,0.97999902):
+Debug: 1
+Debug: result(2055271948,0.97999902):
+Debug: 1
+Debug: result(2057834672,0.97999902):
+Debug: 1
+Debug: result(2061423543,0.97999902):
+Debug: 1
+Debug: result(2104411036,0.97999902):
+Debug: 1
+Debug: result(2122451771,0.97999902):
+Debug: 1
+Debug: result(220689838,0.97999902):
+Debug: 1
+Debug: result(251568902,0.97999902):
+Debug: 1
+Debug: result(261805257,0.97999902):
+Debug: 1
+Debug: result(284305842,0.97999902):
+Debug: 1
+Debug: result(321233594,0.97999902):
+Debug: 1
+Debug: result(335796066,0.97999902):
+Debug: 1
+Debug: result(338102641,0.97999902):
+Debug: 1
+Debug: result(356377759,0.97999902):
+Debug: 1
+Debug: result(357117570,0.97999902):
+Debug: 1
+Debug: result(365927748,0.97999902):
+Debug: 1
+Debug: result(371451080,0.97999902):
+Debug: 1
+Debug: result(372213162,0.97999902):
+Debug: 1
+Debug: result(380436623,0.97999902):
+Debug: 1
+Debug: result(392741043,0.97999902):
+Debug: 1
+Debug: result(414411667,0.97999902):
+Debug: 1
+Debug: result(436112064,0.97999902):
+Debug: 1
+Debug: result(452305773,0.97999902):
+Debug: 1
+Debug: result(459281776,0.97999902):
+Debug: 1
+Debug: result(480622535,0.97999902):
+Debug: 1
+Debug: result(481441333,0.97999902):
+Debug: 1
+Debug: result(488680164,0.97999902):
+Debug: 1
+Debug: result(495776514,0.97999902):
+Debug: 1
+Debug: result(533441760,0.97999902):
+Debug: 1
+Debug: result(56853566,0.97999902):
+Debug: 1
+Debug: result(575162797,0.97999902):
+Debug: 1
+Debug: result(601869027,0.97999902):
+Debug: 1
+Debug: result(609601884,0.97999902):
+Debug: 1
+Debug: result(61934685,0.97999902):
+Debug: 1
+Debug: result(627083431,0.97999902):
+Debug: 1
+Debug: result(638599700,0.97999902):
+Debug: 1
+Debug: result(643751012,0.97999902):
+Debug: 1
+Debug: result(647269546,0.97999902):
+Debug: 1
+Debug: result(66192717,0.97999902):
+Debug: 1
+Debug: result(664009466,0.979902):
+Debug: 1
+Debug: result(696316657,0.97999902):
+Debug: 1
+Debug: result(707666410,0.97999902):
+Debug: 1
+Debug: result(708387070,0.97999902):
+Debug: 1
+Debug: result(725381524,0.97999902):
+Debug: 1
+Debug: result(750441011,0.97999902):
+Debug: 1
+Debug: result(761011903,0.97999902):
+Debug: 1
+Debug: result(778321069,0.97999902):
+Debug: 1
+Debug: result(838499605,0.97999902):
+Debug: 1
+Debug: result(840665187,0.97999902):
+Debug: 1
+Debug: result(85776251,0.97999902):
+Debug: 1
+Debug: result(861130902,0.97999902):
+Debug: 1
+Debug: result(885787564,0.97999902):
+Debug: 1
+Debug: result(89617226,0.97999902):
+Debug: 1
+Debug: result(899046668,0.97999902):
+Debug: 1
+Debug: result(904885928,0.97999902):
+Debug: 1
+Debug: result(906929433,0.97999902):
+Debug: 1
+Debug: result(940388505,0.97999902):
+Debug: 1
+Debug: result(945317341,0.97999902):
+Debug: 1
+Debug: result(952812537,0.97999902):
+Debug: 1
+problog.total[ms] --> 661.414819
+problog.trafo[ms] --> 15.145296
+problog.evaluation[ms] --> 646.269523
+problog.result --> "{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object103"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object68"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object44"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object129"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object65"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object134"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object119"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object120"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object39"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object155"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object109"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object169"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object24"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object160"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object14"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object54"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object140"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object154"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object53"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object23"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object158"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object58"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object89"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object45"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object18"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object118"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object113"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object30"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object148"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object104"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object180"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object13"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object48"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object133"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object159"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object49"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object165"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object135"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object25"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object59"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object84"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object78"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object124"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object184"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object38"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object95"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object179"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object90"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object35"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object149"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object150"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object194"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object190"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object125"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object43"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object19"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object195"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object80"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object55"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object75"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object139"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object175"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object98"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object64"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object193"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object20"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object60"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object99"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object29"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object108"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object170"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object123"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object70"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object85"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object93"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object188"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object130"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object168"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object100"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object183"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object105"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object33"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object200"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object34"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object145"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object178"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object114"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object199"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object153"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object110"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object174"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object40"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object15"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object63"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object94"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object74"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object173"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object198"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object73"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object88"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object143"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object185"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object50"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object164"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object28"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object163"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object79"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object144"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object83"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object69"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object115"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object128"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object138"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object189"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+"
+problog.timeout --> false
+iteration --> 0
+run --> 0
+prefix --> SRV
+size --> 200
+32503 [main] FATAL me.api.ViatraQueryEngine.1887398112  - Error: trying to remove duplicate value hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@5acd137c from the unique feature org.eclipse.emf.ecore.impl.EAttributeImpl@3b938003 (name: position) (ordered: true, unique: true, lowerBound: 1, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (iD: false) of host object surveillance.impl.UnidentifiedObjectImpl@556746e2 (speed: (60.0,0.2), position: hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@18818cd9, angle: (3.14,0.07)) (confidence: 0.98). This indicates some errors in underlying model representation.
+java.lang.IllegalStateException: Error: trying to remove duplicate value hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@5acd137c from the unique feature org.eclipse.emf.ecore.impl.EAttributeImpl@3b938003 (name: position) (ordered: true, unique: true, lowerBound: 1, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (iD: false) of host object surveillance.impl.UnidentifiedObjectImpl@556746e2 (speed: (60.0,0.2), position: hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@18818cd9, angle: (3.14,0.07)) (confidence: 0.98). This indicates some errors in underlying model representation.
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.logIncident(NavigationHelperImpl.java:1596)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.logIncidentFeatureTupleRemoval(NavigationHelperImpl.java:1699)
+	at org.eclipse.viatra.query.runtime.base.core.EMFBaseIndexInstanceStore$FeatureData.removeFeatureTuple(EMFBaseIndexInstanceStore.java:136)
+	at org.eclipse.viatra.query.runtime.base.core.EMFBaseIndexInstanceStore.removeFeatureTuple(EMFBaseIndexInstanceStore.java:281)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperVisitor.visitAttribute(NavigationHelperVisitor.java:306)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeatureInternal(EMFModelComprehension.java:268)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeatureInternalSimple(EMFModelComprehension.java:256)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeature(EMFModelComprehension.java:243)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.featureUpdate(NavigationHelperContentAdapter.java:196)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.handleNotification(NavigationHelperContentAdapter.java:182)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$1.call(NavigationHelperContentAdapter.java:106)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$1.call(NavigationHelperContentAdapter.java:1)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.coalesceTraversals(NavigationHelperImpl.java:1144)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.notifyChanged(NavigationHelperContentAdapter.java:95)
+	at org.eclipse.emf.common.notify.impl.BasicNotifierImpl.eNotify(BasicNotifierImpl.java:424)
+	at surveillance.impl.MovingObjectImpl.setPosition(MovingObjectImpl.java:153)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceModelGenerator.lambda$1(SurveillanceModelGenerator.java:127)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceModelGenerator.iterate(SurveillanceModelGenerator.java:129)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.applyIncrement(SurveillanceRunner.java:58)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:135)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+32505 [main] FATAL me.api.ViatraQueryEngine.1887398112  - Error: trying to remove duplicate value hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@6bbced25 from the unique feature org.eclipse.emf.ecore.impl.EAttributeImpl@3b938003 (name: position) (ordered: true, unique: true, lowerBound: 1, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (iD: false) of host object surveillance.impl.UnidentifiedObjectImpl@7aded3b7 (speed: (60.0,0.2), position: hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@454da158, angle: (3.14,0.07)) (confidence: 0.98). This indicates some errors in underlying model representation.
+java.lang.IllegalStateException: Error: trying to remove duplicate value hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@6bbced25 from the unique feature org.eclipse.emf.ecore.impl.EAttributeImpl@3b938003 (name: position) (ordered: true, unique: true, lowerBound: 1, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (iD: false) of host object surveillance.impl.UnidentifiedObjectImpl@7aded3b7 (speed: (60.0,0.2), position: hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@454da158, angle: (3.14,0.07)) (confidence: 0.98). This indicates some errors in underlying model representation.
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.logIncident(NavigationHelperImpl.java:1596)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.logIncidentFeatureTupleRemoval(NavigationHelperImpl.java:1699)
+	at org.eclipse.viatra.query.runtime.base.core.EMFBaseIndexInstanceStore$FeatureData.removeFeatureTuple(EMFBaseIndexInstanceStore.java:136)
+	at org.eclipse.viatra.query.runtime.base.core.EMFBaseIndexInstanceStore.removeFeatureTuple(EMFBaseIndexInstanceStore.java:281)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperVisitor.visitAttribute(NavigationHelperVisitor.java:306)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeatureInternal(EMFModelComprehension.java:268)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeatureInternalSimple(EMFModelComprehension.java:256)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeature(EMFModelComprehension.java:243)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.featureUpdate(NavigationHelperContentAdapter.java:196)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.handleNotification(NavigationHelperContentAdapter.java:182)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$1.call(NavigationHelperContentAdapter.java:106)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$1.call(NavigationHelperContentAdapter.java:1)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.coalesceTraversals(NavigationHelperImpl.java:1144)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.notifyChanged(NavigationHelperContentAdapter.java:95)
+	at org.eclipse.emf.common.notify.impl.BasicNotifierImpl.eNotify(BasicNotifierImpl.java:424)
+	at surveillance.impl.MovingObjectImpl.setPosition(MovingObjectImpl.java:153)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceModelGenerator.lambda$1(SurveillanceModelGenerator.java:127)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceModelGenerator.iterate(SurveillanceModelGenerator.java:129)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.applyIncrement(SurveillanceRunner.java:58)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:135)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+Incremental query engine status after increment (is tainted): true
+Cancellation caught.
+incremental.timeout --> false
+Finally block executed.
+49938 [main] ERROR xt.validation.ResourceValidatorImpl  - The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+java.util.MissingResourceException: The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.delegatedGetString(DelegatingResourceLocator.java:586)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:450)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:605)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:597)
+	at org.eclipse.emf.ecore.util.Diagnostician.createDefaultDiagnostic(Diagnostician.java:110)
+	at org.eclipse.emf.ecore.util.Diagnostician.validate(Diagnostician.java:139)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:147)
+	at org.eclipse.xtext.xbase.annotations.validation.DerivedStateAwareResourceValidator.validate(DerivedStateAwareResourceValidator.java:33)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:91)
+	at org.eclipse.viatra.query.patternlanguage.emf.validation.PatternSetValidator.validate(PatternSetValidator.java:39)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:104)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:116)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:85)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder.parse(PatternParserBuilder.java:118)
+	at hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig.<init>(EngineConfig.java:54)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.initBatch(ViatraBaseRunner.java:44)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.initBatch(SurveillanceRunner.java:66)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:124)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+Removed: 0
+Updated: 0
+Insertions: 750
+UNARY
+standalone.total[ms] --> 1467.4837009999999
+standalone.sync[ms] --> 62.917296
+standalone.prop[ms] --> 441.937449
+standalone.result --> "{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object115"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object129"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object25"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object198"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object174"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object59"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object48"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object154"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object94"",
+		""probability"" : 0.9995999883898024
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object139"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object188"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object89"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object64"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object78"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object149"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object190"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object15"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object20"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object19"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object100"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object200"",
+		""probability"" : 0.99950004
+	},
+	{
+		""object"" : ""object40"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object29"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object133"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object128"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object43"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object145"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object98"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object165"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object95"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object104"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object125"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object33"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object170"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object114"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object55"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object159"",
+		""probability"" : 0.9995999883898024
+	},
+	{
+		""object"" : ""object80"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object184"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object63"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object123"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object50"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object110"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object75"",
+		""probability"" : 0.9995999883898022
+	},
+	{
+		""object"" : ""object70"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object23"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object194"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object99"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object144"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object185"",
+		""probability"" : 0.9995999883898024
+	},
+	{
+		""object"" : ""object24"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object150"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object175"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object179"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object68"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object13"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object39"",
+		""probability"" : 0.9995999883898024
+	},
+	{
+		""object"" : ""object45"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object65"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object124"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object140"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object168"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object60"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object108"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object103"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object134"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object90"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object169"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object119"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object44"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object120"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object79"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object38"",
+		""probability"" : 0.99950004
+	},
+	{
+		""object"" : ""object18"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object180"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object93"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object28"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object69"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object143"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object195"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object58"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object34"",
+		""probability"" : 0.99950004
+	},
+	{
+		""object"" : ""object138"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object183"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object85"",
+		""probability"" : 0.9995999883898024
+	},
+	{
+		""object"" : ""object118"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object109"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object199"",
+		""probability"" : 0.99950004
+	},
+	{
+		""object"" : ""object173"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object49"",
+		""probability"" : 0.9995999883898024
+	},
+	{
+		""object"" : ""object158"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object135"",
+		""probability"" : 0.999599999998839
+	},
+	{
+		""object"" : ""object35"",
+		""probability"" : 0.99950004
+	},
+	{
+		""object"" : ""object53"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object193"",
+		""probability"" : 0.999599990004
+	},
+	{
+		""object"" : ""object148"",
+		""probability"" : 0.9995999999990004
+	},
+	{
+		""object"" : ""object163"",
+		""probability"" : 0.99950004
+	},
+	{
+		""object"" : ""object153"",
+		""probability"" : 0.9995999999990004
+	}
+	]
+}
+"
+51588 [main] FATAL me.api.ViatraQueryEngine.2135694818  - Error: trying to remove duplicate value hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@36f088de from the unique feature org.eclipse.emf.ecore.impl.EAttributeImpl@3b938003 (name: position) (ordered: true, unique: true, lowerBound: 1, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (iD: false) of host object surveillance.impl.UnidentifiedObjectImpl@10d089d7 (speed: (60.0,0.2), position: hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@36f088de, angle: (3.14,0.07)) (confidence: 0.98). This indicates some errors in underlying model representation.
+java.lang.IllegalStateException: Error: trying to remove duplicate value hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@36f088de from the unique feature org.eclipse.emf.ecore.impl.EAttributeImpl@3b938003 (name: position) (ordered: true, unique: true, lowerBound: 1, upperBound: 1) (changeable: true, volatile: false, transient: false, defaultValueLiteral: null, unsettable: false, derived: false) (iD: false) of host object surveillance.impl.UnidentifiedObjectImpl@10d089d7 (speed: (60.0,0.2), position: hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate@36f088de, angle: (3.14,0.07)) (confidence: 0.98). This indicates some errors in underlying model representation.
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.logIncident(NavigationHelperImpl.java:1596)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.logIncidentFeatureTupleRemoval(NavigationHelperImpl.java:1699)
+	at org.eclipse.viatra.query.runtime.base.core.EMFBaseIndexInstanceStore$FeatureData.removeFeatureTuple(EMFBaseIndexInstanceStore.java:136)
+	at org.eclipse.viatra.query.runtime.base.core.EMFBaseIndexInstanceStore.removeFeatureTuple(EMFBaseIndexInstanceStore.java:281)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperVisitor.visitAttribute(NavigationHelperVisitor.java:306)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeatureInternal(EMFModelComprehension.java:268)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseFeatureTargets(EMFModelComprehension.java:222)
+	at org.eclipse.viatra.query.runtime.base.comprehension.EMFModelComprehension.traverseObject(EMFModelComprehension.java:203)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$3.call(NavigationHelperContentAdapter.java:310)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$3.call(NavigationHelperContentAdapter.java:1)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.coalesceTraversals(NavigationHelperImpl.java:1131)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.removeAdapterInternal(NavigationHelperContentAdapter.java:305)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.removeAdapter(NavigationHelperContentAdapter.java:280)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.spreadToChildren(NavigationHelperContentAdapter.java:360)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.unsetTarget(NavigationHelperContentAdapter.java:340)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.unsetTarget(NavigationHelperContentAdapter.java:621)
+	at org.eclipse.emf.ecore.impl.MinimalEObjectImpl$1ArrayDelegatingAdapterList.didRemove(MinimalEObjectImpl.java:617)
+	at org.eclipse.emf.ecore.impl.MinimalEObjectImpl$1ArrayDelegatingAdapterList.didRemove(MinimalEObjectImpl.java:1)
+	at org.eclipse.emf.common.util.ArrayDelegatingEList.remove(ArrayDelegatingEList.java:654)
+	at org.eclipse.emf.common.util.AbstractEList.remove(AbstractEList.java:456)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.simpleRemoveAdapter(NavigationHelperContentAdapter.java:405)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$3.call(NavigationHelperContentAdapter.java:321)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$3.call(NavigationHelperContentAdapter.java:1)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.coalesceTraversals(NavigationHelperImpl.java:1131)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.removeAdapterInternal(NavigationHelperContentAdapter.java:305)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.removeAdapter(NavigationHelperContentAdapter.java:280)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.handleContainment(NavigationHelperContentAdapter.java:530)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.selfAdapt(NavigationHelperContentAdapter.java:434)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.simpleNotifyChanged(NavigationHelperContentAdapter.java:389)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$1.call(NavigationHelperContentAdapter.java:98)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter$1.call(NavigationHelperContentAdapter.java:1)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperImpl.coalesceTraversals(NavigationHelperImpl.java:1144)
+	at org.eclipse.viatra.query.runtime.base.core.NavigationHelperContentAdapter.notifyChanged(NavigationHelperContentAdapter.java:95)
+	at org.eclipse.emf.common.notify.impl.BasicNotifierImpl.eNotify(BasicNotifierImpl.java:424)
+	at org.eclipse.emf.common.notify.impl.NotifyingListImpl.dispatchNotification(NotifyingListImpl.java:261)
+	at org.eclipse.emf.common.notify.impl.NotifyingListImpl.clear(NotifyingListImpl.java:1099)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.runBatch(SurveillanceRunner.java:111)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:126)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+standalone.timeout --> false
+Finally block executed.
+Debug: result(1006708868,0.979998943832596):
+Debug: 1
+Debug: result(1009003607,0.979998943832596):
+Debug: 1
+Debug: result(1009081089,0.979998943832596):
+Debug: 1
+Debug: result(1106066730,0.979998943832596):
+Debug: 1
+Debug: result(1148816769,0.97999902):
+Debug: 1
+Debug: result(1155925348,0.979894383259623):
+Debug: 1
+Debug: result(1157956659,0.979894383259623):
+Debug: 1
+Debug: result(1160487369,0.979998943832596):
+Debug: 1
+Debug: result(1171848351,0.9702):
+Debug: 1
+Debug: result(1179434073,0.979902):
+Debug: 1
+Debug: result(1219011224,0.979902):
+Debug: 1
+Debug: result(1273677461,0.97999902):
+Debug: 1
+Debug: result(1276416078,0.979998943832596):
+Debug: 1
+Debug: result(1306944951,0.979998943832596):
+Debug: 1
+Debug: result(1311957497,0.979902):
+Debug: 1
+Debug: result(1356734437,0.979894383259623):
+Debug: 1
+Debug: result(1357627251,0.979998943832596):
+Debug: 1
+Debug: result(1374809671,0.979998943832596):
+Debug: 1
+Debug: result(1381690281,0.97999902):
+Debug: 1
+Debug: result(1390711970,0.979998943832596):
+Debug: 1
+Debug: result(1432831714,0.979998943832596):
+Debug: 1
+Debug: result(1539496909,0.979894383259623):
+Debug: 1
+Debug: result(1547957391,0.9702):
+Debug: 1
+Debug: result(1562550349,0.979902):
+Debug: 1
+Debug: result(1578486078,0.979902):
+Debug: 1
+Debug: result(1593054746,0.979902):
+Debug: 1
+Debug: result(1604952928,0.97999902):
+Debug: 1
+Debug: result(1613427479,0.979894383259623):
+Debug: 1
+Debug: result(1615979304,0.979998943832596):
+Debug: 1
+Debug: result(1616734200,0.979998943832596):
+Debug: 1
+Debug: result(163187202,0.979902):
+Debug: 1
+Debug: result(1644562819,0.979998943832596):
+Debug: 1
+Debug: result(1645537819,0.979998943832596):
+Debug: 1
+Debug: result(1680594780,0.979998943832596):
+Debug: 1
+Debug: result(1695835759,0.97999902):
+Debug: 1
+Debug: result(1708280164,0.97999902):
+Debug: 1
+Debug: result(1763031653,0.97999902):
+Debug: 1
+Debug: result(1789333339,0.9702):
+Debug: 1
+Debug: result(1812053079,0.979894383259623):
+Debug: 1
+Debug: result(1830380361,0.97999902):
+Debug: 1
+Debug: result(1831718271,0.97999902):
+Debug: 1
+Debug: result(1831917467,0.979998943832596):
+Debug: 1
+Debug: result(1839119752,0.979998943832596):
+Debug: 1
+Debug: result(1849661707,0.9702):
+Debug: 1
+Debug: result(1850365989,0.97999902):
+Debug: 1
+Debug: result(1851143998,0.979998943832596):
+Debug: 1
+Debug: result(1864536358,0.979998943832596):
+Debug: 1
+Debug: result(1872292140,0.979894383259623):
+Debug: 1
+Debug: result(1896924446,0.979998943832596):
+Debug: 1
+Debug: result(1912131732,0.979998943832596):
+Debug: 1
+Debug: result(1926286281,0.979902):
+Debug: 1
+Debug: result(195666072,0.97999902):
+Debug: 1
+Debug: result(1967505429,0.979998943832596):
+Debug: 1
+Debug: result(2013498686,0.979998943832596):
+Debug: 1
+Debug: result(2052403172,0.979998943832596):
+Debug: 1
+Debug: result(2055271948,0.979894383259623):
+Debug: 1
+Debug: result(2057834672,0.97999902):
+Debug: 1
+Debug: result(2061423543,0.979894383259623):
+Debug: 1
+Debug: result(220689838,0.979998943832596):
+Debug: 1
+Debug: result(251568902,0.979998943832596):
+Debug: 1
+Debug: result(261805257,0.979998943832596):
+Debug: 1
+Debug: result(284305842,0.979902):
+Debug: 1
+Debug: result(321233594,0.979998943832596):
+Debug: 1
+Debug: result(335796066,0.97999902):
+Debug: 1
+Debug: result(338102641,0.979998943832596):
+Debug: 1
+Debug: result(356377759,0.97999902):
+Debug: 1
+Debug: result(357117570,0.979894383259623):
+Debug: 1
+Debug: result(365927748,0.97999902):
+Debug: 1
+Debug: result(371451080,0.979902):
+Debug: 1
+Debug: result(372213162,0.97999902):
+Debug: 1
+Debug: result(380436623,0.979902):
+Debug: 1
+Debug: result(392741043,0.979998943832596):
+Debug: 1
+Debug: result(414411667,0.979902):
+Debug: 1
+Debug: result(436112064,0.979894383259623):
+Debug: 1
+Debug: result(452305773,0.979902):
+Debug: 1
+Debug: result(459281776,0.979894383259623):
+Debug: 1
+Debug: result(480622535,0.979998943832596):
+Debug: 1
+Debug: result(481441333,0.979998943832596):
+Debug: 1
+Debug: result(488680164,0.97999902):
+Debug: 1
+Debug: result(56853566,0.97999902):
+Debug: 1
+Debug: result(575162797,0.9702):
+Debug: 1
+Debug: result(601869027,0.979998943832596):
+Debug: 1
+Debug: result(609601884,0.979998943832596):
+Debug: 1
+Debug: result(61934685,0.97999902):
+Debug: 1
+Debug: result(638599700,0.979998943832596):
+Debug: 1
+Debug: result(643751012,0.97999902):
+Debug: 1
+Debug: result(66192717,0.97999902):
+Debug: 1
+Debug: result(664009466,0.979902):
+Debug: 1
+Debug: result(696316657,0.979998943832596):
+Debug: 1
+Debug: result(707666410,0.979998943832596):
+Debug: 1
+Debug: result(708387070,0.9702):
+Debug: 1
+Debug: result(725381524,0.979998943832596):
+Debug: 1
+Debug: result(750441011,0.979998943832596):
+Debug: 1
+Debug: result(761011903,0.979902):
+Debug: 1
+Debug: result(778321069,0.979998943832596):
+Debug: 1
+Debug: result(838499605,0.979998943832596):
+Debug: 1
+Debug: result(840665187,0.979998943832596):
+Debug: 1
+Debug: result(85776251,0.979998943832596):
+Debug: 1
+Debug: result(861130902,0.979902):
+Debug: 1
+Debug: result(899046668,0.979894383259623):
+Debug: 1
+Debug: result(906929433,0.97999902):
+Debug: 1
+Debug: result(940388505,0.979998943832596):
+Debug: 1
+Debug: result(945317341,0.979998943832596):
+Debug: 1
+Debug: result(952812537,0.97999902):
+Debug: 1
+problog.total[ms] --> 322.194746
+problog.trafo[ms] --> 4.978661
+problog.evaluation[ms] --> 317.216085
+problog.result --> "{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object103"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object68"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object44"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object129"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object65"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object134"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object119"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object120"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object39"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object109"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object169"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object24"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object140"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object154"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object53"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object23"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object158"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object58"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object89"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object45"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object18"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object118"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object148"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object104"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object180"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object13"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object48"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object133"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object159"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object49"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object165"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object135"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object25"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object59"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object78"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object124"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object184"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object38"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object95"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object179"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object90"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object35"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object149"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object150"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object194"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object190"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object125"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object43"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object19"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object195"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object80"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object55"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object75"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object139"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object175"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object98"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object64"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object193"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object20"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object60"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object99"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object29"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object108"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object170"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object123"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object70"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object85"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object93"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object188"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object168"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object100"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object183"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object33"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object200"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object34"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object145"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object114"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object199"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object153"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object110"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object174"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object40"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object15"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object63"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object94"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object173"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object198"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object143"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object185"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object50"",
+			""probability"" : 0.979894383259623
+		},
+		{
+			""object"" : ""object28"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object163"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object79"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object144"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object69"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object115"",
+			""probability"" : 0.979998943832596
+		},
+		{
+			""object"" : ""object128"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object138"",
+			""probability"" : 0.97999902
+		}
+	]
+}
+"
+problog.timeout --> false
+iteration --> 1
+run --> 0
+prefix --> SRV
+size --> 200
+Incremental query engine status after increment (is tainted): true
+Cancellation caught.
+incremental.timeout --> false
+Finally block executed.
+77944 [main] ERROR xt.validation.ResourceValidatorImpl  - The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+java.util.MissingResourceException: The string resource '_UI_DiagnosticRoot_diagnostic' could not be located
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.delegatedGetString(DelegatingResourceLocator.java:586)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:450)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:605)
+	at org.eclipse.emf.common.util.DelegatingResourceLocator.getString(DelegatingResourceLocator.java:597)
+	at org.eclipse.emf.ecore.util.Diagnostician.createDefaultDiagnostic(Diagnostician.java:110)
+	at org.eclipse.emf.ecore.util.Diagnostician.validate(Diagnostician.java:139)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:147)
+	at org.eclipse.xtext.xbase.annotations.validation.DerivedStateAwareResourceValidator.validate(DerivedStateAwareResourceValidator.java:33)
+	at org.eclipse.xtext.validation.ResourceValidatorImpl.validate(ResourceValidatorImpl.java:91)
+	at org.eclipse.viatra.query.patternlanguage.emf.validation.PatternSetValidator.validate(PatternSetValidator.java:39)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:104)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:116)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParser.parse(PatternParser.java:85)
+	at org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder.parse(PatternParserBuilder.java:118)
+	at hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig.<init>(EngineConfig.java:54)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.initBatch(ViatraBaseRunner.java:44)
+	at hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceRunner.initBatch(SurveillanceRunner.java:66)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.warmup(ViatraBaseRunner.java:124)
+	at hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner.run(ViatraBaseRunner.java:87)
+	at hu.bme.mit.inf.measurement.MeasurementRunner.main(MeasurementRunner.java:58)
+Removed: 0
+Updated: 0
+Insertions: 777
+UNARY
+standalone.total[ms] --> 1488.2733910000002
+standalone.sync[ms] --> 59.300665
+standalone.prop[ms] --> 652.6756019999999
+standalone.result --> "{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""object"" : ""object104"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object69"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object200"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object39"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object115"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object103"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object175"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object79"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object25"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object5"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object170"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object90"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object65"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object64"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object49"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object3"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object4"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object120"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object123"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object13"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object34"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object198"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object168"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object149"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object80"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object9"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object133"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object53"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object135"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object45"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object190"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object50"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object93"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object188"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object68"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object18"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object163"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object143"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object98"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object28"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object59"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object29"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object114"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object118"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object165"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object55"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object95"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object110"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object40"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object85"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object129"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object8"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object19"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object108"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object89"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object58"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object44"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object150"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object20"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object60"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object158"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object10"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object43"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object35"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object180"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object185"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object153"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object195"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object134"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object15"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object75"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object63"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object199"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object128"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object100"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object78"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object184"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object124"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object139"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object194"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object119"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object144"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object145"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object38"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object94"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object173"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object24"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object99"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object174"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object138"",
+		""probability"" : 0.999992
+	},
+	{
+		""object"" : ""object109"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object48"",
+		""probability"" : 0.9999910000079999
+	},
+	{
+		""object"" : ""object179"",
+		""probability"" : 0.9999919999989999
+	},
+	{
+		""object"" : ""object140"",
+		""probability"" : 0.9999919999989999
+	}
+	]
+}
+"
+standalone.timeout --> false
+Finally block executed.
+Debug: result(1006708868,0.979902):
+Debug: 1
+Debug: result(1009003607,0.979902):
+Debug: 1
+Debug: result(1009081089,0.979902):
+Debug: 1
+Debug: result(1106066730,0.979902):
+Debug: 1
+Debug: result(1148816769,0.97999902):
+Debug: 1
+Debug: result(1155925348,0.9702):
+Debug: 1
+Debug: result(1160487369,0.9702):
+Debug: 1
+Debug: result(1171848351,0.9702):
+Debug: 1
+Debug: result(1219011224,0.9702):
+Debug: 1
+Debug: result(1273677461,0.979902):
+Debug: 1
+Debug: result(1276416078,0.979902):
+Debug: 1
+Debug: result(1306944951,0.979902):
+Debug: 1
+Debug: result(1311957497,0.979902):
+Debug: 1
+Debug: result(1356734437,0.9702):
+Debug: 1
+Debug: result(1357627251,0.979902):
+Debug: 1
+Debug: result(1374809671,0.9702):
+Debug: 1
+Debug: result(1381690281,0.979902):
+Debug: 1
+Debug: result(1432831714,0.9702):
+Debug: 1
+Debug: result(1539496909,0.9702):
+Debug: 1
+Debug: result(1547957391,0.9702):
+Debug: 1
+Debug: result(1562550349,0.979902):
+Debug: 1
+Debug: result(1578486078,0.9702):
+Debug: 1
+Debug: result(1593054746,0.9702):
+Debug: 1
+Debug: result(1604952928,0.97999902):
+Debug: 1
+Debug: result(1613427479,0.9702):
+Debug: 1
+Debug: result(1615979304,0.9702):
+Debug: 1
+Debug: result(1616734200,0.979902):
+Debug: 1
+Debug: result(1644562819,0.979902):
+Debug: 1
+Debug: result(1645537819,0.979902):
+Debug: 1
+Debug: result(1680594780,0.979902):
+Debug: 1
+Debug: result(1695835759,0.979902):
+Debug: 1
+Debug: result(1708280164,0.97999902):
+Debug: 1
+Debug: result(1763031653,0.979902):
+Debug: 1
+Debug: result(1789333339,0.9702):
+Debug: 1
+Debug: result(1812053079,0.9702):
+Debug: 1
+Debug: result(1830380361,0.979902):
+Debug: 1
+Debug: result(1831718271,0.979902):
+Debug: 1
+Debug: result(1831917467,0.9702):
+Debug: 1
+Debug: result(1839119752,0.9702):
+Debug: 1
+Debug: result(1849661707,0.9702):
+Debug: 1
+Debug: result(1850365989,0.97999902):
+Debug: 1
+Debug: result(1851143998,0.979902):
+Debug: 1
+Debug: result(1864536358,0.979902):
+Debug: 1
+Debug: result(1872292140,0.9702):
+Debug: 1
+Debug: result(1896924446,0.979902):
+Debug: 1
+Debug: result(1912131732,0.979902):
+Debug: 1
+Debug: result(1926286281,0.979902):
+Debug: 1
+Debug: result(1967505429,0.979902):
+Debug: 1
+Debug: result(2013498686,0.979902):
+Debug: 1
+Debug: result(2052403172,0.979902):
+Debug: 1
+Debug: result(2055271948,0.9702):
+Debug: 1
+Debug: result(2057834672,0.97999902):
+Debug: 1
+Debug: result(2061423543,0.9702):
+Debug: 1
+Debug: result(220689838,0.9702):
+Debug: 1
+Debug: result(261805257,0.979902):
+Debug: 1
+Debug: result(284305842,0.9702):
+Debug: 1
+Debug: result(335796066,0.97999902):
+Debug: 1
+Debug: result(338102641,0.9702):
+Debug: 1
+Debug: result(356377759,0.979902):
+Debug: 1
+Debug: result(357117570,0.9702):
+Debug: 1
+Debug: result(365927748,0.97999902):
+Debug: 1
+Debug: result(371451080,0.9702):
+Debug: 1
+Debug: result(372213162,0.97999902):
+Debug: 1
+Debug: result(392741043,0.9702):
+Debug: 1
+Debug: result(414411667,0.9702):
+Debug: 1
+Debug: result(436112064,0.9702):
+Debug: 1
+Debug: result(452305773,0.979902):
+Debug: 1
+Debug: result(459281776,0.9702):
+Debug: 1
+Debug: result(480622535,0.979902):
+Debug: 1
+Debug: result(481441333,0.979902):
+Debug: 1
+Debug: result(488680164,0.97999902):
+Debug: 1
+Debug: result(56853566,0.97999902):
+Debug: 1
+Debug: result(575162797,0.9702):
+Debug: 1
+Debug: result(601869027,0.979902):
+Debug: 1
+Debug: result(609601884,0.979902):
+Debug: 1
+Debug: result(638599700,0.979902):
+Debug: 1
+Debug: result(643751012,0.97999902):
+Debug: 1
+Debug: result(66192717,0.97999902):
+Debug: 1
+Debug: result(664009466,0.979902):
+Debug: 1
+Debug: result(696316657,0.9702):
+Debug: 1
+Debug: result(707666410,0.979902):
+Debug: 1
+Debug: result(708387070,0.9702):
+Debug: 1
+Debug: result(725381524,0.979902):
+Debug: 1
+Debug: result(750441011,0.979902):
+Debug: 1
+Debug: result(778321069,0.9702):
+Debug: 1
+Debug: result(838499605,0.979902):
+Debug: 1
+Debug: result(840665187,0.9702):
+Debug: 1
+Debug: result(85776251,0.979902):
+Debug: 1
+Debug: result(861130902,0.979902):
+Debug: 1
+Debug: result(899046668,0.9702):
+Debug: 1
+Debug: result(906929433,0.979902):
+Debug: 1
+Debug: result(940388505,0.979902):
+Debug: 1
+Debug: result(945317341,0.979902):
+Debug: 1
+Debug: result(952812537,0.97999902):
+Debug: 1
+problog.total[ms] --> 272.557822
+problog.trafo[ms] --> 4.3845529999999995
+problog.evaluation[ms] --> 268.17326899999995
+problog.result --> "{
+	""valid"" : true,
+	""matches"" : [
+		{
+			""object"" : ""object195"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object103"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object80"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object68"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object55"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object44"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object129"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object65"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object10"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object134"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object119"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object120"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object75"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object139"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object39"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object175"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object109"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object98"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object64"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object24"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object20"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object60"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object99"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object29"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object140"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object108"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object53"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object170"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object123"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object85"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object93"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object188"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object168"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object100"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object158"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object58"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object89"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object45"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object18"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object118"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object200"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object34"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object5"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object145"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object104"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object180"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object114"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object13"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object199"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object153"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object48"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object133"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object110"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object3"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object174"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object49"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object165"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object40"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object135"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object15"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object25"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object59"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object63"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object94"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object9"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object173"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object198"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object78"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object124"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object184"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object143"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object185"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object38"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object50"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object8"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object28"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object95"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object163"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object179"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object79"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object90"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object35"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object149"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object144"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object150"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object194"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object69"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object190"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object115"",
+			""probability"" : 0.9702
+		},
+		{
+			""object"" : ""object43"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object128"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object138"",
+			""probability"" : 0.97999902
+		},
+		{
+			""object"" : ""object19"",
+			""probability"" : 0.979902
+		},
+		{
+			""object"" : ""object4"",
+			""probability"" : 0.9702
+		}
+	]
+}
+"
+problog.timeout --> false
+iteration --> 2
+run --> 0
+prefix --> SRV
+size --> 200
+Incremental query engine status after increment (is tainted): true
+Cancellation caught.
+incremental.timeout --> false
+Finally block executed.

@@ -122,7 +122,9 @@ public class SurveillanceModelGenerator {
     };
     wrapper.model.getObjects().removeIf(_function);
     final Consumer<MovingObject> _function_1 = (MovingObject obj) -> {
-      obj.setPosition(SurveillanceHelper.move(obj.getPosition(), obj.getSpeed(), obj.getAngle(), 1));
+      final Coordinate old = obj.getPosition();
+      final Coordinate neww = SurveillanceHelper.move(old, obj.getSpeed(), obj.getAngle(), 1);
+      obj.setPosition(neww);
     };
     wrapper.model.getObjects().forEach(_function_1);
   }

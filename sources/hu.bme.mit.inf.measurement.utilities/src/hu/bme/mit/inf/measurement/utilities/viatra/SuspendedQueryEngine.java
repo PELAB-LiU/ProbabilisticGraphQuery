@@ -26,6 +26,7 @@ public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
 	private final AdvancedViatraQueryEngine engine;
 	private final Field suspended;
 	private final Field backends;
+	private int suspendcount = 0;
 	
 	public static SuspendedQueryEngine create(QueryScope scope) throws NoSuchFieldException, SecurityException {
 		return new SuspendedQueryEngine(scope);

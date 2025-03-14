@@ -3,6 +3,8 @@ package hu.bme.mit.inf.measurement.utilities
 import java.util.Map
 import java.util.HashMap
 import java.util.Queue
+import java.util.List
+import java.util.Arrays
 
 class CSVLog {
 	private final String[] columns

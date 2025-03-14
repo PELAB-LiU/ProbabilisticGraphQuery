@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: hu.bme.mit.inf.dslreasoner.domains.smarthome.queries,
- hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.clean,
  hu.bme.mit.inf.dslreasoner.domains.smarthome.viatra,
  smarthome,
  smarthome.impl,

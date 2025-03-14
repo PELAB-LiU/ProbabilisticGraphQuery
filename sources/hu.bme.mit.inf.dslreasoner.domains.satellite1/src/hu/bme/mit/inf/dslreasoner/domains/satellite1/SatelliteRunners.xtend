@@ -54,18 +54,18 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 		super(cfg, SatellitePackage.eINSTANCE)
 	}
 	
-	override initStandalone(){
-		super.initStandalone
-		initializePatterns(standalone, "coverage")
+	override initBatch(){
+		super.initBatch
+		initializePatterns(batch, "coverage")
 	}
-	override runStandalone(CSVLog log){
+	override runBatch(CSVLog log){
 		Configuration.enable
 				
 		try {
 			/**
 			 * Setup instance model 
 			 */
-			val resource = standaloneResourceSet.createResource(URI.createFileURI("tmp-domain-standalone.xmi"))
+			val resource = batch.model
 			//resource.contents.addAll(EcoreUtil.copyAll(incrementalDomainResource.contents))
 			resource.contents.add(EcoreUtil.copy(instance.mission))
 			
@@ -80,9 +80,9 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			standalone.enableAndPropagate
-			val it0sync = standaloneMDD.unaryForAll(standalone)
-			val coverage = checkMatches("coverage", parsed, standalone)
+			batch.enable
+			val it0sync = batch.mdd.unaryForAll(batch.engine)
+			val coverage = checkMatches("coverage", batch)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -101,9 +101,9 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 			println("Finally block executed.")
 		}
 	}
-	override preRun(int seed){
+	override setupInitialModel(int seed){
 		instance = modelgen.make(cfg.size, seed)
-		incrementalDomainResource.contents.add(instance.mission)
+		incremental.model.contents.add(instance.mission)
 	}
 	
 	override initIncremental(){
@@ -129,9 +129,9 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			incremental.enableAndPropagate
-			val it0sync = incrementalMDD.unaryForAll(incremental)
-			val coverage = checkMatches("coverage", parsed, incremental)
+			incremental.enable
+			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
+			val coverage = checkMatches("coverage", incremental)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time

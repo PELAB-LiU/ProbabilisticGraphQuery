@@ -86,7 +86,9 @@ class SurveillanceModelGenerator {
 			return wrapper.rnd.nextDouble < threshold
 		])
 		wrapper.model.objects.forEach[obj |
-			obj.position = SurveillanceHelper.move(obj.position, obj.speed, obj.angle, 1)
+			val old = obj.position
+			val neww = SurveillanceHelper.move(old, obj.speed, obj.angle, 1)
+			obj.position = neww 
 		]
 	}
 }

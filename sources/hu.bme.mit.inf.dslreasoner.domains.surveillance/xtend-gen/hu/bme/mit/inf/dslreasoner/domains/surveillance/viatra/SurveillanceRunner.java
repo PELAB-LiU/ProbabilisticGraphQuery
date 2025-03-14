@@ -1,10 +1,12 @@
 package hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra;
 
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.problog.ProblogSurveillanceGenerator;
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceCopier;
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper;
 import hu.bme.mit.inf.measurement.utilities.CSVLog;
 import hu.bme.mit.inf.measurement.utilities.Config;
 import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfiguration;
-import hu.bme.mit.inf.measurement.utilities.viatra.SuspendedQueryEngine;
+import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig;
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner;
 import java.io.File;
 import java.io.FileWriter;
@@ -19,11 +21,8 @@ import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults;
 import org.eclipse.viatra.query.runtime.api.IPatternMatch;
 import org.eclipse.viatra.query.runtime.api.IQuerySpecification;
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
@@ -49,17 +48,32 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
   }
 
   @Override
-  public void initStandalone() {
-    super.initStandalone();
-    this.initializePatterns(this.standalone, "elimination");
+  public void setupInitialModel(final int seed) {
+    this.instance = this.modelgen.make(this.cfg.getSize(), seed);
+    this.incremental.getModel().getContents().add(this.instance.model);
   }
 
   @Override
-  public void runStandalone(final CSVLog log) {
+  public void applyIncrement() {
+    this.modelgen.iterate(this.instance, 0.1);
+    boolean _isTainted = this.incremental.getEngine().isTainted();
+    String _plus = ("Incremental query engine status after increment (is tainted): " + Boolean.valueOf(_isTainted));
+    InputOutput.<String>println(_plus);
+  }
+
+  @Override
+  public void initBatch() {
+    super.initBatch();
+    this.initializePatterns(this.batch, "elimination");
+  }
+
+  @Override
+  public void runBatch(final CSVLog log) {
+    SurveillanceHelper.logger = log;
     Configuration.enable();
+    final Resource resource = this.batch.getModel();
     try {
-      final Resource resource = this.standaloneResourceSet.createResource(URI.createFileURI("tmp-domain-standalone.xmi"));
-      final EcoreUtil.Copier copier = new EcoreUtil.Copier();
+      final SurveillanceCopier copier = new SurveillanceCopier();
       final EObject result = copier.copy(this.instance.model);
       copier.copyReferences();
       resource.getContents().add(result);
@@ -72,18 +86,14 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       final Procedure0 _function_1 = () -> {
         InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        boolean _isDisposed = this.standalone.isDisposed();
-        boolean _not = (!_isDisposed);
-        if (_not) {
-          this.standalone.dispose();
-        }
+        this.batch.dispose();
         log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function_1);
       final long it0start = System.nanoTime();
-      this.standalone.enableAndPropagate();
-      final long it0sync = this.standaloneMDD.unaryForAll(this.standalone);
-      final String coverage = this.getMatchesJSON(this.parsed, this.standalone, index);
+      this.batch.enable();
+      final long it0sync = this.batch.getMdd().unaryForAll(this.batch.getEngine());
+      final String coverage = this.getMatchesJSON(this.batch, index);
       final long it0end = System.nanoTime();
       timeout.cancel();
       final long it0prop = ExecutionTime.time();
@@ -98,15 +108,10 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
+      resource.getContents().clear();
       log.log("standalone.timeout", Boolean.valueOf(Configuration.isCancelled()));
       InputOutput.<String>println("Finally block executed.");
     }
-  }
-
-  @Override
-  public void preRun(final int seed) {
-    this.instance = this.modelgen.make(this.cfg.getSize(), seed);
-    this.incrementalDomainResource.getContents().add(this.instance.model);
   }
 
   @Override
@@ -118,23 +123,20 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
   @Override
   public void runIncremental(final CSVLog log) {
     Configuration.enable();
+    SurveillanceHelper.logger = log;
     try {
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
         InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        boolean _isDisposed = this.incremental.isDisposed();
-        boolean _not = (!_isDisposed);
-        if (_not) {
-          this.incremental.dispose();
-        }
+        this.incremental.dispose();
         log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       final long it0start = System.nanoTime();
-      this.incremental.enableAndPropagate();
-      final long it0sync = this.incrementalMDD.unaryForAll(this.incremental);
-      final String coverage = this.getMatchesJSON(this.parsed, this.incremental, this.instance.ordering);
+      this.incremental.enable();
+      final long it0sync = this.incremental.getMdd().unaryForAll(this.incremental.getEngine());
+      final String coverage = this.getMatchesJSON(this.incremental, this.instance.ordering);
       final long it0end = System.nanoTime();
       timeout.cancel();
       final long it0prop = ExecutionTime.time();
@@ -144,6 +146,8 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       log.log("incremental.result", coverage);
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        e.printStackTrace();
         InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
@@ -152,11 +156,6 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       log.log("incremental.timeout", Boolean.valueOf(Configuration.isCancelled()));
       InputOutput.<String>println("Finally block executed.");
     }
-  }
-
-  @Override
-  public void applyIncrement() {
-    this.modelgen.iterate(this.instance, 0.1);
   }
 
   @Override
@@ -263,10 +262,10 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
     return _builder.toString();
   }
 
-  public String getMatchesJSON(final PatternParsingResults parsed, final SuspendedQueryEngine engine, final Map<EObject, Integer> index) {
+  public String getMatchesJSON(final EngineConfig engine, final Map<EObject, Integer> index) {
     String _xblockexpression = null;
     {
-      final Optional<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> opt = parsed.getQuerySpecification("elimination");
+      final Optional<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> opt = engine.getParsed().getQuerySpecification("elimination");
       String _xifexpression = null;
       boolean _isPresent = opt.isPresent();
       if (_isPresent) {
@@ -283,7 +282,7 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
           _builder.append("\"matches\" : [");
           _builder.newLine();
           {
-            Collection<? extends IPatternMatch> _allMatches = engine.getMatcher(matcher).getAllMatches();
+            Collection<? extends IPatternMatch> _allMatches = engine.getEngine().getMatcher(matcher).getAllMatches();
             boolean _hasElements = false;
             for(final IPatternMatch match : _allMatches) {
               if (!_hasElements) {

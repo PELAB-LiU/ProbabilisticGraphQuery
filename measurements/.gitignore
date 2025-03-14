@@ -1,2 +1,6 @@
 /.ipynb_checkpoints/
 *.jar
+/ignore/
+/__pycache__/
+debug*.txt
+debug*.csv

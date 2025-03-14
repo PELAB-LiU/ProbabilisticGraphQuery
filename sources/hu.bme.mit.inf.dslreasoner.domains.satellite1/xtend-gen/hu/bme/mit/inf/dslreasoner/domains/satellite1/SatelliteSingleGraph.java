@@ -12,7 +12,6 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.xbase.lib.Conversions;
@@ -39,16 +38,16 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
   }
 
   @Override
-  public void initStandalone() {
-    super.initStandalone();
-    this.initializePatterns(this.standalone, "coverage");
+  public void initBatch() {
+    super.initBatch();
+    this.initializePatterns(this.batch, "coverage");
   }
 
   @Override
-  public void runStandalone(final CSVLog log) {
+  public void runBatch(final CSVLog log) {
     Configuration.enable();
     try {
-      final Resource resource = this.standaloneResourceSet.createResource(URI.createFileURI("tmp-domain-standalone.xmi"));
+      final Resource resource = this.batch.getModel();
       resource.getContents().add(EcoreUtil.<InterferometryMission>copy(this.instance.mission));
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
@@ -58,9 +57,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       final long it0start = System.nanoTime();
-      this.standalone.enableAndPropagate();
-      final long it0sync = this.standaloneMDD.unaryForAll(this.standalone);
-      final double coverage = this.checkMatches("coverage", this.parsed, this.standalone);
+      this.batch.enable();
+      final long it0sync = this.batch.getMdd().unaryForAll(this.batch.getEngine());
+      final double coverage = this.checkMatches("coverage", this.batch);
       final long it0end = System.nanoTime();
       timeout.cancel();
       final long it0prop = ExecutionTime.time();
@@ -81,9 +80,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
   }
 
   @Override
-  public void preRun(final int seed) {
+  public void setupInitialModel(final int seed) {
     this.instance = this.modelgen.make(this.cfg.getSize(), seed);
-    this.incrementalDomainResource.getContents().add(this.instance.mission);
+    this.incremental.getModel().getContents().add(this.instance.mission);
   }
 
   @Override
@@ -104,9 +103,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       final long it0start = System.nanoTime();
-      this.incremental.enableAndPropagate();
-      final long it0sync = this.incrementalMDD.unaryForAll(this.incremental);
-      final double coverage = this.checkMatches("coverage", this.parsed, this.incremental);
+      this.incremental.enable();
+      final long it0sync = this.incremental.getMdd().unaryForAll(this.incremental.getEngine());
+      final double coverage = this.checkMatches("coverage", this.incremental);
       final long it0end = System.nanoTime();
       timeout.cancel();
       final long it0prop = ExecutionTime.time();

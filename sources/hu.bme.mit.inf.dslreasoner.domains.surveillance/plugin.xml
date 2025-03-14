@@ -10,11 +10,8 @@
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.targettableObject"/>
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.gunshot"/>
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.killed"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.move"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.shoot"/>
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.attempt"/>
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.elimination"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.stochasticCount"/>
     </group>
   </extension>
   <extension id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean" point="org.eclipse.viatra.query.runtime.queryspecification">

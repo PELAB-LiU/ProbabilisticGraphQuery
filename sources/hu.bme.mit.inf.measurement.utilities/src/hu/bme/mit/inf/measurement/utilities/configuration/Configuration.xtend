@@ -53,11 +53,11 @@ class BaseConfiguration {
 	def int getIterations(){iterations}
 	
 	@Parameter(names = "--header", description = "List of CSV columns to include in the output.")
-	var List<String> columns = #["prefix","size","run","iteration"
+	var List<String> columns = newArrayList("prefix","size","run","iteration"
 		,"incremental.total[ms]","incremental.result","incremental.sync[ms]", "incremental.prop[ms]","incremental.timeout"
 		,"standalone.total[ms]","standalone.result","standalone.sync[ms]", "standalone.prop[ms]","standalone.timeout"
 		,"problog.total[ms]","problog.result","problog.trafo[ms]", "problog.evaluation[ms]","problog.timeout"
-	]
+	)
 	def List<String> getCSVcolumns(){columns}
 	
 	@Parameter(names = "--delimiter", description = "Separator in the output CSV file.")

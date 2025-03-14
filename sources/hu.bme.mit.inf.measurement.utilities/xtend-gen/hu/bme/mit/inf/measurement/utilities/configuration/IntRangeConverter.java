@@ -1,5 +1,6 @@
 package hu.bme.mit.inf.measurement.utilities.configuration;
 
+import com.beust.jcommander.IStringConverter;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,7 @@ import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.IntegerRange;
 
 @SuppressWarnings("all")
-public class IntRangeConverter /* implements IStringConverter<List<Integer>>  */{
+public class IntRangeConverter implements IStringConverter<List<Integer>> {
   @Override
   public List<Integer> convert(final String arg) {
     try {

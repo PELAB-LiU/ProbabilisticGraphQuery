@@ -26,7 +26,9 @@ Require-Bundle: lintra.uncertaindatatypes;bundle-version="1.0.0",
  org.eclipse.xtext,
  hu.bme.mit.inf.measurement.utilities,
  se.liu.ida.sas.pelab.problog;bundle-version="1.0.0",
- org.apache.log4j
+ org.apache.log4j,
+ org.junit,
+ junit-jupiter-api
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.log4j

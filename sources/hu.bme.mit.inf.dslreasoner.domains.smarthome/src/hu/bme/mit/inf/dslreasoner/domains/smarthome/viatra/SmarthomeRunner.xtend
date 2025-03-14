@@ -24,6 +24,7 @@ import java.util.Map
 import org.eclipse.emf.ecore.util.EcoreUtil.Copier
 import org.eclipse.emf.ecore.EObject
 import java.util.concurrent.atomic.AtomicBoolean
+import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig
 
 class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 	val modelgen = new SmarthomeModelGenerator
@@ -33,18 +34,18 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		super(cfg, SmarthomePackage.eINSTANCE)
 	}
 	
-	override initStandalone(){
-		super.initStandalone		
-		initializePatterns(standalone, "callProbability")
+	override initBatch(){
+		super.initBatch		
+		initializePatterns(batch, "callProbability")
 	}
-	override runStandalone(CSVLog log){
+	override runBatch(CSVLog log){
 		Configuration.enable
 		
 		try{
 			/**
 			 * Setup instance model 
 			 */
-			val resource = standaloneResourceSet.createResource(URI.createFileURI("tmp-domain-standalone.xmi"))
+			val resource = batch.model
 			//resource.contents.add(EcoreUtil.copy(instance.model))
 			val copier = new Copier
 			val result = copier.copy(instance.model)
@@ -62,15 +63,13 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 			val timeout = Config.timeout(cfg.timeoutS, [|
 				println("Run cancelled with timeout.")
 				Configuration.cancel
-				if(!standalone.isDisposed){
-					standalone.dispose
-				}
+				batch.dispose
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			standalone.enableAndPropagate
-			val it0sync = standaloneMDD.unaryForAll(standalone)
-			val coverage = getMatchesJSON(parsed, standalone, index)
+			batch.enable
+			val it0sync = batch.mdd.unaryForAll(batch.engine)
+			val coverage = getMatchesJSON(batch, index)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -90,9 +89,9 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		}
 	}
 	
-	override preRun(int seed){
+	override setupInitialModel(int seed){
 		instance = modelgen.make(cfg.homes, cfg.persons, cfg.size)
-		incrementalDomainResource.contents.add(instance.model)
+		incremental.model.contents.add(instance.model)
 	}
 	
 	
@@ -115,15 +114,13 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 			val timeout = Config.timeout(cfg.timeoutS, [|
 				println("Run cancelled with timeout.")
 				Configuration.cancel
-				if(!incremental.isDisposed){
-					incremental.dispose
-				}
+				incremental.dispose
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			incremental.enableAndPropagate
-			val it0sync = incrementalMDD.unaryForAll(incremental)
-			val coverage = getMatchesJSON(parsed, incremental, instance.idmap)
+			incremental.enable
+			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
+			val coverage = getMatchesJSON(incremental, instance.idmap)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -202,17 +199,16 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		}
 		'''
 	}
-	def String getMatchesJSON(PatternParsingResults parsed, AdvancedViatraQueryEngine engine, Map<EObject,String> index){
-		val opt = parsed.getQuerySpecification("callProbability")
+	def String getMatchesJSON(EngineConfig engine, Map<EObject,String> index){
+		val opt = engine.parsed.getQuerySpecification("callProbability")
 		if(opt.isPresent){
 			val matcher = opt.get
 			'''
 			{
 				"valid" : true,
 				"matches" : [
-				«FOR match : engine.getMatcher(matcher).allMatches SEPARATOR ","»
+				«FOR match : engine.engine.getMatcher(matcher).allMatches SEPARATOR ","»
 					{
-						"home" : "«index.get(match.get(0))»",
 						"measurement" : "«index.get(match.get(1))»",
 						"probability" : «match.get(2)»
 					}
