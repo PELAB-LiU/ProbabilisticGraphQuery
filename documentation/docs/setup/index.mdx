@@ -5,6 +5,8 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import {os2} from '@site/src/helpers/os.ts';
 import BrowserOnly from '@docusaurus/BrowserOnly';
+import Details from '@theme/Details';
+import CodeBlock from '@theme/CodeBlock';
 
 # Setup
 
@@ -20,14 +22,36 @@ The container also functions as a Remote Desktop Server (RDP) with preconfigured
 
 ## Build docker image
 
-Change directory to the repository. Expected location is `.../ProbabilisticGraphQuery$`
+In this repository, the `devenv` folder contains scripts and source files to recreate the development and measurement environment.
+
+<Details summary="Dockerfile for the environment">
+import Dockerfile from '!!../../src/helpers/partial-loader!!@site/../devenv/dockerfile';
+
+<CodeBlock language="c">{Dockerfile}</CodeBlock>
+</Details>
+
+
+Before cuntinuing, ensure that the current working driectory is `devenv` od the repository. (`ProbabilisticGraphQuery/devenv`)
 
 Build your own docker image with the following command:
-```
-docker build -t pgq-devenv devenv/dockerfile
-```
+
+
+<Tabs groupId="os">
+  <TabItem value="win" label="Windows">
+import BuildWin from '!!../../src/helpers/partial-loader?lines=5-*!!@site/../devenv/build.bat';
+
+    <CodeBlock language="bash">{BuildWin}</CodeBlock>
+  </TabItem>
+  <TabItem value="linux" label="Posix">
+    ```bash
+    docker build -t pgq-devenv dockerfile
+    ```
+  </TabItem>
+</Tabs>
+
 :::tip[Note]
-Downloading eclipse takes a lot of time. Be patient, or download the eclipse instance manually and replace `RUN wget 'https://www.eclipse.org/downloads ...` with `COPY <your file> eclipse.tar.gz`
+* Downloading eclipse takes a lot of time. Be patient, or download the eclipse instance manually and replace `RUN wget 'https://www.eclipse.org/downloads ...` with `COPY <your file> eclipse.tar.gz`
+* Building storm model checker can take up to an hour. It also takes significant memory to compile. To lower resource usage, adjust the `make -j12` flag in the dockerfile to use less CPU cores.
 :::
 
 Alternatively, import the image using the following command:
@@ -39,11 +63,16 @@ docker image load -i <my image file>
 ## Create container
 
 Create container with the following command.
-<Tabs groupId="data">
-    <TabItem value="posix" label="Linux">
+<Tabs groupId="os">
+    <TabItem value="win" label="Windows">
+import InitWin from '!!../../src/helpers/partial-loader?lines=5-*!!@site/../devenv/init.bat';
+
+    <CodeBlock language="bash">{InitWin}</CodeBlock>
+    </TabItem>
+    <TabItem value="linux" label="Posix">
     ```
     docker run -d -u root \
-      --name=pgq-devenv \
+      --name=pgq-devenv-storm \
       --security-opt seccomp=unconfined \
       -p 4100:3389 \
       --shm-size="1gb" \
@@ -51,40 +80,36 @@ Create container with the following command.
       pgq-devenv
     ```
     </TabItem>
-    <TabItem value="win" label="Windows">
-    ```
-    docker run -d -u root ^
-      --name=pgq-devenv ^
-      --security-opt seccomp=unconfined ^
-      -p 4100:3389 ^
-      --shm-size="1gb" ^
-      -v $(pwd):/config/ProbabilisticGraphQuery ^
-      pgq-devenv
-    ```
-    </TabItem>
+
 </Tabs>
 
 (Delayed) You can stop the container with:
 ```
-docker container stop pgq-devenv
+docker container stop pgq-devenv-storm 
 ```
 (Delayed) You can restart the container with:
 ```
-docker container start pgq-devenv
+docker container start pgq-devenv-storm 
 ```
 :::tip[Note]
 If you use `docker exec`, don't forget to set the user to `abc`.
 ```
-docker exec -u abc -it -w /config pgq-devenv /bin/bash
+docker exec -u abc -it -w /config pgq-devenv-storm /bin/bash
 ```
 :::
 
 ## Configuring container
 
+### Download compile runtime dependencies
+
+```
+docker exec -u abc -w /config/ProbabilisticGraphQuery/sources/hu.bme.mit.delta.api/libs/ pgq-devenv-storm ./download.sh
+docker exec -u abc -w /config/ProbabilisticGraphQuery/sources/hu.bme.mit.inf.measurement.utilities/libs/ pgq-devenv-storm ./download.sh
+```
+
+### Configure editor
+
 * Connect to the running container from an RDP client (address: `localhost:4100`, username: `abc`, password: `abc`)
-* Donload jar dependencies.
-  * `/config/ProbabilisticGraphQuery/sources/hu.bme.mit.delta.api/libs/download.sh`
-  * `/config/ProbabilisticGraphQuery/sources/hu.bme.mit.inf.measurement.utilities/libs/download.sh`
 * Launch Eclipse from `Applications -> Development -> Modeling 2024-03`
 * Pick a workplace. (Any directory works, but we recommend picking `/config/ProbabilisticGraphQuery/devenv/workplace`)
 * Import all projects from  `/config/ProbabilisticGraphQuery/sources` (`File -> Import -> General -> Existing Projects into Workspace -> Next -> Select root directory -> /config/ProbabilisticGraphQuery/sources -> Projects -> Select All -> Finish`)
