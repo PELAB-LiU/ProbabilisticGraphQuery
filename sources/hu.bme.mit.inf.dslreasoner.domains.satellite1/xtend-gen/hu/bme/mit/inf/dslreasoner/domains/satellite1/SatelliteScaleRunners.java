@@ -67,6 +67,9 @@ public class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfigurat
       log.log("incremental.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
+      boolean _isTainted = this.engine.isTainted();
+      boolean _not = (!_isTainted);
+      log.log("incremental.healthy", Boolean.valueOf(_not));
       log.log("incremental.result", Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {

@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
@@ -29,12 +30,19 @@ import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function0;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.InputOutput;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
+import org.eclipse.xtext.xbase.lib.Pair;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 import reliability.intreface.Configuration;
 import reliability.intreface.ExecutionTime;
+import se.liu.ida.sas.pelab.storm.run.StormEvaluation;
+import se.liu.ida.sas.pelab.storm.run.StormRunInfo;
+import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceGenerator;
 import surveillance.SurveillancePackage;
 
 @SuppressWarnings("all")
@@ -100,6 +108,9 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       log.log("standalone.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       log.log("standalone.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("standalone.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
+      boolean _isTainted = this.batch.getEngine().isTainted();
+      boolean _not = (!_isTainted);
+      log.log("standalone.healthy", Boolean.valueOf(_not));
       log.log("standalone.result", coverage);
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
@@ -143,6 +154,9 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       log.log("incremental.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
+      boolean _isTainted = this.incremental.getEngine().isTainted();
+      boolean _not = (!_isTainted);
+      log.log("incremental.healthy", Boolean.valueOf(_not));
       log.log("incremental.result", coverage);
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
@@ -210,6 +224,86 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
+  }
+
+  @Override
+  public void runStorm(final CSVLog log) {
+    final Function0<Pair<String, List<String>>> _function = () -> {
+      return new StormSurveillanceGenerator().generateFrom(this.instance.model);
+    };
+    final StormRunInfo result = StormEvaluation.evalueate(this.cfg, _function);
+    log.log("storm.total[ms]", Double.valueOf((result.transformation_ms + result.run_ms)));
+    log.log("storm.trafo[ms]", Double.valueOf(result.transformation_ms));
+    log.log("storm.evaluation[ms]", Double.valueOf(result.run_ms));
+    log.log("storm.result", this.stormToJSON(result.results, result.timeout));
+    log.log("storm.timeout", Boolean.valueOf(result.timeout));
+  }
+
+  public String stormToJSON(final Map<String, Double> data, final boolean timeout) {
+    final Function1<Map.Entry<String, Double>, Pair<Integer, Double>> _function = (Map.Entry<String, Double> entry) -> {
+      Pair<Integer, Double> _xblockexpression = null;
+      {
+        final String key = entry.getKey().replace("toplevel \"elimination_UnidentifiedObjectImpl", "").replace("\";", "");
+        int _parseInt = Integer.parseInt(key);
+        Double _value = entry.getValue();
+        _xblockexpression = Pair.<Integer, Double>of(Integer.valueOf(_parseInt), _value);
+      }
+      return _xblockexpression;
+    };
+    final Function1<Pair<Integer, Double>, Integer> _function_1 = (Pair<Integer, Double> e) -> {
+      return e.getKey();
+    };
+    final Function1<Pair<Integer, Double>, Double> _function_2 = (Pair<Integer, Double> e) -> {
+      return e.getValue();
+    };
+    final Map<Integer, Double> results = IterableExtensions.<Pair<Integer, Double>, Integer, Double>toMap(IterableExtensions.<Map.Entry<String, Double>, Pair<Integer, Double>>map(data.entrySet(), _function), _function_1, _function_2);
+    StringConcatenation _builder = new StringConcatenation();
+    _builder.append("{");
+    _builder.newLine();
+    _builder.append("\t");
+    _builder.append("\"valid\" : ");
+    _builder.append((!timeout), "\t");
+    _builder.append(",");
+    _builder.newLineIfNotEmpty();
+    _builder.append("\t");
+    _builder.append("\"matches\" : [");
+    _builder.newLine();
+    {
+      Set<Map.Entry<Integer, Double>> _entrySet = results.entrySet();
+      boolean _hasElements = false;
+      for(final Map.Entry<Integer, Double> entry : _entrySet) {
+        if (!_hasElements) {
+          _hasElements = true;
+        } else {
+          _builder.appendImmediate(",", "\t\t");
+        }
+        _builder.append("\t\t");
+        _builder.append("{");
+        _builder.newLine();
+        _builder.append("\t\t");
+        _builder.append("\t");
+        _builder.append("\"object\" : \"object");
+        Integer _get = this.instance.ordering.get(this.instance.ofHashCode((entry.getKey()).intValue()));
+        _builder.append(_get, "\t\t\t");
+        _builder.append("\",");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t");
+        _builder.append("\t");
+        _builder.append("\"probability\" : ");
+        Double _value = entry.getValue();
+        _builder.append(_value, "\t\t\t");
+        _builder.newLineIfNotEmpty();
+        _builder.append("\t\t");
+        _builder.append("}");
+        _builder.newLine();
+      }
+    }
+    _builder.append("\t");
+    _builder.append("]");
+    _builder.newLine();
+    _builder.append("}");
+    _builder.newLine();
+    return _builder.toString();
   }
 
   public String problogToJSON(final Map<String, Object> data, final boolean timeout) {

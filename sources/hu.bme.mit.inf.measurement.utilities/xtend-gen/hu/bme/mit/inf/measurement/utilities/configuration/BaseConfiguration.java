@@ -78,7 +78,7 @@ public class BaseConfiguration {
   }
 
   @Parameter(names = "--header", description = "List of CSV columns to include in the output.")
-  private List<String> columns = CollectionLiterals.<String>newArrayList("prefix", "size", "run", "iteration", "incremental.total[ms]", "incremental.result", "incremental.sync[ms]", "incremental.prop[ms]", "incremental.timeout", "standalone.total[ms]", "standalone.result", "standalone.sync[ms]", "standalone.prop[ms]", "standalone.timeout", "problog.total[ms]", "problog.result", "problog.trafo[ms]", "problog.evaluation[ms]", "problog.timeout");
+  private List<String> columns = CollectionLiterals.<String>newArrayList("prefix", "size", "run", "iteration", "incremental.total[ms]", "incremental.result", "incremental.sync[ms]", "incremental.prop[ms]", "incremental.timeout", "standalone.total[ms]", "standalone.result", "standalone.sync[ms]", "standalone.prop[ms]", "standalone.timeout", "problog.total[ms]", "problog.result", "problog.trafo[ms]", "problog.evaluation[ms]", "problog.timeout", "storm.total[ms]", "storm.result", "storm.trafo[ms]", "storm.evaluation[ms]", "storm.timeout", "incremental.healthy", "standalone.healthy");
 
   public List<String> getCSVcolumns() {
     return this.columns;
@@ -96,6 +96,13 @@ public class BaseConfiguration {
 
   public String getProbLogFile() {
     return this.plfile;
+  }
+
+  @Parameter(names = "--stormmodel", description = "Temporary file for storm model.")
+  private String stormfile = "tmp-storm.dft";
+
+  public String getStormFile() {
+    return this.stormfile;
   }
 
   @Parameter(names = "--logto", description = "Specify where to print the CSV output from measurement runs. System.out and System.err will redirect to standard and error output respectively.", variableArity = true, converter = PrintStreamConcereter.class)

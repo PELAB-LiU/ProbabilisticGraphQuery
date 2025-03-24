@@ -86,6 +86,7 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
+			log.log("incremental.healthy", !engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch (CancellationException e) {
 			println("Cancellation caught.")

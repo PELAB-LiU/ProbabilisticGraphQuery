@@ -117,16 +117,7 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
         for (final Integer iter : _upTo) {
           {
             this.gc();
-            this.incremental.acquire();
-            this.runIncremental(log);
-            this.incremental.suspend();
-            this.gc();
-            this.initBatch();
-            this.batch.acquire();
-            this.runBatch(log);
-            this.batch.dispose();
-            this.gc();
-            this.runProblog(log);
+            this.runStorm(log);
             log.log("iteration", iter);
             log.log("run", i);
             log.log("prefix", this.cfg.getPrefix());
@@ -167,6 +158,10 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
             this.incremental.acquire();
             this.runIncremental(log);
             this.incremental.suspend();
+            this.gc();
+            this.runProblog(log);
+            this.gc();
+            this.runStorm(log);
             log.log("iteration", iter);
             log.log("prefix", this.cfg.getPrefix());
             log.log("run", seed);
@@ -189,6 +184,8 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
   public abstract void applyIncrement();
 
   public abstract void runProblog(final CSVLog log);
+
+  public abstract void runStorm(final CSVLog log);
 
   public PatternParsingResults parseQueries(final String vql) {
     final PatternParsingResults result = PatternParserBuilder.instance().parse(vql);

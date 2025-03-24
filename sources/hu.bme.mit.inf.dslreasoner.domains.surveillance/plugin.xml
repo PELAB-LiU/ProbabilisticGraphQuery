@@ -14,15 +14,4 @@
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.elimination"/>
     </group>
   </extension>
-  <extension id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean" point="org.eclipse.viatra.query.runtime.queryspecification">
-    <group group="org.eclipse.viatra.query.runtime.extensibility.SingletonExtensionFactory:hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean" id="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.Surveillance_clean">
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.targettableObject"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.gunshot"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.killed"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.move"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.shoot"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.attempt"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean.elimination"/>
-    </group>
-  </extension>
 </plugin>

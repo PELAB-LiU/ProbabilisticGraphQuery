@@ -6,7 +6,6 @@ import "http://www.eclipse.org/emf/2002/Ecore"
 import java hu.bme.mit.inf.querytransformation.query.KGate
 import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate
 import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
-import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.IndependentOr
 
 /**
  * Event definitions

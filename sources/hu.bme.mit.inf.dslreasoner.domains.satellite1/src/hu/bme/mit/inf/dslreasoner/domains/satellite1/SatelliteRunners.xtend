@@ -93,6 +93,7 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 			log.log("standalone.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
+			log.log("standalone.healthy", !batch.engine.tainted)
 			log.log("standalone.result", coverage)
 		} catch (CancellationException e) {
 			println("Cancellation caught.")
@@ -142,6 +143,7 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
+			log.log("incremental.healthy", !incremental.engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch (CancellationException e) {
 			println("Cancellation caught.")
@@ -197,5 +199,10 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
 		log.log("problog.timeout", timeoutFlag.get)
 	}
+	
+	override runStorm(CSVLog log) {
+		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	}
+	
 }
 

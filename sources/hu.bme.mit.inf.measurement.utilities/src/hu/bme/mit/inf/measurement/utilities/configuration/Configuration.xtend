@@ -57,6 +57,8 @@ class BaseConfiguration {
 		,"incremental.total[ms]","incremental.result","incremental.sync[ms]", "incremental.prop[ms]","incremental.timeout"
 		,"standalone.total[ms]","standalone.result","standalone.sync[ms]", "standalone.prop[ms]","standalone.timeout"
 		,"problog.total[ms]","problog.result","problog.trafo[ms]", "problog.evaluation[ms]","problog.timeout"
+		,"storm.total[ms]","storm.result","storm.trafo[ms]","storm.evaluation[ms]","storm.timeout"
+		,"incremental.healthy","standalone.healthy"
 	)
 	def List<String> getCSVcolumns(){columns}
 	
@@ -67,6 +69,10 @@ class BaseConfiguration {
 	@Parameter(names = "--plmodel", description = "Temporary file for problog model.")
 	var String plfile = "tmp-problog.pl"
 	def String getProbLogFile(){plfile}
+	
+	@Parameter(names = "--stormmodel", description = "Temporary file for storm model.")
+	var String stormfile = "tmp-storm.dft"
+	def String getStormFile(){stormfile}
 	
 	@Parameter(names = "--logto", description = "Specify where to print the CSV output from measurement runs. System.out and System.err will redirect to standard and error output respectively.", variableArity=true, converter=PrintStreamConcereter)
 	var List<PrintStream> out = #[System.out]

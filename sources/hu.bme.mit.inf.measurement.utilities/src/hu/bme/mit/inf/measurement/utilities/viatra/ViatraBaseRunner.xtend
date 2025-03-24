@@ -159,19 +159,22 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 			 * Incremental iterations
 			 */
 			for(iter : 0..cfg.iterations){
-				gc()
-				incremental.acquire
-				runIncremental(log)
-				incremental.suspend
+				//gc()
+				//incremental.acquire
+				//runIncremental(log)
+				//incremental.suspend
+				
+				//gc()
+				//initBatch
+				//batch.acquire
+				//runBatch(log)
+				//batch.dispose
+				
+				//gc()
+				//runProblog(log)
 				
 				gc()
-				initBatch
-				batch.acquire
-				runBatch(log)
-				batch.dispose
-				
-				gc()
-				runProblog(log)
+				runStorm(log)
 				
 				log.log("iteration", iter)
 				log.log("run",i)
@@ -205,9 +208,12 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 				runIncremental(log)
 				incremental.suspend
 				
-				//gc()
-				//runProblog(log)
-			
+				gc()
+				runProblog(log)
+				
+				gc()
+				runStorm(log)
+				
 				log.log("iteration", iter)
 				log.log("prefix", cfg.prefix)
 				log.log("run",seed)
@@ -225,6 +231,7 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	def abstract void runBatch(CSVLog log)
 	def abstract void applyIncrement()
 	def abstract void runProblog(CSVLog log)
+	def abstract void runStorm(CSVLog log)
 	
 	def parseQueries(String vql){
 		val result = PatternParserBuilder.instance.parse(vql)

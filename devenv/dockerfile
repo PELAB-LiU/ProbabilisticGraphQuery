@@ -9,12 +9,12 @@ EXPOSE 3389
 # Initialize misc
 USER root
 RUN apt update
-RUN apt install git -y
-RUN apt install wget -y
+RUN apt install git wget zip nano -y
 RUN apt install openjdk-21-jdk -y
 RUN apt install psmisc -y
-RUN apt install nano -y
+RUN apt install webext-ublock-origin-firefox -y
 RUN apt install build-essential -y
+
 
 # Install ProbLog
 USER root
@@ -25,7 +25,7 @@ RUN pip install --break-system-packages PySDD
 
 # Install eclipse
 USER root
-RUN wget 'https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2024-03/R/eclipse-modeling-2024-03-R-linux-gtk-x86_64.tar.gz&r=1' -O eclipse.tar.gz
+RUN wget 'https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2024-03/R/eclipse-modeling-2024-03-R-linux-gtk-x86_64.tar.gz' -O eclipse.tar.gz
 RUN tar -xzf eclipse.tar.gz -C /opt
 RUN rm eclipse.tar.gz
 RUN echo '[Desktop Entry]\n\
@@ -44,9 +44,22 @@ RUN /opt/eclipse/eclipse -application org.eclipse.equinox.p2.director -repositor
 RUN /opt/eclipse/eclipse -application org.eclipse.equinox.p2.director -repository http://download.eclipse.org/viatra/updates/release/2.8.0 -installIU org.eclipse.viatra.query.sdk.feature.source.feature.group/2.8.0.202310201322,org.eclipse.viatra.query.sdk.feature.feature.group/2.8.0.202310201322
 
 # Install python packages for diagrams
-USER root
 RUN pip install --break-system-packages notebook
-RUN pip install --break-system-packages pandas==1.5.3 seaborn==0.12.2 matplotlib==3.7.1 numpy==1.26.4
+RUN pip install --break-system-packages pandas==1.5.3 seaborn==0.12.2 matplotlib==3.7.1 numpy==1.26.4 itables
 
-RUN apt install webext-ublock-origin-firefox -y
+# Install storm 
+USER root
+WORKDIR /opt
+RUN apt install build-essential git cmake libboost-all-dev libcln-dev libgmp-dev libginac-dev automake libglpk-dev libhwloc-dev libz3-dev libxerces-c-dev libeigen3-dev -y
+RUN wget https://github.com/moves-rwth/storm/archive/stable.zip
+RUN unzip stable.zip
+WORKDIR storm-stable
+RUN mkdir build 
+WORKDIR build
+RUN cmake ..
+RUN make -j12
+ENV PATH=$PATH:/opt/storm-stable/build/bin
+WORKDIR /opt
+RUN rm stable.zip
+
 RUN rm -rf /config/.cache

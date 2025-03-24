@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: hu.bme.mit.inf.dslreasoner.domains.surveillance.queries,
- hu.bme.mit.inf.dslreasoner.domains.surveillance.queries.clean,
  hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities,
  hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra,
  surveillance,
@@ -28,7 +27,8 @@ Require-Bundle: lintra.uncertaindatatypes;bundle-version="1.0.0",
  se.liu.ida.sas.pelab.problog;bundle-version="1.0.0",
  org.apache.log4j,
  org.junit,
- junit-jupiter-api
+ junit-jupiter-api,
+ se.liu.ida.sas.pelab.storm;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.log4j
