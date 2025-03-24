@@ -6,3 +6,5 @@
 /xtend-gen/*.xtendbin
 .settings/
 *.pl
+tmp-storm.dft
+tmp-problog.pl
