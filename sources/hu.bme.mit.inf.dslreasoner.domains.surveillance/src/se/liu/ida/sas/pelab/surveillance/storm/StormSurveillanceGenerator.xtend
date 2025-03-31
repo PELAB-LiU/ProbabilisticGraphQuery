@@ -14,7 +14,7 @@ class StormSurveillanceGenerator {
 	val att = "attempt"
 	val elim = "elimination"
 	
-	def generateFrom(SurveillanceModel model){
+	def Pair<String,List<String>> generateFrom(SurveillanceModel model){
 		val targettableUFOs = model.ufos.filter[obj|targettable(obj)]
 		val gunshots = newArrayList
 		for(drone : model.drones){

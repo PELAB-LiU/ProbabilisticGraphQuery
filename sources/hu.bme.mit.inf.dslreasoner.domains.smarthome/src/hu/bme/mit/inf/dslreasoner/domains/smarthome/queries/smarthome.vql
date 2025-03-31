@@ -123,7 +123,7 @@ pattern call(measurement: Measurement){
 pattern callProbability(measurement: Measurement, p:java Double){
 	p == KGate find call(measurement);
 }
-
+/*
 pattern stochasticCount(cnt: java Integer){
 	cnt1 == count find call(_);
 	cnt2 == count find nobodyHome(_);
@@ -131,4 +131,4 @@ pattern stochasticCount(cnt: java Integer){
 	cnt4 == count find tempWarning(_,_);
 	cnt5 == count find tempIncr(_,_);
 	cnt == eval(cnt1+cnt2+cnt3+cnt4+cnt5);
-}
+}*/

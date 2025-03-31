@@ -20,7 +20,6 @@
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.personBE"/>
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.call"/>
       <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.callProbability"/>
-      <query-specification fqn="hu.bme.mit.inf.dslreasoner.domains.smarthome.queries.stochasticCount"/>
     </group>
   </extension>
 </plugin>

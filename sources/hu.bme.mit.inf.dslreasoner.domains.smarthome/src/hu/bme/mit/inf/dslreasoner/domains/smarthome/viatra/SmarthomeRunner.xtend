@@ -25,6 +25,8 @@ import org.eclipse.emf.ecore.util.EcoreUtil.Copier
 import org.eclipse.emf.ecore.EObject
 import java.util.concurrent.atomic.AtomicBoolean
 import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig
+import se.liu.ida.sas.pelab.storm.run.StormEvaluation
+import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeGenerator
 
 class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 	val modelgen = new SmarthomeModelGenerator
@@ -186,6 +188,18 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		log.log("problog.result", problogToJSON(output, timeoutFlag.get))
 		log.log("problog.timeout", timeoutFlag.get)
 	}
+	override runStorm(CSVLog log) {
+		val result = StormEvaluation.evalueate(cfg,
+			[
+				(new StormSmarthomeGenerator).generateFrom(instance.model)
+			]
+		)
+		log.log("storm.total[ms]", result.transformation_ms + result.run_ms)
+		log.log("storm.trafo[ms]", result.transformation_ms)
+		log.log("storm.evaluation[ms]", result.run_ms)
+		log.log("storm.result", stormToJSON(result.results, result.timeout))
+		log.log("storm.timeout", result.timeout)
+	}
 	def String problogToJSON(Map<String,Object> data, boolean timeout){
 		return '''
 		{
@@ -223,8 +237,26 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		}
 	}
 	
-	override runStorm(CSVLog log) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+	def String stormToJSON(Map<String,Double> data, boolean timeout){
+		val results = data.entrySet.map[ entry |
+			val key = entry.key
+				.replace("toplevel \"callevent_MeasurementImpl", "")
+				.replace("\";", "")
+			Integer.parseInt(key) -> entry.value
+		].toMap([e|e.key],[e|e.value])
+		return '''
+		{
+			"valid" : «!timeout»,
+			"matches" : [
+				«FOR entry : results.entrySet SEPARATOR ","»
+					{
+						"object" : "«instance.idmap.get(instance.ofHashCode(entry.key))»",
+						"probability" : «entry.value»
+					}
+				«ENDFOR»
+			]
+		}
+		'''
 	}
 	
 }
