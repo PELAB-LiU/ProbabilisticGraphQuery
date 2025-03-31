@@ -4,16 +4,12 @@ import java.util.List;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Pair;
+import satellite1.InterferometryMission;
 
 @SuppressWarnings("all")
 public class StormSatelliteGenerator {
-  public Pair<String, List<String>> generateFrom(final /* Satellite */Object model) {
-    throw new Error("Unresolved compilation problems:"
-      + "\nThe method or field calls is undefined"
-      + "\nThe method or field callevent is undefined"
-      + "\nkey cannot be resolved"
-      + "\nmap cannot be resolved"
-      + "\ntoList cannot be resolved");
+  public Pair<String, List<String>> generateFrom(final InterferometryMission model) {
+    return null;
   }
 
   public String key(final String name, final EObject... args) {

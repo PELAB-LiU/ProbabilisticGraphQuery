@@ -252,22 +252,25 @@ public class StormSmarthomeGenerator {
         for (final Measurement m1 : measurements1) {
           {
             final Function1<Measurement, Boolean> _function_1 = (Measurement m2) -> {
-              return Boolean.valueOf((SmarthomeHelper.after(m1.getTime(), m2.getTime()) && 
-                SmarthomeHelper.within5m(m1.getTime(), m2.getTime())));
+              return Boolean.valueOf(((SmarthomeHelper.after(m1.getTime(), m2.getTime()) && 
+                SmarthomeHelper.within5m(m1.getTime(), m2.getTime())) && 
+                (m1 != m2)));
             };
             final Iterable<Measurement> measurements2 = IterableExtensions.<Measurement>filter(measurements1, _function_1);
             for (final Measurement m2 : measurements2) {
               {
                 final Function1<Measurement, Boolean> _function_2 = (Measurement m3) -> {
-                  return Boolean.valueOf((SmarthomeHelper.after(m2.getTime(), m3.getTime()) && 
-                    SmarthomeHelper.within5m(m1.getTime(), m3.getTime())));
+                  return Boolean.valueOf(((SmarthomeHelper.after(m2.getTime(), m3.getTime()) && 
+                    SmarthomeHelper.within5m(m1.getTime(), m3.getTime())) && 
+                    (m2 != m3)));
                 };
                 final Iterable<Measurement> measurements3 = IterableExtensions.<Measurement>filter(measurements2, _function_2);
                 for (final Measurement m3 : measurements3) {
                   {
                     final Function1<Measurement, Boolean> _function_3 = (Measurement m4) -> {
-                      return Boolean.valueOf((SmarthomeHelper.after(m3.getTime(), m4.getTime()) && 
-                        SmarthomeHelper.within5m(m1.getTime(), m4.getTime())));
+                      return Boolean.valueOf(((SmarthomeHelper.after(m3.getTime(), m4.getTime()) && 
+                        SmarthomeHelper.within5m(m1.getTime(), m4.getTime())) && 
+                        (m3 != m4)));
                     };
                     final Iterable<Measurement> measurements4 = IterableExtensions.<Measurement>filter(measurements3, _function_3);
                     for (final Measurement m4 : measurements4) {
@@ -305,7 +308,7 @@ public class StormSmarthomeGenerator {
           {
             for(final Quad<Measurement, Measurement, Measurement, Measurement> tuple : tuples) {
               String _andGate = StormGeneration.andGate(this.key(helperName, tuple.getFisrt(), tuple.getSecond(), tuple.getThird(), tuple.getForth()), 
-                StormSmarthomeGenerator.incrementbase, 
+                StormSmarthomeGenerator.warningbase, 
                 this.key(StormSmarthomeGenerator.tempInc1, tuple.getFisrt()), 
                 this.key(StormSmarthomeGenerator.tempInc1, tuple.getSecond()), 
                 this.key(StormSmarthomeGenerator.tempInc1, tuple.getThird()), 
@@ -401,7 +404,7 @@ public class StormSmarthomeGenerator {
   }
 
   public Boolean incrementable(final Measurement m1, final Measurement m2) {
-    return Boolean.valueOf(SmarthomeHelper.incrementable(m1.getTemp(), m1.getTime(), m2.getTemp(), m2.getTime()));
+    return Boolean.valueOf(((m1 != m2) && SmarthomeHelper.incrementable(m1.getTemp(), m1.getTime(), m2.getTemp(), m2.getTime())));
   }
 
   public String key(final String name, final EObject... args) {

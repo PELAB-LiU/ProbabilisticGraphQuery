@@ -393,7 +393,7 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
         _builder.newLine();
         _builder.append("\t\t");
         _builder.append("\t");
-        _builder.append("\"object\" : \"");
+        _builder.append("\"measurement\" : \"");
         String _get = this.instance.idmap.get(this.instance.ofHashCode((entry.getKey()).intValue()));
         _builder.append(_get, "\t\t\t");
         _builder.append("\",");

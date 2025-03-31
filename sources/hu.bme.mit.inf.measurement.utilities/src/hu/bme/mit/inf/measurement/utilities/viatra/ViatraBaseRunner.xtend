@@ -15,7 +15,6 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.common.util.URI
 import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory
 import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory
-import tracemodel.TraceModel
 import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder
 import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults
 import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine

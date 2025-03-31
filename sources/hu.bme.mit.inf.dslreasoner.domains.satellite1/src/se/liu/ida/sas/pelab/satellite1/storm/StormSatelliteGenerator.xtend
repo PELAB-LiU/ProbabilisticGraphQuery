@@ -3,10 +3,11 @@ package se.liu.ida.sas.pelab.satellite1.storm
 import java.util.List
 import se.liu.ida.sas.pelab.storm.transformation.StormGeneration
 import org.eclipse.emf.ecore.EObject
+import satellite1.InterferometryMission
 
 class StormSatelliteGenerator {
-	def Pair<String,List<String>> generateFrom(Satellite model){
-		// increments -> storm
+	def Pair<String,List<String>> generateFrom(InterferometryMission model){
+		/*// increments -> storm
 		val tempBE = null
 		
 		val stormmodel = '''
@@ -14,7 +15,7 @@ class StormSatelliteGenerator {
 		'''
 		
 		val tops = calls.key.map[StormGeneration.topEvent(key(callevent, it))].toList
-		return stormmodel -> tops
+		*/return null//stormmodel -> tops
 	}
 	
 	def key(String name, EObject... args){

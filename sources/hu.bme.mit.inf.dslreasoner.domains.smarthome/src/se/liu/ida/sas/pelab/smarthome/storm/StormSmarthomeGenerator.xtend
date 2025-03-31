@@ -128,17 +128,20 @@ class StormSmarthomeGenerator {
 			for(m1 : measurements1){
 				val measurements2 = measurements1.filter[m2 |
 					SmarthomeHelper.after(m1.time, m2.time) &&
-					SmarthomeHelper.within5m(m1.time, m2.time)
+					SmarthomeHelper.within5m(m1.time, m2.time) &&
+					m1 !== m2
 				]
 				for(m2 : measurements2){
 					val measurements3 = measurements2.filter[m3|
 						SmarthomeHelper.after(m2.time, m3.time) &&
-						SmarthomeHelper.within5m(m1.time, m3.time)
+						SmarthomeHelper.within5m(m1.time, m3.time) &&
+						m2 !== m3
 					]
 					for(m3 : measurements3){
 						val measurements4 = measurements3.filter[m4 |
 							SmarthomeHelper.after(m3.time, m4.time) &&
-							SmarthomeHelper.within5m(m1.time, m4.time)
+							SmarthomeHelper.within5m(m1.time, m4.time) &&
+							m3 !== m4
 						]
 						for(m4 : measurements4){
 							warnings4.add(new Quad(m1,m2,m3,m4))
@@ -157,7 +160,7 @@ class StormSmarthomeGenerator {
 			'''
 			«FOR tuple : tuples»
 			«StormGeneration.andGate(key(helperName, tuple.fisrt, tuple.second, tuple.third, tuple.forth),
-							incrementbase,
+							warningbase,
 							key(tempInc1, tuple.fisrt),
 							key(tempInc1, tuple.second),
 							key(tempInc1, tuple.third),
@@ -173,6 +176,7 @@ class StormSmarthomeGenerator {
 		«ENDFOR»
 		'''
 	}
+	
 	def temp(List<Pair<Measurement,Measurement>> increments){
 		val tempInc = increments.map[pair | pair.value].toSet
 		val helperName = tempInc1+"Helper"
@@ -220,7 +224,7 @@ class StormSmarthomeGenerator {
 		return SmarthomeHelper.incrementConfidence(m1.temp,m1.time,m2.temp,m2.time)
 	}
 	def Boolean incrementable(Measurement m1, Measurement m2){
-		return SmarthomeHelper.incrementable(m1.temp, m1.time,m2.temp,m2.time)
+		return m1!==m2 && SmarthomeHelper.incrementable(m1.temp, m1.time,m2.temp,m2.time)
 	}
 	def key(String name, EObject... args){
 		return '''«name»_«FOR arg : args SEPARATOR "_"»«arg.name»«ENDFOR»'''

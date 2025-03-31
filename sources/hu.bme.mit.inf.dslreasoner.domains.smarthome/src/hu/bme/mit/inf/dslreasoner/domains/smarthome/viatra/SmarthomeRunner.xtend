@@ -250,7 +250,7 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 			"matches" : [
 				«FOR entry : results.entrySet SEPARATOR ","»
 					{
-						"object" : "«instance.idmap.get(instance.ofHashCode(entry.key))»",
+						"measurement" : "«instance.idmap.get(instance.ofHashCode(entry.key))»",
 						"probability" : «entry.value»
 					}
 				«ENDFOR»
