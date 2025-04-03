@@ -1,18 +1,18 @@
 package se.liu.ida.sas.pelab.storm.run
 
-import hu.bme.mit.inf.measurement.utilities.Config
 import java.util.regex.Pattern
-import java.util.HashMap
 import java.util.Scanner
 import java.io.File
 import java.io.FileWriter
 import hu.bme.mit.inf.measurement.utilities.configuration.BaseConfiguration
-import java.io.BufferedReader
 import java.util.Map
 import org.eclipse.xtext.xbase.lib.Functions.Function0
 import java.util.List
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class StormEvaluation {
+	static val Logger LOG4J = LoggerFactory.getLogger(StormEvaluation);
 	static val Pattern pattern = Pattern.compile("^System failure probability at timebound 1 is ([01]\\.\\d*)$")
 
 	static def evalueate(BaseConfiguration cfg, Function0<Pair<String,List<String>>> generator) {
@@ -32,7 +32,7 @@ class StormEvaluation {
 		cumTransformationTime += (end - start) / 1000.0 / 1000.0 // convert nano seconds to ms
 		
 		for (top : tops) {
-			//`println('''TOP: «top»''')
+			LOG4J.debug("TOP {}", top)
 			var remainingtime_ms = (cfg.timeoutS * 1000) - (cumAnalysisTime + cumTransformationTime)
 			if (remainingtime_ms > 0) {
 				val time = Math.round(Math.ceil(remainingtime_ms / 1000.0))
@@ -70,7 +70,7 @@ class StormEvaluation {
 				val io = new Scanner(process.inputStream)
 				while (io.hasNextLine) {
 					val line = io.nextLine
-					println('''DEBUG: «line»''')
+					LOG4J.debug("LINE {}", line)
 					val match = pattern.matcher(line)
 					if (match.find) {
 						results.put(top, Double.parseDouble(match.group(1)))

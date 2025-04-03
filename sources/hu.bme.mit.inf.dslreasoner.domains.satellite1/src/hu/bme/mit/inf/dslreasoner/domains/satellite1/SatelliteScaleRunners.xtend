@@ -3,42 +3,12 @@ package hu.bme.mit.inf.dslreasoner.domains.satellite1
 import hu.bme.mit.inf.measurement.utilities.CSVLog
 import hu.bme.mit.inf.measurement.utilities.Config
 import hu.bme.mit.inf.measurement.utilities.configuration.SatelliteConfiguration
-import hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner
-import hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.EPackage
-import org.eclipse.emf.ecore.resource.Resource
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
-import org.eclipse.viatra.query.patternlanguage.emf.EMFPatternLanguageStandaloneSetup
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngineOptions
-import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory
-import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory
-import org.eclipse.xtext.diagnostics.Severity
-import reliability.intreface.CacheMode
 import reliability.intreface.CancellationException
 import reliability.intreface.Configuration
 import reliability.intreface.ExecutionTime
-import reliability.mdd.MddModel
 import satellite1.SatellitePackage
-import tracemodel.TraceModel
 
-import org.eclipse.emf.ecore.util.EcoreUtil
-import problog.Generation
-import java.io.File
-import java.io.FileWriter
-import se.liu.ida.sas.pelab.problog.run.ProbLogEvaluator
-import java.util.regex.Pattern
-import java.util.Scanner
-import java.util.HashMap
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner
-import java.util.concurrent.atomic.AtomicBoolean
-import se.liu.ida.sas.pelab.storm.run.StormEvaluation
-import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteGenerator
-import hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
 import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil
 import problog.ProblogSatelliteUtil
 
@@ -55,8 +25,8 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 		engine.model.contents.add(instance.mission)
 	}
 	
-	override initIncremental(){
-		super.initIncremental
+	override initViatra(){
+		super.initViatra
 		initializePatterns(engine, "coverage")
 	}
 	
@@ -103,65 +73,9 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 	
 	override runProblog(CSVLog log) {
 		runProblog(cfg, instance, log)
-		/*val file = new File(cfg.probLogFile)
-		file.createNewFile
-		val writer = new FileWriter(file)
-		val builder = new ProcessBuilder("problog", cfg.probLogFile);
-		var Process process = null
-
-		val start = System.nanoTime
-		val plmodel = (new Generation).generateFrom(instance.mission).toString
-		writer.write(plmodel)
-		writer.flush
-		writer.close
-		val trafo = System.nanoTime
-		process = builder.start
-
-		val process2 = process
-		val timeoutFlag = new AtomicBoolean
-		val timeout = Config.timeout(cfg.timeoutS, [|
-			println("Run cancelled with timeout.")
-			timeoutFlag.set(true)
-			process2.destroyForcibly
-		])
-
-		val output = new HashMap<String, Object>
-		val io = new Scanner(process.inputStream)
-		io.forEach [ line |
-			println("Debug: " + line)
-			val match = cfg.probLogPattern.matcher(line)
-			if (match.find) {
-				output.put(match.group(1), Double.parseDouble(match.group(2)))
-			}
-		]
-		val end = System.nanoTime
-		timeout.cancel
-
-		log.log("problog.total[ms]", ((end - start) / 1000.0 / 1000))
-		log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
-		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
-		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
-		log.log("problog.timeout", timeoutFlag.get)*/
 	}
 	
 	override runStorm(CSVLog log) {
 		runStorm(cfg, instance, log)
-		/*val result = StormEvaluation.evalueate(cfg,
-			[
-				(new StormSatelliteGenerator).generateFrom(instance.mission)
-			]
-		)
-		val coverage = result.results.entrySet.map[ entry |
-			val count = entry.key
-				.replace("toplevel \"cov", "")
-				.replace("_\";", "")
-			Integer.parseInt(count) -> entry.value
-		].fold(0.0, [accu, entry | accu+Performability.calculate(entry.key)*entry.value])
-		
-		log.log("storm.total[ms]", result.transformation_ms + result.run_ms)
-		log.log("storm.trafo[ms]", result.transformation_ms)
-		log.log("storm.evaluation[ms]", result.run_ms)
-		log.log("storm.result", coverage)
-		log.log("storm.timeout", result.timeout)*/
 	}
 }

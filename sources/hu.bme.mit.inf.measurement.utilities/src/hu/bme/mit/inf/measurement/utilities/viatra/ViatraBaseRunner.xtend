@@ -1,109 +1,19 @@
 package hu.bme.mit.inf.measurement.utilities.viatra
 
-import hu.bme.mit.inf.measurement.utilities.Config
 import hu.bme.mit.inf.measurement.utilities.CSVLog
 import org.eclipse.emf.ecore.resource.Resource
-import reliability.mdd.MddModel
-import org.eclipse.viatra.query.runtime.api.AdvancedViatraQueryEngine
-import java.util.concurrent.Callable
-import java.util.function.Consumer
 import hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator
 import org.eclipse.viatra.query.patternlanguage.emf.EMFPatternLanguageStandaloneSetup
 import org.eclipse.viatra.query.runtime.api.ViatraQueryEngineOptions
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import org.eclipse.emf.common.util.URI
 import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory
 import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults
-import org.eclipse.viatra.query.runtime.api.ViatraQueryEngine
-import org.eclipse.emf.ecore.resource.ResourceSet
-import org.eclipse.viatra.query.runtime.emf.EMFScope
-import org.eclipse.xtext.diagnostics.Severity
 import hu.bme.mit.inf.measurement.utilities.configuration.BaseConfiguration
-import org.eclipse.viatra.query.runtime.api.IQuerySpecification
-import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher
-import hu.bme.mit.inf.measurement.utilities.configuration.SatelliteConfiguration
-import java.io.File
 import org.eclipse.emf.ecore.EPackage
-import reliability.intreface.CacheMode
-import java.util.List
-import org.eclipse.xtend.lib.annotations.Accessors
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class EngineConfig{
-	static val Logger LOG4J = LoggerFactory.getLogger(EngineConfig);
-	
-	static List<EngineConfig> configs = newLinkedList
-	
-	val String mddInstanceName
-	val ResourceSet resourceSet
-	@Accessors(PUBLIC_GETTER) val Resource model
-	@Accessors(PUBLIC_GETTER) val SuspendedQueryEngine engine
-	@Accessors(PUBLIC_GETTER) val PatternParsingResults parsed
-	@Accessors(PUBLIC_GETTER) val MddModel mdd
-	
-	
-	new(String queries, String name){
-		mddInstanceName = name
-		resourceSet = new ResourceSetImpl
-		model = resourceSet.createResource(URI.createFileURI("model-tmp-"+mddInstanceName+this.hashCode+".xmi"))
-		mdd = MddModel.getInstanceOf(mddInstanceName)
-		MddModel.changeTo(mddInstanceName)
-		mdd.resetModel
-		mdd.invalidateCache
-		
-		parsed = PatternParserBuilder.instance.parse(queries)
-		if(parsed.hasError){
-			LOG4J.error("Parsed with errors! {}", parsed.getErrors())
-		}
-		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher> specification |
-			mdd.registerSpecificationIfNeeded(specification)
-		]
-		
-		val traceRes = resourceSet.createResource(URI.createFileURI("trace-tmp-"+mddInstanceName+this.hashCode+".xmi"))
-		traceRes.contents.add(mdd.traceModel)
-		
-		engine = 
-			SuspendedQueryEngine.create(new EMFScope(resourceSet))
-		
-		mdd.initializePatterns(engine)
-		engine.enableAndPropagate
-		engine.suspend()
-		
-		configs.add(this)
-	}
-	
-	def acquire(){
-		LOG4J.debug("Acquire {}", engine.hashCode)
-		configs.forEach(cfg | cfg.suspend)
-		MddModel.changeTo(mddInstanceName)
-	}
-	def suspend(){
-		LOG4J.debug("Suspend {}", engine.hashCode)
-		engine.suspend
-	}
-	def enable(){
-		if(engine.tainted){
-			val e = new IllegalStateException("Attempting to use tainted query engine.")
-			LOG4J.error("Enable tainted engine! {}", engine.hashCode)
-			throw e
-		}
-		LOG4J.debug("Propagate {}", engine.hashCode)
-		engine.enableAndPropagate
-	}
-	def dispose(){
-		if(!engine.disposed){
-			configs.remove(this)
-			//suspend?
-			engine.dispose	
-		}
-	}
-}
-
-abstract class ViatraBaseRunner<Config extends BaseConfiguration> { 
+abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements ViatraRunnerUtil{ 
 	static val Logger LOG4J = LoggerFactory.getLogger(ViatraBaseRunner);
 	
 	protected val Config cfg
@@ -170,7 +80,6 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	def void warmup(CSVLog log){
 		for(i : cfg.warmups){
 			LOG4J.info("[WARMUP {} ({} of {}) ]===============================================================", i, cfg.warmups.indexOf(i)+1, cfg.warmups.size)
-			//println('''[WARMUP «i» of «cfg.warmups.size»]===============================================================''')
 			initIncremental()
 			setupInitialModel(i)
 			/**
@@ -215,7 +124,6 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	def void measure(CSVLog log){
 		for(seed : cfg.seeds){
 			LOG4J.info("[MEASURE {} ({} of {}) ]===============================================================", seed, cfg.seeds.indexOf(seed)+1, cfg.seeds.size)
-			//println('''[MEASURE «seed» of «cfg.seeds.size»]===============================================================''')
 			initIncremental()
 			setupInitialModel(seed)
 				
@@ -260,70 +168,4 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	def abstract void runProblog(CSVLog log)
 	def abstract void runStorm(CSVLog log)
 	
-	def parseQueries(String vql){
-		val result = PatternParserBuilder.instance.parse(vql)
-		val fault = result.hasError
-		result.allDiagnostics.forEach[issue | 
-			if(issue.severity === Severity.ERROR){
-				println("Error: "+issue)
-			}
-		]
-		if(fault){
-			System.err.println(vql)
-		}
-		return result
-	}
-	
-	def int countBasicEvents(EngineConfig engine){
-		val cnt = newIntArrayOfSize(2)
-		engine.parsed.getQuerySpecification("BERequiredName1").ifPresent([specification |
-			val matcher = engine.engine.getMatcher(specification)
-			cnt.set(0,matcher.countMatches)
-		])
-		engine.parsed.getQuerySpecification("BERequiredName2").ifPresent([specification |
-			val matcher = engine.engine.getMatcher(specification)
-			cnt.set(1,matcher.countMatches)
-		])
-		return cnt.get(0)+cnt.get(1)
-	}
-	def countStochasticPatterns(EngineConfig engine){
-		val cnt = newIntArrayOfSize(1)
-		engine.parsed.getQuerySpecification("stochasticCount").ifPresent([specification |
-			val matcher = engine.engine.getMatcher(specification)
-			matcher.oneArbitraryMatch.ifPresent([match |
-				cnt.set(0, match.get(0) as Integer)
-			])
-		])
-		return cnt.get(0)
-	}
-	def checkMatches(String name, EngineConfig engine){
-		val cnt = newDoubleArrayOfSize(1)
-		engine.parsed.getQuerySpecification(name).ifPresent([specification |
-			val matcher = engine.engine.getMatcher(specification)	
-			println("Specification found: "+specification.simpleName)
-			matcher.forEachMatch([match |
-				println("\t"+match.prettyPrint)
-			])
-			matcher.oneArbitraryMatch.ifPresent([match |
-				cnt.set(0, match.get(0) as Double)
-			])
-		])
-		return cnt.get(0)
-	}
-	def printMatches(String name, EngineConfig engine){
-		engine.parsed.getQuerySpecification(name).ifPresent([specification |
-			val matcher = engine.engine.getMatcher(specification)	
-			println("Specification found: "+specification.simpleName)
-			matcher.forEachMatch([match |
-				println("\t"+match.prettyPrint)
-			])
-		])
-	}
-	def initializePatterns(EngineConfig engine, String... queries){
-		queries.forEach([name | 
-			engine.parsed.getQuerySpecification(name).ifPresent([IQuerySpecification<? extends ViatraQueryMatcher> specification |
-				val cnt = engine.engine.getMatcher(specification).countMatches
-			])
-		])
-	}
 }

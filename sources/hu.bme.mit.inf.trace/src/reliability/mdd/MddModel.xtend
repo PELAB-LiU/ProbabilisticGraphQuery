@@ -10,7 +10,6 @@ import java.util.Set
 import hu.bme.mit.delta.mdd.MddVariableDescriptor
 import java.util.List
 import hu.bme.mit.delta.mdd.MddBuilder
-import java.util.Map
 import java.util.HashMap
 import java.util.HashSet
 import tracemodel.TraceModel
@@ -30,7 +29,6 @@ import org.eclipse.viatra.query.runtime.api.IPatternMatch
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher
 import tracemodel.Trace1
 import tracemodel.Trace2
-import java.util.concurrent.atomic.AtomicBoolean
 import reliability.events.SimpleEvent
 import flight.MddUpdateUpdateEvent
 import flight.MddTraverseCalculationEvent
@@ -42,8 +40,11 @@ import flight.MddVarableCreationEvent
 import reliability.cache.SessionCache
 import reliability.intreface.CacheMode
 import reliability.cache.NoCacheManager
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class MddModel {
+	static val Logger LOG4J = LoggerFactory.getLogger(MddModel);
 	static val INSTANCES = #{ "incremental" -> new MddModel, "standalone" -> new MddModel}
 	public static var MddModel INSTANCE = null
 	def static void changeTo(String target){
@@ -197,6 +198,7 @@ class MddModel {
 		return model
 	}
 	def long unaryForAll(ViatraQueryEngine engine) {
+		LOG4J.debug("Unary")
 		val start = System.nanoTime
 		val event = new MddSynchronizationEvent
 		event.begin;
@@ -204,7 +206,6 @@ class MddModel {
 			removeUnaryForAll(engine);
 			updateUnaryForAll(engine);
 			insertUnaryForAll(engine);
-			println("UNARY")
 			System.nanoTime
 		]
 		event.commit
@@ -233,7 +234,7 @@ class MddModel {
 				inactiveEntries.add(te)
 			]
 			}
-		println("Removed: "+tracesToRemove.size);
+		LOG4J.info("Removed {}", tracesToRemove.size)
 		event.traces = tracesToRemove.size
 		event.commit
 	}
@@ -255,7 +256,7 @@ class MddModel {
 				cacheManager?.updateVariable(variable)
 			]
 		}
-		println("Updated: "+tracesToUpdate.size);
+		LOG4J.info("Updated {}", tracesToUpdate.size)
 		event.traces = tracesToUpdate.size
 		event.commit
 	}
@@ -308,7 +309,7 @@ class MddModel {
 		}
 		
 		model.getTraces().addAll(newtraces);
-		println("Insertions: "+newtraces.size)
+		LOG4J.info("Insertions {}", newtraces.size)
 		event.traces = newtraces.size
 		event.commit
 	}

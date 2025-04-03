@@ -8,13 +8,16 @@ import java.util.Timer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("all")
 public class ProbLogEvaluator {
+  private static final Logger LOG4J = LoggerFactory.getLogger(ProbLogEvaluator.class);
+
   public HashMap<String, Object> evaluate(final Config cfg) {
     try {
       final Pattern rx_expected = Pattern.compile(cfg.asString("pattern"));
@@ -26,7 +29,7 @@ public class ProbLogEvaluator {
       InputStream _inputStream = process.getInputStream();
       final Scanner io = new Scanner(_inputStream);
       final Procedure1<String> _function = (String line) -> {
-        InputOutput.<String>println(("Debug: " + line));
+        ProbLogEvaluator.LOG4J.debug("Line {}", line);
         final Matcher match = rx_expected.matcher(line);
         boolean _find = match.find();
         if (_find) {

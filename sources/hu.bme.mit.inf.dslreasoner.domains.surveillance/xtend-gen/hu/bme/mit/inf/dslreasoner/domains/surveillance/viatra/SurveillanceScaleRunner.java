@@ -4,17 +4,8 @@ import hu.bme.mit.inf.dslreasoner.domains.surveillance.problog.ProblogSurveillan
 import hu.bme.mit.inf.measurement.utilities.CSVLog;
 import hu.bme.mit.inf.measurement.utilities.Config;
 import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfiguration;
-import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig;
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Timer;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.viatra.query.runtime.api.IPatternMatch;
-import org.eclipse.viatra.query.runtime.api.IQuerySpecification;
-import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
@@ -24,7 +15,7 @@ import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil;
 import surveillance.SurveillancePackage;
 
 @SuppressWarnings("all")
-public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfiguration> implements StormSurveillanceUtil, ProblogSurveillanceUtil {
+public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfiguration> implements ViatraSurveillanceUtil, StormSurveillanceUtil, ProblogSurveillanceUtil {
   private final SurveillanceModelGenerator modelgen = new SurveillanceModelGenerator();
 
   private SurveillanceWrapper instance;
@@ -40,8 +31,8 @@ public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfi
   }
 
   @Override
-  public void initIncremental() {
-    super.initIncremental();
+  public void initViatra() {
+    super.initViatra();
     this.initializePatterns(this.engine, "elimination");
   }
 
@@ -91,89 +82,5 @@ public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfi
   @Override
   public void runStorm(final CSVLog log) {
     this.runStorm(this.cfg, this.instance, log);
-  }
-
-  /**
-   * def String problogToJSON(Map<String,Object> data, boolean timeout){
-   * return '''
-   * {
-   * "valid" : «!timeout»,
-   * "matches" : [
-   * «FOR entry : data.entrySet SEPARATOR ","»
-   * {
-   * "object" : "object«instance.ordering.get(instance.ofHashCode(Integer.parseInt(entry.key)))»",
-   * "probability" : «entry.value»
-   * }
-   * «ENDFOR»
-   * ]
-   * }
-   * '''
-   * }
-   */
-  public String getMatchesJSON(final EngineConfig engine, final Map<EObject, Integer> index) {
-    String _xblockexpression = null;
-    {
-      final Optional<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> opt = engine.getParsed().getQuerySpecification("elimination");
-      String _xifexpression = null;
-      boolean _isPresent = opt.isPresent();
-      if (_isPresent) {
-        String _xblockexpression_1 = null;
-        {
-          final IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> matcher = opt.get();
-          StringConcatenation _builder = new StringConcatenation();
-          _builder.append("{");
-          _builder.newLine();
-          _builder.append("\t");
-          _builder.append("\"valid\" : true,");
-          _builder.newLine();
-          _builder.append("\t");
-          _builder.append("\"matches\" : [");
-          _builder.newLine();
-          {
-            Collection<? extends IPatternMatch> _allMatches = engine.getEngine().getMatcher(matcher).getAllMatches();
-            boolean _hasElements = false;
-            for(final IPatternMatch match : _allMatches) {
-              if (!_hasElements) {
-                _hasElements = true;
-              } else {
-                _builder.appendImmediate(",", "\t");
-              }
-              _builder.append("\t");
-              _builder.append("{");
-              _builder.newLine();
-              _builder.append("\t");
-              _builder.append("\t");
-              _builder.append("\"object\" : \"object");
-              Integer _get = index.get(match.get(0));
-              _builder.append(_get, "\t\t");
-              _builder.append("\",");
-              _builder.newLineIfNotEmpty();
-              _builder.append("\t");
-              _builder.append("\t");
-              _builder.append("\"probability\" : ");
-              Object _get_1 = match.get(1);
-              _builder.append(_get_1, "\t\t");
-              _builder.newLineIfNotEmpty();
-              _builder.append("\t");
-              _builder.append("}");
-              _builder.newLine();
-            }
-          }
-          _builder.append("\t");
-          _builder.append("]");
-          _builder.newLine();
-          _builder.append("}");
-          _builder.newLine();
-          _xblockexpression_1 = _builder.toString();
-        }
-        _xifexpression = _xblockexpression_1;
-      } else {
-        StringConcatenation _builder = new StringConcatenation();
-        _builder.append("{\"valid\" : false, \"matches\" : []}");
-        return _builder.toString();
-      }
-      _xblockexpression = _xifexpression;
-    }
-    return _xblockexpression;
   }
 }

@@ -32,8 +32,8 @@ public class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfigurat
   }
 
   @Override
-  public void initIncremental() {
-    super.initIncremental();
+  public void initViatra() {
+    super.initViatra();
     this.initializePatterns(this.engine, "coverage");
   }
 

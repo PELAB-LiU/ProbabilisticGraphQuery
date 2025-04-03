@@ -41,11 +41,12 @@ import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IntegerRange;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.eclipse.xtext.xbase.lib.Pure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reliability.cache.NoCacheManager;
 import reliability.cache.ReliabilityCacheEntry;
 import reliability.cache.ReliabilityCacheManager;
@@ -61,6 +62,8 @@ import tracemodel.TracemodelPackage;
 
 @SuppressWarnings("all")
 public class MddModel {
+  private static final Logger LOG4J = LoggerFactory.getLogger(MddModel.class);
+
   private static final Map<String, MddModel> INSTANCES = Collections.<String, MddModel>unmodifiableMap(CollectionLiterals.<String, MddModel>newHashMap(Pair.<String, MddModel>of("incremental", new MddModel()), Pair.<String, MddModel>of("standalone", new MddModel())));
 
   public static MddModel INSTANCE = null;
@@ -230,6 +233,7 @@ public class MddModel {
 
   public long unaryForAll(final ViatraQueryEngine engine) {
     try {
+      MddModel.LOG4J.debug("Unary");
       final long start = System.nanoTime();
       final MddSynchronizationEvent event = new MddSynchronizationEvent();
       event.begin();
@@ -239,7 +243,6 @@ public class MddModel {
           this.removeUnaryForAll(engine);
           this.updateUnaryForAll(engine);
           this.insertUnaryForAll(engine);
-          InputOutput.<String>println("UNARY");
           _xblockexpression = System.nanoTime();
         }
         return Long.valueOf(_xblockexpression);
@@ -286,9 +289,7 @@ public class MddModel {
         tracesToRemove.forEach(_function_1);
       }
     }
-    int _size = tracesToRemove.size();
-    String _plus = ("Removed: " + Integer.valueOf(_size));
-    InputOutput.<String>println(_plus);
+    MddModel.LOG4J.info("Removed {}", Integer.valueOf(tracesToRemove.size()));
     event.setTraces(tracesToRemove.size());
     event.commit();
   }
@@ -319,9 +320,7 @@ public class MddModel {
         tracesToUpdate.forEach(_function_1);
       }
     }
-    int _size = tracesToUpdate.size();
-    String _plus = ("Updated: " + Integer.valueOf(_size));
-    InputOutput.<String>println(_plus);
+    MddModel.LOG4J.info("Updated {}", Integer.valueOf(tracesToUpdate.size()));
     event.setTraces(tracesToUpdate.size());
     event.commit();
   }
@@ -395,9 +394,7 @@ public class MddModel {
       }
     }
     this.model.getTraces().addAll(newtraces);
-    int _size = newtraces.size();
-    String _plus = ("Insertions: " + Integer.valueOf(_size));
-    InputOutput.<String>println(_plus);
+    MddModel.LOG4J.info("Insertions {}", Integer.valueOf(newtraces.size()));
     event.setTraces(newtraces.size());
     event.commit();
   }
