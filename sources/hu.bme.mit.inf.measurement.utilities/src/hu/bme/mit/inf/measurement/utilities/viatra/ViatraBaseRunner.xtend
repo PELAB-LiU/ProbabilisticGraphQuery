@@ -30,8 +30,12 @@ import org.eclipse.emf.ecore.EPackage
 import reliability.intreface.CacheMode
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class EngineConfig{
+	static val Logger LOG4J = LoggerFactory.getLogger(EngineConfig);
+	
 	static List<EngineConfig> configs = newLinkedList
 	
 	val String mddInstanceName
@@ -52,6 +56,9 @@ class EngineConfig{
 		mdd.invalidateCache
 		
 		parsed = PatternParserBuilder.instance.parse(queries)
+		if(parsed.hasError){
+			LOG4J.error("Parsed with errors! {}", parsed.getErrors())
+		}
 		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher> specification |
 			mdd.registerSpecificationIfNeeded(specification)
 		]
@@ -70,16 +77,21 @@ class EngineConfig{
 	}
 	
 	def acquire(){
+		LOG4J.debug("Acquire {}", engine.hashCode)
 		configs.forEach(cfg | cfg.suspend)
 		MddModel.changeTo(mddInstanceName)
 	}
 	def suspend(){
+		LOG4J.debug("Suspend {}", engine.hashCode)
 		engine.suspend
 	}
 	def enable(){
 		if(engine.tainted){
-			throw new IllegalStateException("Attempting to use tainted query engine.")
+			val e = new IllegalStateException("Attempting to use tainted query engine.")
+			LOG4J.error("Enable tainted engine! {}", engine.hashCode)
+			throw e
 		}
+		LOG4J.debug("Propagate {}", engine.hashCode)
 		engine.enableAndPropagate
 	}
 	def dispose(){
@@ -92,6 +104,8 @@ class EngineConfig{
 }
 
 abstract class ViatraBaseRunner<Config extends BaseConfiguration> { 
+	static val Logger LOG4J = LoggerFactory.getLogger(ViatraBaseRunner);
+	
 	protected val Config cfg
 	
 	protected val StochasticPatternGenerator generator
@@ -104,9 +118,11 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	
 	def void initBatch(){
 		batch = new EngineConfig(transformed, "standalone")
+		LOG4J.debug("Init Batch {}", batch.engine.hashCode)
 	}
 	def void initIncremental(){
 		incremental = new EngineConfig(transformed, "incremental")
+		LOG4J.debug("Init Incremetnal {}", incremental.engine.hashCode)
 	}
 	
 	/**
@@ -126,10 +142,12 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 		EPackage.Registry.INSTANCE.put(domain.nsURI, domain)
 
 		transformed = generator.transformPatternFile(cfg.vql)
+		LOG4J.info("Queries {}", transformed)
 	}
 	
 	
 	def gc(){
+		LOG4J.debug("GC {}ms", cfg.GCTime)
 		System.gc()
 		Thread.sleep(cfg.GCTime)
 		System.gc()
@@ -151,29 +169,37 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	}
 	def void warmup(CSVLog log){
 		for(i : cfg.warmups){
-			println('''[WARMUP «i» of «cfg.warmups.size»]===============================================================''')
+			LOG4J.info("[WARMUP {} ({} of {}) ]===============================================================", i, cfg.warmups.indexOf(i)+1, cfg.warmups.size)
+			//println('''[WARMUP «i» of «cfg.warmups.size»]===============================================================''')
 			initIncremental()
 			setupInitialModel(i)
 			/**
 			 * Incremental iterations
 			 */
 			for(iter : 0..cfg.iterations){
-				//gc()
-				//incremental.acquire
-				//runIncremental(log)
-				//incremental.suspend
-				
-				//gc()
-				//initBatch
-				//batch.acquire
-				//runBatch(log)
-				//batch.dispose
-				
-				//gc()
-				//runProblog(log)
+				LOG4J.info("[ITERATION {} of {} WARMUP {} ({} of {}) ]===============================================================", iter, cfg.iterations, i, cfg.warmups.indexOf(i)+1, cfg.warmups.size)
+				gc()
+				incremental.acquire
+				runIncremental(log)
+				incremental.suspend
 				
 				gc()
-				runStorm(log)
+				initBatch
+				batch.acquire
+				runBatch(log)
+				batch.dispose
+				
+				/**
+				 * ProbLog and Storm is not affected by JVM warmup, thus it is safe to skip
+				 * Some runs are included to test if it works
+				 */
+				if(i<2){
+					gc()
+					runProblog(log)
+					
+					gc()
+					runStorm(log)
+				}
 				
 				log.log("iteration", iter)
 				log.log("run",i)
@@ -188,7 +214,8 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 	}
 	def void measure(CSVLog log){
 		for(seed : cfg.seeds){
-			println('''[MEASURE «seed» of «cfg.seeds.size»]===============================================================''')
+			LOG4J.info("[MEASURE {} ({} of {}) ]===============================================================", seed, cfg.seeds.indexOf(seed)+1, cfg.seeds.size)
+			//println('''[MEASURE «seed» of «cfg.seeds.size»]===============================================================''')
 			initIncremental()
 			setupInitialModel(seed)
 				
@@ -196,6 +223,7 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
 			 * Incremental iterations
 			 */
 			for(iter : 0..cfg.iterations){
+				LOG4J.info("[ITERATION {} of {} MEASURE {} ({} of {}) ]===============================================================", iter, cfg.iterations, seed, cfg.seeds.indexOf(seed)+1, cfg.seeds.size)
 				gc()
 				initBatch
 				batch.acquire

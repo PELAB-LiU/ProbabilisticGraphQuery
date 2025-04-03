@@ -18,16 +18,19 @@ import org.eclipse.viatra.query.runtime.api.ViatraQueryEngineOptions;
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
 import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory;
 import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory;
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IntegerRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("all")
 public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
+  private static final Logger LOG4J = LoggerFactory.getLogger(ViatraBaseRunner.class);
+
   protected final Config cfg;
 
   protected final StochasticPatternGenerator generator;
@@ -43,11 +46,13 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
   public void initBatch() {
     EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone");
     this.batch = _engineConfig;
+    ViatraBaseRunner.LOG4J.debug("Init Batch {}", Integer.valueOf(this.batch.getEngine().hashCode()));
   }
 
   public void initIncremental() {
     EngineConfig _engineConfig = new EngineConfig(this.transformed, "incremental");
     this.incremental = _engineConfig;
+    ViatraBaseRunner.LOG4J.debug("Init Incremetnal {}", Integer.valueOf(this.incremental.getEngine().hashCode()));
   }
 
   /**
@@ -66,10 +71,12 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
       LocalSearchEMFBackendFactory.INSTANCE);
     EPackage.Registry.INSTANCE.put(domain.getNsURI(), domain);
     this.transformed = this.generator.transformPatternFile(cfg.vql());
+    ViatraBaseRunner.LOG4J.info("Queries {}", this.transformed);
   }
 
   public void gc() {
     try {
+      ViatraBaseRunner.LOG4J.debug("GC {}ms", Integer.valueOf(this.cfg.getGCTime()));
       System.gc();
       Thread.sleep(this.cfg.getGCTime());
       System.gc();
@@ -102,22 +109,34 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
     List<Integer> _warmups = this.cfg.getWarmups();
     for (final Integer i : _warmups) {
       {
-        StringConcatenation _builder = new StringConcatenation();
-        _builder.append("[WARMUP ");
-        _builder.append(i);
-        _builder.append(" of ");
-        int _size = this.cfg.getWarmups().size();
-        _builder.append(_size);
-        _builder.append("]===============================================================");
-        InputOutput.<String>println(_builder.toString());
+        int _indexOf = this.cfg.getWarmups().indexOf(i);
+        int _plus = (_indexOf + 1);
+        ViatraBaseRunner.LOG4J.info("[WARMUP {} ({} of {}) ]===============================================================", i, Integer.valueOf(_plus), Integer.valueOf(this.cfg.getWarmups().size()));
         this.initIncremental();
         this.setupInitialModel((i).intValue());
         int _iterations = this.cfg.getIterations();
         IntegerRange _upTo = new IntegerRange(0, _iterations);
         for (final Integer iter : _upTo) {
           {
+            int _iterations_1 = this.cfg.getIterations();
+            int _indexOf_1 = this.cfg.getWarmups().indexOf(i);
+            int _plus_1 = (_indexOf_1 + 1);
+            ViatraBaseRunner.LOG4J.info("[ITERATION {} of {} WARMUP {} ({} of {}) ]===============================================================", iter, Integer.valueOf(_iterations_1), i, Integer.valueOf(_plus_1), Integer.valueOf(this.cfg.getWarmups().size()));
             this.gc();
-            this.runStorm(log);
+            this.incremental.acquire();
+            this.runIncremental(log);
+            this.incremental.suspend();
+            this.gc();
+            this.initBatch();
+            this.batch.acquire();
+            this.runBatch(log);
+            this.batch.dispose();
+            if (((i).intValue() < 2)) {
+              this.gc();
+              this.runProblog(log);
+              this.gc();
+              this.runStorm(log);
+            }
             log.log("iteration", iter);
             log.log("run", i);
             log.log("prefix", this.cfg.getPrefix());
@@ -135,20 +154,19 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> {
     List<Integer> _seeds = this.cfg.seeds();
     for (final Integer seed : _seeds) {
       {
-        StringConcatenation _builder = new StringConcatenation();
-        _builder.append("[MEASURE ");
-        _builder.append(seed);
-        _builder.append(" of ");
-        int _size = this.cfg.seeds().size();
-        _builder.append(_size);
-        _builder.append("]===============================================================");
-        InputOutput.<String>println(_builder.toString());
+        int _indexOf = this.cfg.seeds().indexOf(seed);
+        int _plus = (_indexOf + 1);
+        ViatraBaseRunner.LOG4J.info("[MEASURE {} ({} of {}) ]===============================================================", seed, Integer.valueOf(_plus), Integer.valueOf(this.cfg.seeds().size()));
         this.initIncremental();
         this.setupInitialModel((seed).intValue());
         int _iterations = this.cfg.getIterations();
         IntegerRange _upTo = new IntegerRange(0, _iterations);
         for (final Integer iter : _upTo) {
           {
+            int _iterations_1 = this.cfg.getIterations();
+            int _indexOf_1 = this.cfg.seeds().indexOf(seed);
+            int _plus_1 = (_indexOf_1 + 1);
+            ViatraBaseRunner.LOG4J.info("[ITERATION {} of {} MEASURE {} ({} of {}) ]===============================================================", iter, Integer.valueOf(_iterations_1), seed, Integer.valueOf(_plus_1), Integer.valueOf(this.cfg.seeds().size()));
             this.gc();
             this.initBatch();
             this.batch.acquire();

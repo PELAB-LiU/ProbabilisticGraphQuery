@@ -33,8 +33,10 @@ import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceCop
 import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig
 import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceGenerator
 import se.liu.ida.sas.pelab.storm.run.StormEvaluation
+import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.problog.ProblogSurveillanceUtil
 
-class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
+class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> implements StormSurveillanceUtil, ProblogSurveillanceUtil{
 	val modelgen = new SurveillanceModelGenerator
 	var SurveillanceWrapper instance
 	
@@ -173,7 +175,8 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 	}
 	
 	override runProblog(CSVLog log) {
-		val file = new File(cfg.probLogFile)
+		runProblog(cfg, instance, log)
+		/*val file = new File(cfg.probLogFile)
 		file.createNewFile
 		val writer = new FileWriter(file)
 		val builder = new ProcessBuilder("problog", cfg.probLogFile);
@@ -214,11 +217,12 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 		log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", problogToJSON(output, timeoutFlag.get))
-		log.log("problog.timeout", timeoutFlag.get)
+		log.log("problog.timeout", timeoutFlag.get)*/
 	}
 	
 	override runStorm(CSVLog log) {
-		val result = StormEvaluation.evalueate(cfg,
+		runStorm(cfg, instance, log)
+		/*val result = StormEvaluation.evalueate(cfg,
 			[
 				(new StormSurveillanceGenerator).generateFrom(instance.model)
 			]
@@ -227,10 +231,10 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 		log.log("storm.trafo[ms]", result.transformation_ms)
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", stormToJSON(result.results, result.timeout))
-		log.log("storm.timeout", result.timeout)
+		log.log("storm.timeout", result.timeout)*/
 	}
 	
-	def String stormToJSON(Map<String,Double> data, boolean timeout){
+	/*def String stormToJSON(Map<String,Double> data, boolean timeout){
 		val results = data.entrySet.map[ entry |
 			val key = entry.key
 				.replace("toplevel \"elimination_UnidentifiedObjectImpl", "")
@@ -250,9 +254,9 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 			]
 		}
 		'''
-	}
+	}*/
 	
-	def String problogToJSON(Map<String,Object> data, boolean timeout){
+	/*def String problogToJSON(Map<String,Object> data, boolean timeout){
 		return '''
 		{
 			"valid" : «!timeout»,
@@ -266,7 +270,7 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration>{
 			]
 		}
 		'''
-	}
+	}*/
 	
 	def String getMatchesJSON(EngineConfig engine, Map<EObject,Integer> index){
 		val opt = engine.parsed.getQuerySpecification("elimination")

@@ -21,8 +21,12 @@ import org.eclipse.viatra.query.runtime.matchers.backend.IQueryBackend;
 import org.eclipse.viatra.query.runtime.matchers.backend.IQueryBackendFactory;
 import org.eclipse.viatra.query.runtime.matchers.backend.IQueryResultProvider;
 import org.eclipse.viatra.query.runtime.matchers.backend.QueryEvaluationHint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
+	private static final Logger LOG4J = LoggerFactory.getLogger(SuspendedQueryEngine.class);
+	
 	private final AdvancedViatraQueryEngine engine;
 	private final Field suspended;
 	private final Field backends;
@@ -40,17 +44,15 @@ public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
 		backends = engine.getClass().getDeclaredField("queryBackends"); 
 		backends.setAccessible(true);
     
+		LOG4J.debug("Created {}", engine.hashCode());
 	}
 	
 	public void suspend() {
 		try {
 			suspended.setBoolean(engine, true);
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG4J.debug("Suspend {}", engine.hashCode());
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			LOG4J.error("Suspend {} {}", engine.hashCode(), e);
 		}
 	}
 	public void enableAndPropagate() {
@@ -60,20 +62,13 @@ public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
 			for (IQueryBackend backend : backendMap.values()) {
                 backend.flushUpdates();
             }
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG4J.debug("Enable {}", engine.hashCode());
+		} catch (IllegalArgumentException | IllegalAccessException | NullPointerException e) {
+			LOG4J.error("Enable {} {}", engine.hashCode(), e);
 		}
 	}
 	@Override
 	public <V> V delayUpdatePropagation(Callable<V> callable) throws InvocationTargetException {
-		// TODO Auto-generated method stub
 		return engine.delayUpdatePropagation(callable);
 	}
 	
@@ -170,7 +165,6 @@ public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
 
 	@Override
 	public boolean isDisposed() {
-		// TODO Auto-generated method stub
 		return engine.isDisposed();
 	}
 

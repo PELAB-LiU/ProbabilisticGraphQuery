@@ -27,8 +27,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig
 import se.liu.ida.sas.pelab.storm.run.StormEvaluation
 import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeGenerator
+import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeUtil
+import hu.bme.mit.inf.dslreasoner.domains.smarthome.problog.ProblogSmarthomeUtil
 
-class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
+class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implements StormSmarthomeUtil, ProblogSmarthomeUtil{
 	val modelgen = new SmarthomeModelGenerator
 	var SmarthomeModel instance
 	
@@ -148,7 +150,8 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		modelgen.iterate(instance, 1)//TODO
 	}
 	override runProblog(CSVLog log) {
-		val file = new File(cfg.probLogFile)
+		runProblog(cfg, instance, log)
+		/*val file = new File(cfg.probLogFile)
 		file.createNewFile
 		val writer = new FileWriter(file)
 		val builder = new ProcessBuilder("problog", cfg.probLogFile);
@@ -186,10 +189,11 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", problogToJSON(output, timeoutFlag.get))
-		log.log("problog.timeout", timeoutFlag.get)
+		log.log("problog.timeout", timeoutFlag.get)*/
 	}
 	override runStorm(CSVLog log) {
-		val result = StormEvaluation.evalueate(cfg,
+		runStorm(cfg, instance, log)
+		/*val result = StormEvaluation.evalueate(cfg,
 			[
 				(new StormSmarthomeGenerator).generateFrom(instance.model)
 			]
@@ -198,23 +202,9 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 		log.log("storm.trafo[ms]", result.transformation_ms)
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", stormToJSON(result.results, result.timeout))
-		log.log("storm.timeout", result.timeout)
+		log.log("storm.timeout", result.timeout)*/
 	}
-	def String problogToJSON(Map<String,Object> data, boolean timeout){
-		return '''
-		{
-			"valid" : «!timeout»,
-			"matches" : [
-				«FOR entry : data.entrySet SEPARATOR ","»
-					{
-						"measurement" : "«instance.idmap.get(instance.ofHashCode(Integer.parseInt(entry.key)))»",
-						"probability" : «entry.value»
-					}
-				«ENDFOR»
-			]
-		}
-		'''
-	}
+	
 	def String getMatchesJSON(EngineConfig engine, Map<EObject,String> index){
 		val opt = engine.parsed.getQuerySpecification("callProbability")
 		if(opt.isPresent){
@@ -236,27 +226,4 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> {
 			return '''{"valid" : false, "matches" : []}'''
 		}
 	}
-	
-	def String stormToJSON(Map<String,Double> data, boolean timeout){
-		val results = data.entrySet.map[ entry |
-			val key = entry.key
-				.replace("toplevel \"callevent_MeasurementImpl", "")
-				.replace("\";", "")
-			Integer.parseInt(key) -> entry.value
-		].toMap([e|e.key],[e|e.value])
-		return '''
-		{
-			"valid" : «!timeout»,
-			"matches" : [
-				«FOR entry : results.entrySet SEPARATOR ","»
-					{
-						"measurement" : "«instance.idmap.get(instance.ofHashCode(entry.key))»",
-						"probability" : «entry.value»
-					}
-				«ENDFOR»
-			]
-		}
-		'''
-	}
-	
 }

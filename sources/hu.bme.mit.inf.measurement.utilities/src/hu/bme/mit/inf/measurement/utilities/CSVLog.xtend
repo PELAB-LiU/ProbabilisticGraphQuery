@@ -5,12 +5,16 @@ import java.util.HashMap
 import java.util.Queue
 import java.util.List
 import java.util.Arrays
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class CSVLog {
-	private final String[] columns
-	private final String separator
-	private final Queue<Map<String,String>> logs;
-	private final Map<String,Object> current;
+	static val Logger LOG4J = LoggerFactory.getLogger(CSVLog)
+	
+	val String[] columns
+	val String separator
+	val Queue<Map<String,String>> logs;
+	val Map<String,Object> current;
 	
 	new(String[] columns, String separator){
 		this.columns = columns
@@ -20,7 +24,8 @@ class CSVLog {
 	}
 	
 	def Object log(String key, Object object){
-		println('''«key» --> «object.toString.stringify»''')
+		LOG4J.info("CSVSET {} --> {}", key, object);
+		//println('''CSVSET «key» --> «object.toString.stringify»''')
 		return current.put(key, object)
 	}
 	def commit(){

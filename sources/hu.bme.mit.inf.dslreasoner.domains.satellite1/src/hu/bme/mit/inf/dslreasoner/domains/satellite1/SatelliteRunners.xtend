@@ -35,6 +35,12 @@ import java.util.regex.Pattern
 import java.util.Scanner
 import java.util.HashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import se.liu.ida.sas.pelab.storm.run.StormEvaluation
+import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteGenerator
+import java.util.Map
+import hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil
+import problog.ProblogSatelliteUtil
 
 //class SatelliteSinglePrism extends SatelliteCommon{
 //	def run(Config cfg){
@@ -46,7 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 //		Nailgun.terminate
 //	}
 //}
-class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
+class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> implements StormSatelliteUtil, ProblogSatelliteUtil{
 	val modelgen = new SatelliteModelGenerator
 	var SatelliteModelWrapper instance
 	
@@ -159,7 +165,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 	}
 	
 	override runProblog(CSVLog log) {
-		val file = new File(cfg.probLogFile)
+		runProblog(cfg, instance, log)
+		/*val file = new File(cfg.probLogFile)
 		file.createNewFile
 		val writer = new FileWriter(file)
 		val builder = new ProcessBuilder("problog", cfg.probLogFile);
@@ -197,12 +204,29 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> {
 		log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
-		log.log("problog.timeout", timeoutFlag.get)
+		log.log("problog.timeout", timeoutFlag.get)*/
 	}
 	
 	override runStorm(CSVLog log) {
-		throw new UnsupportedOperationException("TODO: auto-generated method stub")
+		runStorm(cfg, instance, log)
 	}
-	
+		/*val result = StormEvaluation.evalueate(cfg,
+			[
+				(new StormSatelliteGenerator).generateFrom(instance.mission)
+			]
+		)
+		val coverage = result.results.entrySet.map[ entry |
+			val count = entry.key
+				.replace("toplevel \"cov", "")
+				.replace("_\";", "")
+			Integer.parseInt(count) -> entry.value
+		].fold(0.0, [accu, entry | accu+Performability.calculate(entry.key)*entry.value])
+		
+		log.log("storm.total[ms]", result.transformation_ms + result.run_ms)
+		log.log("storm.trafo[ms]", result.transformation_ms)
+		log.log("storm.evaluation[ms]", result.run_ms)
+		log.log("storm.result", coverage)
+		log.log("storm.timeout", result.timeout)
+	}*/
 }
 

@@ -5,10 +5,13 @@ import java.util.Map;
 import java.util.Queue;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.InputOutput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("all")
 public class CSVLog {
+  private static final Logger LOG4J = LoggerFactory.getLogger(CSVLog.class);
+
   private final String[] columns;
 
   private final String separator;
@@ -25,12 +28,7 @@ public class CSVLog {
   }
 
   public Object log(final String key, final Object object) {
-    StringConcatenation _builder = new StringConcatenation();
-    _builder.append(key);
-    _builder.append(" --> ");
-    String _stringify = this.stringify(object.toString());
-    _builder.append(_stringify);
-    InputOutput.<String>println(_builder.toString());
+    CSVLog.LOG4J.info("CSVSET {} --> {}", key, object);
     return this.current.put(key, object);
   }
 

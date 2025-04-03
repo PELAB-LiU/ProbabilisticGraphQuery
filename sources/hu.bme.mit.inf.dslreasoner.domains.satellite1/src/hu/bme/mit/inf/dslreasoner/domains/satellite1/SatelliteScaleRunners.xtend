@@ -36,8 +36,13 @@ import java.util.Scanner
 import java.util.HashMap
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner
 import java.util.concurrent.atomic.AtomicBoolean
+import se.liu.ida.sas.pelab.storm.run.StormEvaluation
+import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteGenerator
+import hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil
+import problog.ProblogSatelliteUtil
 
-class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
+class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> implements StormSatelliteUtil, ProblogSatelliteUtil{
 	val modelgen = new SatelliteModelGenerator
 	var SatelliteModelWrapper instance
 	
@@ -47,7 +52,7 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 	
 	override preRun(int seed){
 		instance = modelgen.make(cfg.size, seed)
-		domainResource.contents.add(instance.mission)
+		engine.model.contents.add(instance.mission)
 	}
 	
 	override initIncremental(){
@@ -55,7 +60,7 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 		initializePatterns(engine, "coverage")
 	}
 	
-	override runIncremental(CSVLog log) {
+	override runViatra(CSVLog log) {
 		Configuration.enable
 		
 		try {
@@ -73,9 +78,9 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			engine.enableAndPropagate
-			val it0sync = MDD.unaryForAll(engine)
-			val coverage = checkMatches("coverage", parsed, engine)
+			engine.enable
+			val it0sync = engine.mdd.unaryForAll(engine.engine)
+			val coverage = checkMatches("coverage", engine)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -86,7 +91,7 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !engine.tainted)
+			log.log("incremental.healthy", !engine.engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch (CancellationException e) {
 			println("Cancellation caught.")
@@ -97,7 +102,8 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 	}
 	
 	override runProblog(CSVLog log) {
-		val file = new File(cfg.probLogFile)
+		runProblog(cfg, instance, log)
+		/*val file = new File(cfg.probLogFile)
 		file.createNewFile
 		val writer = new FileWriter(file)
 		val builder = new ProcessBuilder("problog", cfg.probLogFile);
@@ -135,6 +141,27 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> {
 		log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
-		log.log("problog.timeout", timeoutFlag.get)
+		log.log("problog.timeout", timeoutFlag.get)*/
+	}
+	
+	override runStorm(CSVLog log) {
+		runStorm(cfg, instance, log)
+		/*val result = StormEvaluation.evalueate(cfg,
+			[
+				(new StormSatelliteGenerator).generateFrom(instance.mission)
+			]
+		)
+		val coverage = result.results.entrySet.map[ entry |
+			val count = entry.key
+				.replace("toplevel \"cov", "")
+				.replace("_\";", "")
+			Integer.parseInt(count) -> entry.value
+		].fold(0.0, [accu, entry | accu+Performability.calculate(entry.key)*entry.value])
+		
+		log.log("storm.total[ms]", result.transformation_ms + result.run_ms)
+		log.log("storm.trafo[ms]", result.transformation_ms)
+		log.log("storm.evaluation[ms]", result.run_ms)
+		log.log("storm.result", coverage)
+		log.log("storm.timeout", result.timeout)*/
 	}
 }

@@ -13,4 +13,9 @@ class StormGeneration {
 	static def andGate(String name, String... inputs){
 		return '''"«name»" and «FOR arg : inputs SEPARATOR " "»"«arg»"«ENDFOR»;'''
 	}
+	
+	def static kof(Integer k, String name, String... inputs) {
+		return '''"«name»" «k»of«inputs.length» «FOR arg : inputs SEPARATOR " "»"«arg»"«ENDFOR»;'''
+	}
+	
 }

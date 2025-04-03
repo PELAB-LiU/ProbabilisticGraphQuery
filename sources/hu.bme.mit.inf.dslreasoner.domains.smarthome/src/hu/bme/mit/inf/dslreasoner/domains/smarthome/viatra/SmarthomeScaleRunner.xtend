@@ -25,8 +25,13 @@ import org.eclipse.emf.ecore.util.EcoreUtil.Copier
 import org.eclipse.emf.ecore.EObject
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner
 import java.util.concurrent.atomic.AtomicBoolean
+import hu.bme.mit.inf.measurement.utilities.viatra.EngineConfig
+import se.liu.ida.sas.pelab.storm.run.StormEvaluation
+import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeGenerator
+import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeUtil
+import hu.bme.mit.inf.dslreasoner.domains.smarthome.problog.ProblogSmarthomeUtil
 
-class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
+class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> implements StormSmarthomeUtil, ProblogSmarthomeUtil{
 	val modelgen = new SmarthomeModelGenerator
 	var SmarthomeModel instance
 	
@@ -36,7 +41,7 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 	
 	override preRun(int seed){
 		instance = modelgen.make(cfg.homes, cfg.persons, cfg.size)
-		domainResource.contents.add(instance.model)
+		engine.model.contents.add(instance.model)
 	}
 	
 	
@@ -45,7 +50,7 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 		initializePatterns(engine, "callProbability")
 	}
 	
-	override runIncremental(CSVLog log) {
+	override runViatra(CSVLog log) {
 		Configuration.enable
 		try{
 			/**
@@ -59,15 +64,13 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 			val timeout = Config.timeout(cfg.timeoutS, [|
 				println("Run cancelled with timeout.")
 				Configuration.cancel
-				if(!engine.isDisposed){
-					engine.dispose
-				}
+				engine.dispose
 				log.log("timeout", true)
 			])
 			val it0start = System.nanoTime
-			engine.enableAndPropagate
-			val it0sync = MDD.unaryForAll(engine)
-			val coverage = getMatchesJSON(parsed, engine, instance.idmap)
+			engine.enable
+			val it0sync = engine.mdd.unaryForAll(engine.engine)
+			val coverage = getMatchesJSON(engine, instance.idmap)
 			val it0end = System.nanoTime
 			timeout.cancel
 			val it0prop = ExecutionTime.time
@@ -78,7 +81,7 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !engine.tainted)
+			log.log("incremental.healthy", !engine.engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch(Exception e){
 			println("Cancellation caught.")
@@ -89,7 +92,8 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 	}
 	
 	override runProblog(CSVLog log){
-		val file = new File(cfg.probLogFile)
+		runProblog(cfg, instance, log)
+		/*val file = new File(cfg.probLogFile)
 		file.createNewFile
 		val writer = new FileWriter(file)
 		val builder = new ProcessBuilder("problog", cfg.probLogFile);
@@ -127,9 +131,25 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 			log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
 			log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 			log.log("problog.result", problogToJSON(output, timeoutFlag.get))
-			log.log("problog.timeout", timeoutFlag.get)
+			log.log("problog.timeout", timeoutFlag.get)*/
 	}
-	def String problogToJSON(Map<String,Object> data, boolean timeout){
+	
+	override runStorm(CSVLog log) {
+		runStorm(cfg, instance, log)
+		/*
+		val result = StormEvaluation.evalueate(cfg,
+			[
+				(new StormSmarthomeGenerator).generateFrom(instance.model)
+			]
+		)
+		log.log("storm.total[ms]", result.transformation_ms + result.run_ms)
+		log.log("storm.trafo[ms]", result.transformation_ms)
+		log.log("storm.evaluation[ms]", result.run_ms)
+		log.log("storm.result", stormToJSON(result.results, result.timeout))
+		log.log("storm.timeout", result.timeout)*/
+	}
+	
+	/*def String problogToJSON(Map<String,Object> data, boolean timeout){
 		return '''
 		{
 			"valid" : «!timeout»,
@@ -143,16 +163,16 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> {
 			]
 		}
 		'''
-	}
-	def String getMatchesJSON(PatternParsingResults parsed, AdvancedViatraQueryEngine engine, Map<EObject,String> index){
-		val opt = parsed.getQuerySpecification("callProbability")
+	}*/
+	def String getMatchesJSON(EngineConfig engine, Map<EObject,String> index){
+		val opt = engine.parsed.getQuerySpecification("callProbability")
 		if(opt.isPresent){
 			val matcher = opt.get
 			'''
 			{
 				"valid" : true,
 				"matches" : [
-				«FOR match : engine.getMatcher(matcher).allMatches SEPARATOR ","»
+				«FOR match : engine.engine.getMatcher(matcher).allMatches SEPARATOR ","»
 					{
 						"measurement" : "«index.get(match.get(1))»",
 						"probability" : «match.get(2)»

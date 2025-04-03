@@ -16,10 +16,14 @@ import org.eclipse.xtend.lib.annotations.Accessors;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.Pure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reliability.mdd.MddModel;
 
 @SuppressWarnings("all")
 public class EngineConfig {
+  private static final Logger LOG4J = LoggerFactory.getLogger(EngineConfig.class);
+
   private static List<EngineConfig> configs = CollectionLiterals.<EngineConfig>newLinkedList();
 
   private final String mddInstanceName;
@@ -52,6 +56,10 @@ public class EngineConfig {
       this.mdd.resetModel();
       this.mdd.invalidateCache();
       this.parsed = PatternParserBuilder.instance().parse(queries);
+      boolean _hasError = this.parsed.hasError();
+      if (_hasError) {
+        EngineConfig.LOG4J.error("Parsed with errors! {}", this.parsed.getErrors());
+      }
       final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function = (IQuerySpecification<? extends ViatraQueryMatcher> specification) -> {
         this.mdd.registerSpecificationIfNeeded(specification);
       };
@@ -73,6 +81,7 @@ public class EngineConfig {
   }
 
   public void acquire() {
+    EngineConfig.LOG4J.debug("Acquire {}", Integer.valueOf(this.engine.hashCode()));
     final Consumer<EngineConfig> _function = (EngineConfig cfg) -> {
       cfg.suspend();
     };
@@ -81,14 +90,18 @@ public class EngineConfig {
   }
 
   public void suspend() {
+    EngineConfig.LOG4J.debug("Suspend {}", Integer.valueOf(this.engine.hashCode()));
     this.engine.suspend();
   }
 
   public void enable() {
     boolean _isTainted = this.engine.isTainted();
     if (_isTainted) {
-      throw new IllegalStateException("Attempting to use tainted query engine.");
+      final IllegalStateException e = new IllegalStateException("Attempting to use tainted query engine.");
+      EngineConfig.LOG4J.error("Enable tainted engine! {}", Integer.valueOf(this.engine.hashCode()));
+      throw e;
     }
+    EngineConfig.LOG4J.debug("Propagate {}", Integer.valueOf(this.engine.hashCode()));
     this.engine.enableAndPropagate();
   }
 

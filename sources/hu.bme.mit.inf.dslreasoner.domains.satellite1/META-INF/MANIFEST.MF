@@ -27,7 +27,8 @@ Require-Bundle: org.eclipse.viatra.addon.querybasedfeatures.runtime,
  hu.bme.mit.inf.querytransformation;bundle-version="1.0.0",
  hu.bme.mit.inf.measurement.utilities;bundle-version="1.0.0",
  se.liu.ida.sas.pelab.problog;bundle-version="1.0.0",
- se.liu.ida.sas.pelab.storm;bundle-version="1.0.0"
+ se.liu.ida.sas.pelab.storm;bundle-version="1.0.0",
+ slf4j.api;bundle-version="2.0.12"
 Import-Package: hu.bme.mit.delta.mdd,
  org.apache.log4j,
  org.eclipse.xtext.diagnostics,
