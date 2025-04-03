@@ -32,8 +32,6 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> impleme
 
   protected EngineConfig incremental;
 
-  protected Resource model;
-
   public void initBatch() {
     EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone");
     this.batch = _engineConfig;
@@ -159,18 +157,14 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> impleme
             int _plus_1 = (_indexOf_1 + 1);
             ViatraBaseRunner.LOG4J.info("[ITERATION {} of {} MEASURE {} ({} of {}) ]===============================================================", iter, Integer.valueOf(_iterations_1), seed, Integer.valueOf(_plus_1), Integer.valueOf(this.cfg.seeds().size()));
             this.gc();
-            this.initBatch();
-            this.batch.acquire();
-            this.runBatch(log);
-            this.batch.dispose();
-            this.gc();
             this.incremental.acquire();
             this.runIncremental(log);
             this.incremental.suspend();
             this.gc();
-            this.runProblog(log);
-            this.gc();
-            this.runStorm(log);
+            this.initBatch();
+            this.batch.acquire();
+            this.runBatch(log);
+            this.batch.dispose();
             log.log("iteration", iter);
             log.log("prefix", this.cfg.getPrefix());
             log.log("run", seed);

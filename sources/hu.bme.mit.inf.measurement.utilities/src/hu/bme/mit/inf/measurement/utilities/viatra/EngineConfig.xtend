@@ -34,6 +34,7 @@ class EngineConfig{
 		model = resourceSet.createResource(URI.createFileURI("model-tmp-"+mddInstanceName+this.hashCode+".xmi"))
 		mdd = MddModel.getInstanceOf(mddInstanceName)
 		MddModel.changeTo(mddInstanceName)
+		mdd.resetQueries
 		mdd.resetModel
 		mdd.invalidateCache
 		

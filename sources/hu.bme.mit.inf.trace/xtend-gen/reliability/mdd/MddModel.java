@@ -414,6 +414,12 @@ public class MddModel {
     this.removeSpecification.forEach(_function_2);
   }
 
+  public void resetQueries() {
+    this.insertionSpecification.clear();
+    this.updateSpecification.clear();
+    this.removeSpecification.clear();
+  }
+
   private final SessionCache globalCache = new SessionCache();
 
   private CacheMode cacheMode = CacheMode.SESSION;

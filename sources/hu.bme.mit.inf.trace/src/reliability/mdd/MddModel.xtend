@@ -318,7 +318,11 @@ class MddModel {
 		updateSpecification.forEach[engine.getMatcher(it)]
 		removeSpecification.forEach[engine.getMatcher(it)]
 	}
-	
+	def resetQueries(){
+		insertionSpecification.clear
+		updateSpecification.clear
+		removeSpecification.clear
+	} 
 	val SessionCache globalCache = new SessionCache
 	var CacheMode cacheMode = CacheMode.SESSION
 	def ReliabilityCacheManager getCacheForSession(){

@@ -53,6 +53,7 @@ public class EngineConfig {
       this.model = this.resourceSet.createResource(URI.createFileURI(_plus_1));
       this.mdd = MddModel.getInstanceOf(this.mddInstanceName);
       MddModel.changeTo(this.mddInstanceName);
+      this.mdd.resetQueries();
       this.mdd.resetModel();
       this.mdd.invalidateCache();
       this.parsed = PatternParserBuilder.instance().parse(queries);

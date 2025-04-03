@@ -24,7 +24,7 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 	protected var EngineConfig batch
 	protected var EngineConfig incremental
 	
-	protected var Resource model
+	//protected var Resource model
 	
 	def void initBatch(){
 		batch = new EngineConfig(transformed, "standalone")
@@ -133,21 +133,23 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 			for(iter : 0..cfg.iterations){
 				LOG4J.info("[ITERATION {} of {} MEASURE {} ({} of {}) ]===============================================================", iter, cfg.iterations, seed, cfg.seeds.indexOf(seed)+1, cfg.seeds.size)
 				gc()
-				initBatch
-				batch.acquire
-				runBatch(log)
-				batch.dispose
-				
-				gc()
 				incremental.acquire
 				runIncremental(log)
 				incremental.suspend
 				
 				gc()
+				initBatch
+				batch.acquire
+				runBatch(log)
+				batch.dispose
+				
+				
+				
+				/*gc()
 				runProblog(log)
 				
 				gc()
-				runStorm(log)
+				runStorm(log)*/
 				
 				log.log("iteration", iter)
 				log.log("prefix", cfg.prefix)

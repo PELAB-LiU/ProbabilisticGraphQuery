@@ -43,7 +43,7 @@ class StormEvaluation {
 				 */
 				val trafoStart = System.nanoTime
 				val file = new File(cfg.stormFile)
-				println(file.absolutePath)
+				LOG4J.debug("FILE {}", file.absolutePath)
 				file.createNewFile
 				val writer = new FileWriter(file)
 				writer.write('''
