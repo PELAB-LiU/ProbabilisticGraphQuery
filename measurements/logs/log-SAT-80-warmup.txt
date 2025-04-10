@@ -1,0 +1,7 @@
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout,storm.total[ms],storm.result,storm.trafo[ms],storm.evaluation[ms],storm.timeout,incremental.healthy,standalone.healthy
+SAT,80,0,0,12202.713344,0.23025981198846587,41.336935,11976.465881999999,false,,,,,,1200262.991144,0,8.223557000000001,1200254.7675869998,true,8651.166304000002,0.23025981198846276,63.14219899999999,8588.024105000002,false,true,
+SAT,80,1,0,304715.68293300003,0.30139845376977015,32.829558,304518.71630699997,false,,,,,,1200216.902277,0,5.130433,1200211.771844,true,15037.846422,0.3013984537697686,91.56935399999999,14946.277068000001,false,true,
+SAT,80,2,0,922110.150569,0.31539763352201844,31.921022,921932.394112,false,,,,,,,,,,,,,,,,true,
+SAT,80,3,0,1588.363272,0.14372268576633318,20.454366,1431.964162,false,,,,,,,,,,,,,,,,true,
+SAT,80,4,0,30003.310283,0.25937127897083173,13.274051,29920.925982,false,,,,,,,,,,,,,,,,true,
+SAT,80,5,0,371701.751936,0.21141213164108338,16.327108,371624.230758,false,,,,,,,,,,,,,,,,true,
