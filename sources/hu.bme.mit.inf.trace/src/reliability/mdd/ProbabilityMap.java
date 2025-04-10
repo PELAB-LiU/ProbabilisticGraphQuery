@@ -3,9 +3,9 @@ package reliability.mdd;
 import java.util.HashMap;
 
 import hu.bme.mit.delta.mdd.MddVariable;
-import hu.bme.mit.delta.mdd.MddVariableHandle;
 import reliability.mdd.ProbabilityMap;
 
+@SuppressWarnings("serial")
 public class ProbabilityMap extends HashMap<MddVariable, Double> {
 
 	ProbabilityMap(ProbabilityMap map) {

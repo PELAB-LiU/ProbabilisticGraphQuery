@@ -85,13 +85,13 @@ public class MddModel {
   @Accessors({ AccessorType.PUBLIC_GETTER, AccessorType.PUBLIC_SETTER })
   private ReliabilityCacheManager cacheManager;
 
-  private final Set<IQuerySpecification<? extends ViatraQueryMatcher>> insertionSpecification;
+  private final Set<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> insertionSpecification;
 
-  private final Set<IQuerySpecification<? extends ViatraQueryMatcher>> updateSpecification;
+  private final Set<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> updateSpecification;
 
-  private final Set<IQuerySpecification<? extends ViatraQueryMatcher>> removeSpecification;
+  private final Set<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> removeSpecification;
 
-  public void registerSpecificationIfNeeded(final IQuerySpecification<? extends ViatraQueryMatcher> spc) {
+  public void registerSpecificationIfNeeded(final IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> spc) {
     this.graph.getUniqueTableSize();
     boolean _matches = spc.getFullyQualifiedName().matches("^Insertion[1-9]\\d*$");
     if (_matches) {
@@ -145,9 +145,9 @@ public class MddModel {
     MddHandle _handleOf_1 = this.getHandleOf(true);
     SimpleEvent _simpleEvent_1 = new SimpleEvent(_handleOf_1);
     this.model.setMddTrue(_simpleEvent_1);
-    this.insertionSpecification = CollectionLiterals.<IQuerySpecification<? extends ViatraQueryMatcher>>newHashSet();
-    this.updateSpecification = CollectionLiterals.<IQuerySpecification<? extends ViatraQueryMatcher>>newHashSet();
-    this.removeSpecification = CollectionLiterals.<IQuerySpecification<? extends ViatraQueryMatcher>>newHashSet();
+    this.insertionSpecification = CollectionLiterals.<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>>newHashSet();
+    this.updateSpecification = CollectionLiterals.<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>>newHashSet();
+    this.removeSpecification = CollectionLiterals.<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>>newHashSet();
   }
 
   private MddTerminalEntry createVariable(final double probability) {
@@ -259,9 +259,9 @@ public class MddModel {
     final MddSynchronizationRemoveEvent event = new MddSynchronizationRemoveEvent();
     event.begin();
     final HashSet<Trace> tracesToRemove = new HashSet<Trace>();
-    for (final IQuerySpecification<? extends ViatraQueryMatcher> specification : this.removeSpecification) {
+    for (final IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification : this.removeSpecification) {
       {
-        final ViatraQueryMatcher matcher = engine.getMatcher(specification);
+        final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
         final Consumer<IPatternMatch> _function = (IPatternMatch match) -> {
           Object _get = match.get(0);
           final Trace trace = ((Trace) _get);
@@ -298,9 +298,9 @@ public class MddModel {
     final MddSynchronizationUpdateEvent event = new MddSynchronizationUpdateEvent();
     event.begin();
     final HashMap<Trace, Double> tracesToUpdate = new HashMap<Trace, Double>();
-    for (final IQuerySpecification<? extends ViatraQueryMatcher> specification : this.updateSpecification) {
+    for (final IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification : this.updateSpecification) {
       {
-        final ViatraQueryMatcher matcher = engine.getMatcher(specification);
+        final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
         final Consumer<IPatternMatch> _function = (IPatternMatch match) -> {
           Object _get = match.get(0);
           final Trace trace = ((Trace) _get);
@@ -330,9 +330,9 @@ public class MddModel {
     event.begin();
     final TracemodelFactory factory = TracemodelFactory.eINSTANCE;
     final HashSet<Trace> newtraces = new HashSet<Trace>();
-    for (final IQuerySpecification<? extends ViatraQueryMatcher> specification : this.insertionSpecification) {
+    for (final IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification : this.insertionSpecification) {
       {
-        final ViatraQueryMatcher matcher = engine.getMatcher(specification);
+        final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getMatcher(specification);
         final int arity = Integer.parseInt(specification.getFullyQualifiedName().replace("Insertion", ""));
         final Consumer<IPatternMatch> _function = (IPatternMatch match) -> {
           try {
@@ -400,15 +400,15 @@ public class MddModel {
   }
 
   public void initializePatterns(final ViatraQueryEngine engine) {
-    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function = (IQuerySpecification<? extends ViatraQueryMatcher> it) -> {
+    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> it) -> {
       engine.getMatcher(it);
     };
     this.insertionSpecification.forEach(_function);
-    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function_1 = (IQuerySpecification<? extends ViatraQueryMatcher> it) -> {
+    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function_1 = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> it) -> {
       engine.getMatcher(it);
     };
     this.updateSpecification.forEach(_function_1);
-    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function_2 = (IQuerySpecification<? extends ViatraQueryMatcher> it) -> {
+    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function_2 = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> it) -> {
       engine.getMatcher(it);
     };
     this.removeSpecification.forEach(_function_2);

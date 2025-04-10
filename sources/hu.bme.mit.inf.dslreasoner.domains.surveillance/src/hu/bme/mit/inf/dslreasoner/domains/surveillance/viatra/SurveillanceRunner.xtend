@@ -1,164 +1,163 @@
 package hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra
 
-import hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner
-import hu.bme.mit.inf.measurement.utilities.CSVLog
 import surveillance.SurveillancePackage
-import reliability.intreface.Configuration
-import reliability.intreface.ExecutionTime
-import hu.bme.mit.inf.measurement.utilities.Config
-import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfiguration
+
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
-import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceCopier
-import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil
-import hu.bme.mit.inf.dslreasoner.domains.surveillance.problog.ProblogSurveillanceUtil
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl
+import org.eclipse.viatra.query.patternlanguage.emf.EMFPatternLanguageStandaloneSetup
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngineOptions
+import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory
+import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory
+import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
+import org.eclipse.emf.common.util.URI
+import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder
+import org.eclipse.viatra.query.runtime.api.AdvancedViatraQueryEngine
+import org.eclipse.viatra.query.runtime.emf.EMFScope
+import org.eclipse.emf.ecore.util.EcoreUtil
+import org.eclipse.viatra.query.runtime.api.IQuerySpecification
+import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher
+import hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator
 
-class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> implements ViatraSurveillanceUtil, StormSurveillanceUtil, ProblogSurveillanceUtil{
-	val modelgen = new SurveillanceModelGenerator
-	var SurveillanceWrapper instance
+class SurveillanceRunner {
+	val StochasticPatternGenerator generator
 	
-	new(SurveillanceConfiguration cfg) {
-		/*super((new Function0<SurveillanceConfiguration>{
-			
-			override apply() {
-				cfg.CSVcolumns.addAll(#["standalone.matches","incremental.matches","standalone.dst","standalone.prob","incremental.dst","incremental.prob"])
-				return cfg
-			}
-			
-			}).apply(), SurveillancePackage.eINSTANCE)*/
-		super(cfg, SurveillancePackage.eINSTANCE)
-	}
+	val AdvancedViatraQueryEngine engine1
+	val Resource resource1
+	val AdvancedViatraQueryEngine engine2
+	val Resource resource2
 	
-	override setupInitialModel(int seed){
-		instance = modelgen.make(cfg.size, seed)
-		incremental.model.contents.add(instance.model)
-	}
-	
-	override applyIncrement() {
-		modelgen.iterate(instance, 0.1)
-		println("Incremental query engine status after increment (is tainted): "+incremental.engine.tainted)
-	}
-	
-	override initBatch(){
-		super.initBatch
-		initializePatterns(batch, "elimination")
-	}
-	
-	override runBatch(CSVLog log){
-		SurveillanceHelper.logger = log
-
-		Configuration.enable
-		val resource = batch.model
-			
-		try {
-			/**
-			 * Setup instance model 
-			 */
-			
-			//resource.contents.add(EcoreUtil.copy(instance.model, copy))
-			val copier = new SurveillanceCopier
-			val result = copier.copy(instance.model)
-			copier.copyReferences
-			resource.contents.add(result)
-			val index = newHashMap
-			copier.entrySet.forEach[index.put(it.value, instance.ordering.get(it.key))]
-			ExecutionTime.reset;
-			
-			/**
-			 * Run evaluation
-			 */
-			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
-				Configuration.cancel
-				batch.dispose
-				log.log("timeout", true)
-			])
-			val it0start = System.nanoTime
-			batch.enable
-			val it0sync = batch.mdd.unaryForAll(batch.engine)
-			val coverage = getMatchesJSON(batch, index)
-			val it0end = System.nanoTime
-			timeout.cancel
-			val it0prop = ExecutionTime.time
-			
-			/**
-			 * Make logs
-			 */
-			//log.log("standalone.matches", (new DebugUtil{}).getMatchesJSON(batch, index))
-			
-			log.log("standalone.total[ms]", ((it0end-it0start)/1000.0/1000))
-			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
-			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
-			log.log("standalone.healthy", !batch.engine.tainted)
-			log.log("standalone.result", coverage)
-		} catch (Exception e) {
-			println("Cancellation caught.")
-		} finally {
-			resource.contents.clear
-			log.log("standalone.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
-		}
-	}
-	
-	override initIncremental(){
-		super.initIncremental
-		initializePatterns(incremental, "elimination")
-	}
-	
-	override runIncremental(CSVLog log) {
-		Configuration.enable
+	new(){
+		Resource.Factory.Registry.INSTANCE.extensionToFactoryMap.putIfAbsent("xmi", new XMIResourceFactoryImpl())
+		StochasticPatternGenerator.doSetup
+		generator = new StochasticPatternGenerator
 		
-		SurveillanceHelper.logger = log
-		try{
-			/**
-			 * Setup instance model 
-			 */
-			ExecutionTime.reset;
-			
-			/**
-			 * Run first evaluation
-			 */
-			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
-				Configuration.cancel
-				incremental.dispose
-				log.log("timeout", true)
-			])
-			val it0start = System.nanoTime
-			incremental.enable
-			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
-			val coverage = getMatchesJSON(incremental, instance.ordering)
-			val it0end = System.nanoTime
-			timeout.cancel
-			val it0prop = ExecutionTime.time
-			
-			/**
-			 * Make logs
-			 */
-			//log.log("incremental.matches", (new DebugUtil{}).getMatchesJSON(incremental, instance.ordering))
-			
-			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
-			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
-			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !incremental.engine.tainted)
-			log.log("incremental.result", coverage)
-		} catch(Exception e){
-			e.printStackTrace
-			println("Cancellation caught.")
-		} finally{
-			log.log("incremental.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
+		EMFPatternLanguageStandaloneSetup.doSetup
+		ViatraQueryEngineOptions.setSystemDefaultBackends(ReteBackendFactory.INSTANCE, ReteBackendFactory.INSTANCE,
+			LocalSearchEMFBackendFactory.INSTANCE)
+		
+		EPackage.Registry.INSTANCE.put(SurveillancePackage.eINSTANCE.nsURI, SurveillancePackage.eINSTANCE)
+
+		//val transformed = ""//generator.transformPatternFile(cfg.vql)
+		
+		
+		
+		
+		
+		val s1 = makeEngine(1, queries1)
+		engine1 = s1.key
+		resource1 = s1.value
+		
+		val s2 = makeEngine(2, queries1)
+		engine2 = s2.key
+		resource2 = s2.value
+		
+	}
+	
+	def makeEngine(int i, String queries){
+		val resourceSet = new ResourceSetImpl
+		val model = resourceSet.createResource(URI.createFileURI("model-tmp-"+i+".xmi"))
+		
+		val parsed = PatternParserBuilder.instance.parse(queries)
+		
+		val engine = 
+			AdvancedViatraQueryEngine.createUnmanagedEngine(new EMFScope(resourceSet))
+		parsed.querySpecifications.forEach[IQuerySpecification<? extends ViatraQueryMatcher> spec | engine.getMatcher(spec)]
+		return engine -> model
+	}
+	
+	def getMatches(AdvancedViatraQueryEngine engine){
+		val query = engine.registeredQuerySpecifications.findFirst["elimination".equals(it.simpleName)]
+		if(query!==null){
+			println(engine.getMatcher(query).countMatches)/* forEach[match |
+				//println(match.prettyPrint)
+			]*/
+		} else {
+			throw new RuntimeException("This state should not be reachable!")
 		}
 	}
 	
-	override runProblog(CSVLog log) {
-		runProblog(cfg, instance, log)
+	
+	val modelgen = new SurveillanceModelGenerator
+	
+	def iterate(SurveillanceWrapper wrapper, double threshold){
+		wrapper.model.objects.forEach[obj |
+			val old = obj.position
+			val neww = SurveillanceHelper.move(old, obj.speed, obj.angle, 1)
+			obj.position = neww 
+			
+			if(engine1!==null && engine1.tainted){
+				throw new RuntimeException("Tainted engine 1.")
+			}
+			if(engine2!==null && engine2.tainted){
+				throw new RuntimeException("Tainted engine 2.")
+			}
+		]
 	}
 	
-	override runStorm(CSVLog log) {
-		runStorm(cfg, instance, log)
+	def run(){
+		var wrapper = modelgen.make(200,0)
+
+		getMatches(engine1)
+		resource1.contents.add(wrapper.model)
+		
+		getMatches(engine1)
+		
+		val duplicate = EcoreUtil.copy(wrapper.model)
+		for(i : 0..5){
+			iterate(wrapper, 0.1)
+		
+			getMatches(engine1)	
+		}
 	}
 	
+	static val queries1 = '''
+	package hu.bme.mit.inf.dslreasoner.domains.surveillance.queries;
+	
+	import "http://www.example.org/surveillance"
+	import "http://www.eclipse.org/emf/2002/Ecore"
+	
+	import java hu.bme.mit.inf.querytransformation.query.KGate
+	import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate
+	import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
+	
+	pattern targetToShoot(trg: UnidentifiedObject, probability: EDouble){
+		find targettableObject(trg, probability);
+	}
+	pattern targettableObject(trg: UnidentifiedObject, confidence: EDouble){
+		UnidentifiedObject.confidence(trg,confidence);
+		UnidentifiedObject.speed(trg,speed);
+		check(confidence > 0.65);
+		check(SurveillanceHelper.spd30(speed));
+	}
+	pattern gunshot(from: Drone, to: UnidentifiedObject, probability: java Double){
+		neg find killed(to);
+		Drone.position(from, dp);
+		find targettableObject(to,_);
+		UnidentifiedObject.position(to,tp);
+		check(SurveillanceHelper.dst1000(dp,tp));
+		UnidentifiedObject.speed(to,speed);
+		UnidentifiedObject.confidence(to, confidence);
+		probability == eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));
+	}
+	pattern killed(object: UnidentifiedObject){
+		Shot.probability(s,p);
+		Shot.at(s,object);
+		check(p>0.95);
+	}
+	/**
+	 * Assess probability of elimination
+	 * + add shot for next iteration
+	 */
+	pattern attempt(from: Drone, to: UnidentifiedObject){
+		find gunshot(from, to, _);
+		find targetToShoot(to,_);
+	}
+	
+	pattern elimination(target: UnidentifiedObject, probability: java Integer){
+		probability == count find attempt(_, target);
+	}
+	
+	'''
 }
-
-
-

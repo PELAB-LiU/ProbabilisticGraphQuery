@@ -3,11 +3,8 @@ package hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities;
 import org.eclipse.xtext.xbase.lib.Pure;
 
 import hu.bme.mit.inf.measurement.utilities.CSVLog;
-import surveillance.Drone;
-import surveillance.UnidentifiedObject;
 import uncertaindatatypes.UBoolean;
 import uncertaindatatypes.UReal;
-import hu.bme.mit.inf.dslreasoner.domains.surveillance.debug.DebugUtil;
 
 public class SurveillanceHelper {
 	public static CSVLog logger;

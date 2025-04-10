@@ -14,6 +14,7 @@ import reliability.events.ImmediateMddNotOperator;
 	returnTypes = { Event.class }
 )
 public class NOT implements IAggregatorFactory {
+	@SuppressWarnings("rawtypes")
 	private static MddNotOperator INSTANCE = new ImmediateMddNotOperator();
 
 	@Override

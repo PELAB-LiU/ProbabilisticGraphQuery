@@ -1,9 +1,0 @@
-/bin/
-/mdeo-results/
-/outputs/
-/src-gen/
-/xtend-gen/**/*._trace
-/xtend-gen/*._trace
-/xtend-gen/**/*.xtendbin
-/xtend-gen/*.xtendbin
-.settings/

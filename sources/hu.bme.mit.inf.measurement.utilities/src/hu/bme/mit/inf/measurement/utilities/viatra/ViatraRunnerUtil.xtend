@@ -4,6 +4,7 @@ import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder
 import org.eclipse.viatra.query.runtime.api.IQuerySpecification
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher
 import org.eclipse.xtext.diagnostics.Severity
+import org.eclipse.viatra.query.runtime.api.IPatternMatch
 
 interface ViatraRunnerUtil {
 	def parseQueries(String vql){
@@ -67,8 +68,8 @@ interface ViatraRunnerUtil {
 	}
 	def initializePatterns(EngineConfig engine, String... queries){
 		queries.forEach([name | 
-			engine.parsed.getQuerySpecification(name).ifPresent([IQuerySpecification<? extends ViatraQueryMatcher> specification |
-				val cnt = engine.engine.getMatcher(specification).countMatches
+			engine.parsed.getQuerySpecification(name).ifPresent([IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification |
+				engine.engine.getMatcher(specification).countMatches
 			])
 		])
 	}

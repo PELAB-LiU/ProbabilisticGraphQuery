@@ -103,8 +103,8 @@ public interface ViatraRunnerUtil {
 
   default void initializePatterns(final EngineConfig engine, final String... queries) {
     final Consumer<String> _function = (String name) -> {
-      final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function_1 = (IQuerySpecification<? extends ViatraQueryMatcher> specification) -> {
-        final int cnt = engine.getEngine().getMatcher(specification).countMatches();
+      final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function_1 = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
+        engine.getEngine().getMatcher(specification).countMatches();
       };
       engine.getParsed().getQuerySpecification(name).ifPresent(_function_1);
     };

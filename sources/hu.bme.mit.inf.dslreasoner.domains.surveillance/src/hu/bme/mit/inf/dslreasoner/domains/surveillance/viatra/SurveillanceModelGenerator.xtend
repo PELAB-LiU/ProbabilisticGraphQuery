@@ -8,13 +8,7 @@ import org.eclipse.viatra.query.runtime.api.IPatternMatch
 import java.util.Comparator
 import org.eclipse.emf.ecore.EObject
 import java.util.Map
-import java.util.Objects
 import java.util.Random
-import org.eclipse.viatra.query.runtime.api.AdvancedViatraQueryEngine
-import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults
-import java.util.Collection
-import java.util.Collections
-import java.util.List
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper
 
 class SurveillanceModelGenerator {

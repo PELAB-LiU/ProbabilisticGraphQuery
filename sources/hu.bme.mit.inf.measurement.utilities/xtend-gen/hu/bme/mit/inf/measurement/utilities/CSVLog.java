@@ -28,7 +28,7 @@ public class CSVLog {
   }
 
   public Object log(final String key, final Object object) {
-    CSVLog.LOG4J.info("CSVSET {} --> {}", key, object);
+    CSVLog.LOG4J.debug("CSVSET {} --> {}", key, object);
     return this.current.put(key, object);
   }
 

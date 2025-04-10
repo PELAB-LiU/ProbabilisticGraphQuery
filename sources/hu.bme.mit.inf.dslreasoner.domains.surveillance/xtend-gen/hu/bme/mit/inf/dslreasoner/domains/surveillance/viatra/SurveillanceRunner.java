@@ -1,161 +1,246 @@
 package hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra;
 
-import hu.bme.mit.inf.dslreasoner.domains.surveillance.problog.ProblogSurveillanceUtil;
-import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceCopier;
+import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate;
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper;
-import hu.bme.mit.inf.measurement.utilities.CSVLog;
-import hu.bme.mit.inf.measurement.utilities.Config;
-import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfiguration;
-import hu.bme.mit.inf.measurement.utilities.viatra.ViatraBaseRunner;
-import java.util.HashMap;
+import hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator;
 import java.util.Map;
-import java.util.Timer;
 import java.util.function.Consumer;
-import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.xtext.xbase.lib.CollectionLiterals;
-import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.viatra.query.patternlanguage.emf.EMFPatternLanguageStandaloneSetup;
+import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder;
+import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults;
+import org.eclipse.viatra.query.runtime.api.AdvancedViatraQueryEngine;
+import org.eclipse.viatra.query.runtime.api.IPatternMatch;
+import org.eclipse.viatra.query.runtime.api.IQuerySpecification;
+import org.eclipse.viatra.query.runtime.api.ViatraQueryEngineOptions;
+import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
+import org.eclipse.viatra.query.runtime.emf.EMFScope;
+import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSearchEMFBackendFactory;
+import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory;
+import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.Functions.Function0;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.InputOutput;
-import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
-import reliability.intreface.Configuration;
-import reliability.intreface.ExecutionTime;
-import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil;
+import org.eclipse.xtext.xbase.lib.IntegerRange;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
+import org.eclipse.xtext.xbase.lib.Pair;
+import surveillance.MovingObject;
+import surveillance.SurveillanceModel;
 import surveillance.SurveillancePackage;
 
 @SuppressWarnings("all")
-public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> implements ViatraSurveillanceUtil, StormSurveillanceUtil, ProblogSurveillanceUtil {
+public class SurveillanceRunner {
+  private final StochasticPatternGenerator generator;
+
+  private final AdvancedViatraQueryEngine engine1;
+
+  private final Resource resource1;
+
+  private final AdvancedViatraQueryEngine engine2;
+
+  private final Resource resource2;
+
+  public SurveillanceRunner() {
+    Map<String, Object> _extensionToFactoryMap = Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap();
+    XMIResourceFactoryImpl _xMIResourceFactoryImpl = new XMIResourceFactoryImpl();
+    _extensionToFactoryMap.putIfAbsent("xmi", _xMIResourceFactoryImpl);
+    StochasticPatternGenerator.doSetup();
+    StochasticPatternGenerator _stochasticPatternGenerator = new StochasticPatternGenerator();
+    this.generator = _stochasticPatternGenerator;
+    EMFPatternLanguageStandaloneSetup.doSetup();
+    ViatraQueryEngineOptions.setSystemDefaultBackends(ReteBackendFactory.INSTANCE, ReteBackendFactory.INSTANCE, 
+      LocalSearchEMFBackendFactory.INSTANCE);
+    EPackage.Registry.INSTANCE.put(SurveillancePackage.eINSTANCE.getNsURI(), SurveillancePackage.eINSTANCE);
+    final Pair<AdvancedViatraQueryEngine, Resource> s1 = this.makeEngine(1, SurveillanceRunner.queries1);
+    this.engine1 = s1.getKey();
+    this.resource1 = s1.getValue();
+    final Pair<AdvancedViatraQueryEngine, Resource> s2 = this.makeEngine(2, SurveillanceRunner.queries1);
+    this.engine2 = s2.getKey();
+    this.resource2 = s2.getValue();
+  }
+
+  public Pair<AdvancedViatraQueryEngine, Resource> makeEngine(final int i, final String queries) {
+    final ResourceSetImpl resourceSet = new ResourceSetImpl();
+    final Resource model = resourceSet.createResource(URI.createFileURI((("model-tmp-" + Integer.valueOf(i)) + ".xmi")));
+    final PatternParsingResults parsed = PatternParserBuilder.instance().parse(queries);
+    EMFScope _eMFScope = new EMFScope(resourceSet);
+    final AdvancedViatraQueryEngine engine = AdvancedViatraQueryEngine.createUnmanagedEngine(_eMFScope);
+    final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function = (IQuerySpecification<? extends ViatraQueryMatcher> spec) -> {
+      engine.getMatcher(spec);
+    };
+    parsed.getQuerySpecifications().forEach(_function);
+    return Pair.<AdvancedViatraQueryEngine, Resource>of(engine, model);
+  }
+
+  public Integer getMatches(final AdvancedViatraQueryEngine engine) {
+    Integer _xblockexpression = null;
+    {
+      final Function1<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>, Boolean> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> it) -> {
+        return Boolean.valueOf("elimination".equals(it.getSimpleName()));
+      };
+      final IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> query = IterableExtensions.<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>>findFirst(engine.getRegisteredQuerySpecifications(), _function);
+      Integer _xifexpression = null;
+      if ((query != null)) {
+        _xifexpression = InputOutput.<Integer>println(Integer.valueOf(engine.getMatcher(query).countMatches()));
+      } else {
+        throw new RuntimeException("This state should not be reachable!");
+      }
+      _xblockexpression = _xifexpression;
+    }
+    return _xblockexpression;
+  }
+
   private final SurveillanceModelGenerator modelgen = new SurveillanceModelGenerator();
 
-  private SurveillanceWrapper instance;
-
-  public SurveillanceRunner(final SurveillanceConfiguration cfg) {
-    super(cfg, SurveillancePackage.eINSTANCE);
-  }
-
-  @Override
-  public void setupInitialModel(final int seed) {
-    this.instance = this.modelgen.make(this.cfg.getSize(), seed);
-    this.incremental.getModel().getContents().add(this.instance.model);
-  }
-
-  @Override
-  public void applyIncrement() {
-    this.modelgen.iterate(this.instance, 0.1);
-    boolean _isTainted = this.incremental.getEngine().isTainted();
-    String _plus = ("Incremental query engine status after increment (is tainted): " + Boolean.valueOf(_isTainted));
-    InputOutput.<String>println(_plus);
-  }
-
-  @Override
-  public void initBatch() {
-    super.initBatch();
-    this.initializePatterns(this.batch, "elimination");
-  }
-
-  @Override
-  public void runBatch(final CSVLog log) {
-    SurveillanceHelper.logger = log;
-    Configuration.enable();
-    final Resource resource = this.batch.getModel();
-    try {
-      final SurveillanceCopier copier = new SurveillanceCopier();
-      final EObject result = copier.copy(this.instance.model);
-      copier.copyReferences();
-      resource.getContents().add(result);
-      final HashMap<EObject, Integer> index = CollectionLiterals.<EObject, Integer>newHashMap();
-      final Consumer<Map.Entry<EObject, EObject>> _function = (Map.Entry<EObject, EObject> it) -> {
-        index.put(it.getValue(), this.instance.ordering.get(it.getKey()));
-      };
-      copier.entrySet().forEach(_function);
-      ExecutionTime.reset();
-      final Procedure0 _function_1 = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
-        Configuration.cancel();
-        this.batch.dispose();
-        log.log("timeout", Boolean.valueOf(true));
-      };
-      final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function_1);
-      final long it0start = System.nanoTime();
-      this.batch.enable();
-      final long it0sync = this.batch.getMdd().unaryForAll(this.batch.getEngine());
-      final String coverage = this.getMatchesJSON(this.batch, index);
-      final long it0end = System.nanoTime();
-      timeout.cancel();
-      final long it0prop = ExecutionTime.time();
-      log.log("standalone.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
-      log.log("standalone.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
-      log.log("standalone.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
-      boolean _isTainted = this.batch.getEngine().isTainted();
-      boolean _not = (!_isTainted);
-      log.log("standalone.healthy", Boolean.valueOf(_not));
-      log.log("standalone.result", coverage);
-    } catch (final Throwable _t) {
-      if (_t instanceof Exception) {
-        InputOutput.<String>println("Cancellation caught.");
-      } else {
-        throw Exceptions.sneakyThrow(_t);
+  public void iterate(final SurveillanceWrapper wrapper, final double threshold) {
+    final Consumer<MovingObject> _function = (MovingObject obj) -> {
+      final Coordinate old = obj.getPosition();
+      final Coordinate neww = SurveillanceHelper.move(old, obj.getSpeed(), obj.getAngle(), 1);
+      obj.setPosition(neww);
+      if (((this.engine1 != null) && this.engine1.isTainted())) {
+        throw new RuntimeException("Tainted engine 1.");
       }
-    } finally {
-      resource.getContents().clear();
-      log.log("standalone.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
+      if (((this.engine2 != null) && this.engine2.isTainted())) {
+        throw new RuntimeException("Tainted engine 2.");
+      }
+    };
+    wrapper.model.getObjects().forEach(_function);
+  }
+
+  public void run() {
+    SurveillanceWrapper wrapper = this.modelgen.make(200, 0);
+    this.getMatches(this.engine1);
+    this.resource1.getContents().add(wrapper.model);
+    this.getMatches(this.engine1);
+    final SurveillanceModel duplicate = EcoreUtil.<SurveillanceModel>copy(wrapper.model);
+    IntegerRange _upTo = new IntegerRange(0, 5);
+    for (final Integer i : _upTo) {
+      {
+        this.iterate(wrapper, 0.1);
+        this.getMatches(this.engine1);
+      }
     }
   }
 
-  @Override
-  public void initIncremental() {
-    super.initIncremental();
-    this.initializePatterns(this.incremental, "elimination");
-  }
-
-  @Override
-  public void runIncremental(final CSVLog log) {
-    Configuration.enable();
-    SurveillanceHelper.logger = log;
-    try {
-      ExecutionTime.reset();
-      final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
-        Configuration.cancel();
-        this.incremental.dispose();
-        log.log("timeout", Boolean.valueOf(true));
-      };
-      final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
-      final long it0start = System.nanoTime();
-      this.incremental.enable();
-      final long it0sync = this.incremental.getMdd().unaryForAll(this.incremental.getEngine());
-      final String coverage = this.getMatchesJSON(this.incremental, this.instance.ordering);
-      final long it0end = System.nanoTime();
-      timeout.cancel();
-      final long it0prop = ExecutionTime.time();
-      log.log("incremental.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
-      log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
-      log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
-      boolean _isTainted = this.incremental.getEngine().isTainted();
-      boolean _not = (!_isTainted);
-      log.log("incremental.healthy", Boolean.valueOf(_not));
-      log.log("incremental.result", coverage);
-    } catch (final Throwable _t) {
-      if (_t instanceof Exception) {
-        final Exception e = (Exception)_t;
-        e.printStackTrace();
-        InputOutput.<String>println("Cancellation caught.");
-      } else {
-        throw Exceptions.sneakyThrow(_t);
-      }
-    } finally {
-      log.log("incremental.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
+  private static final String queries1 = new Function0<String>() {
+    @Override
+    public String apply() {
+      StringConcatenation _builder = new StringConcatenation();
+      _builder.append("package hu.bme.mit.inf.dslreasoner.domains.surveillance.queries;");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("import \"http://www.example.org/surveillance\"");
+      _builder.newLine();
+      _builder.append("import \"http://www.eclipse.org/emf/2002/Ecore\"");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("import java hu.bme.mit.inf.querytransformation.query.KGate");
+      _builder.newLine();
+      _builder.append("import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.Coordinate");
+      _builder.newLine();
+      _builder.append("import java hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHelper");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("pattern targetToShoot(trg: UnidentifiedObject, probability: EDouble){");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("find targettableObject(trg, probability);");
+      _builder.newLine();
+      _builder.append("}");
+      _builder.newLine();
+      _builder.append("pattern targettableObject(trg: UnidentifiedObject, confidence: EDouble){");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("UnidentifiedObject.confidence(trg,confidence);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("UnidentifiedObject.speed(trg,speed);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("check(confidence > 0.65);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("check(SurveillanceHelper.spd30(speed));");
+      _builder.newLine();
+      _builder.append("}");
+      _builder.newLine();
+      _builder.append("pattern gunshot(from: Drone, to: UnidentifiedObject, probability: java Double){");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("neg find killed(to);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("Drone.position(from, dp);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("find targettableObject(to,_);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("UnidentifiedObject.position(to,tp);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("check(SurveillanceHelper.dst1000(dp,tp));");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("UnidentifiedObject.speed(to,speed);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("UnidentifiedObject.confidence(to, confidence);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("probability == eval(SurveillanceHelper.shotProbability(dp,tp,speed,confidence));");
+      _builder.newLine();
+      _builder.append("}");
+      _builder.newLine();
+      _builder.append("pattern killed(object: UnidentifiedObject){");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("Shot.probability(s,p);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("Shot.at(s,object);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("check(p>0.95);");
+      _builder.newLine();
+      _builder.append("}");
+      _builder.newLine();
+      _builder.append("/**");
+      _builder.newLine();
+      _builder.append(" ");
+      _builder.append("* Assess probability of elimination");
+      _builder.newLine();
+      _builder.append(" ");
+      _builder.append("* + add shot for next iteration");
+      _builder.newLine();
+      _builder.append(" ");
+      _builder.append("*/");
+      _builder.newLine();
+      _builder.append("pattern attempt(from: Drone, to: UnidentifiedObject){");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("find gunshot(from, to, _);");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("find targetToShoot(to,_);");
+      _builder.newLine();
+      _builder.append("}");
+      _builder.newLine();
+      _builder.newLine();
+      _builder.append("pattern elimination(target: UnidentifiedObject, probability: java Integer){");
+      _builder.newLine();
+      _builder.append("\t");
+      _builder.append("probability == count find attempt(_, target);");
+      _builder.newLine();
+      _builder.append("}");
+      _builder.newLine();
+      _builder.newLine();
+      return _builder.toString();
     }
-  }
-
-  @Override
-  public void runProblog(final CSVLog log) {
-    this.runProblog(this.cfg, this.instance, log);
-  }
-
-  @Override
-  public void runStorm(final CSVLog log) {
-    this.runStorm(this.cfg, this.instance, log);
-  }
+  }.apply();
 }

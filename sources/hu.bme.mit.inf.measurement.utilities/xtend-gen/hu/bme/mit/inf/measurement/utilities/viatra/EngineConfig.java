@@ -8,6 +8,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder;
 import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParsingResults;
+import org.eclipse.viatra.query.runtime.api.IPatternMatch;
 import org.eclipse.viatra.query.runtime.api.IQuerySpecification;
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher;
 import org.eclipse.viatra.query.runtime.emf.EMFScope;
@@ -61,7 +62,7 @@ public class EngineConfig {
       if (_hasError) {
         EngineConfig.LOG4J.error("Parsed with errors! {}", this.parsed.getErrors());
       }
-      final Consumer<IQuerySpecification<? extends ViatraQueryMatcher>> _function = (IQuerySpecification<? extends ViatraQueryMatcher> specification) -> {
+      final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
         this.mdd.registerSpecificationIfNeeded(specification);
       };
       this.parsed.getQuerySpecifications().forEach(_function);

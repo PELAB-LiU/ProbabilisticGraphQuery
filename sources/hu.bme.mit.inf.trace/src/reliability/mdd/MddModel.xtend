@@ -56,20 +56,14 @@ class MddModel {
 	
 	val TraceModel model
 	
-	
-	
 	val Set<MddTerminalEntry> entries
 	val Set<MddTerminalEntry> inactiveEntries
 	
-	//moved to TraceModel.probabilities(_,internal_probabilities);
-	//val Map<MddVariable, Double> probabilities
-	
 	@Accessors(PUBLIC_GETTER, PUBLIC_SETTER) var ReliabilityCacheManager cacheManager
-	//val Map<String, IQuerySpecification<? extends ViatraQueryMatcher>> matchers
-	val Set<IQuerySpecification<? extends ViatraQueryMatcher>> insertionSpecification
-	val Set<IQuerySpecification<? extends ViatraQueryMatcher>> updateSpecification
-	val Set<IQuerySpecification<? extends ViatraQueryMatcher>> removeSpecification
-	def registerSpecificationIfNeeded(IQuerySpecification<? extends ViatraQueryMatcher> spc){
+	val Set<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> insertionSpecification
+	val Set<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> updateSpecification
+	val Set<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> removeSpecification
+	def registerSpecificationIfNeeded(IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> spc){
 		graph.uniqueTableSize
 		if(spc.getFullyQualifiedName.matches("^Insertion[1-9]\\d*$")){
 			insertionSpecification.add(spc)

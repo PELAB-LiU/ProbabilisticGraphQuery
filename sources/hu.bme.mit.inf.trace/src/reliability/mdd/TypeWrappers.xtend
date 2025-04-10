@@ -1,7 +1,6 @@
 package reliability.mdd
 
 import hu.bme.mit.delta.mdd.MddHandle
-import java.util.HashSet
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.Multiset
 

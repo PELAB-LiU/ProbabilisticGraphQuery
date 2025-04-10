@@ -30,7 +30,7 @@ public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
 	private final AdvancedViatraQueryEngine engine;
 	private final Field suspended;
 	private final Field backends;
-	private int suspendcount = 0;
+	//private int suspendcount = 0;
 	
 	public static SuspendedQueryEngine create(QueryScope scope) throws NoSuchFieldException, SecurityException {
 		return new SuspendedQueryEngine(scope);
@@ -58,6 +58,7 @@ public class SuspendedQueryEngine extends AdvancedViatraQueryEngine{
 	public void enableAndPropagate() {
 		try {
 			suspended.setBoolean(engine, false);
+			@SuppressWarnings("unchecked")
 			Map<IQueryBackendFactory, IQueryBackend> backendMap = (Map<IQueryBackendFactory, IQueryBackend>) backends.get(engine);
 			for (IQueryBackend backend : backendMap.values()) {
                 backend.flushUpdates();

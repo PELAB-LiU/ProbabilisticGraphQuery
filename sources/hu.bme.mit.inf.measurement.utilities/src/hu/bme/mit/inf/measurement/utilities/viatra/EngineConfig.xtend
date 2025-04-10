@@ -14,6 +14,7 @@ import org.eclipse.viatra.query.patternlanguage.emf.util.PatternParserBuilder
 import org.eclipse.viatra.query.runtime.api.ViatraQueryMatcher
 import org.eclipse.viatra.query.runtime.api.IQuerySpecification
 import org.eclipse.viatra.query.runtime.emf.EMFScope
+import org.eclipse.viatra.query.runtime.api.IPatternMatch
 
 class EngineConfig{
 	static val Logger LOG4J = LoggerFactory.getLogger(EngineConfig);
@@ -42,7 +43,7 @@ class EngineConfig{
 		if(parsed.hasError){
 			LOG4J.error("Parsed with errors! {}", parsed.getErrors())
 		}
-		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher> specification |
+		parsed.querySpecifications.forEach [ IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification |
 			mdd.registerSpecificationIfNeeded(specification)
 		]
 		

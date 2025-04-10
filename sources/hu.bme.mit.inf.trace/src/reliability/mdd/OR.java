@@ -7,7 +7,6 @@ import org.eclipse.viatra.query.runtime.matchers.psystem.aggregations.BoundAggre
 import reliability.events.Event;
 import reliability.events.MddOrOperator;
 import reliability.events.ImmediateMddOrOperator;
-import reliability.events.delayed.DelayedMddOrOperator;
 
 @SuppressWarnings("restriction")
 @AggregatorType(
@@ -15,6 +14,7 @@ import reliability.events.delayed.DelayedMddOrOperator;
 	returnTypes = {Event.class}
 )
 public class OR implements IAggregatorFactory{
+	@SuppressWarnings("rawtypes")
 	private static MddOrOperator INSTANCE = new ImmediateMddOrOperator();
 	//private static MddOrOperator INSTANCE = new DelayedMddOrOperator();
 	@Override

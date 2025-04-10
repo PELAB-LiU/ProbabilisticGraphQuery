@@ -3,8 +3,6 @@ package hu.bme.mit.inf.measurement.utilities
 import java.util.Map
 import java.util.HashMap
 import java.util.Queue
-import java.util.List
-import java.util.Arrays
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 
@@ -24,8 +22,7 @@ class CSVLog {
 	}
 	
 	def Object log(String key, Object object){
-		LOG4J.info("CSVSET {} --> {}", key, object);
-		//println('''CSVSET «key» --> «object.toString.stringify»''')
+		LOG4J.debug("CSVSET {} --> {}", key, object);
 		return current.put(key, object)
 	}
 	def commit(){
@@ -57,7 +54,6 @@ class CSVLog {
 		){
 			return "\""+source
 				.replaceAll("\"","\"\"")
-				//.replaceAll("\n","\\\\n")
 			+"\""
 		}
 		return source
