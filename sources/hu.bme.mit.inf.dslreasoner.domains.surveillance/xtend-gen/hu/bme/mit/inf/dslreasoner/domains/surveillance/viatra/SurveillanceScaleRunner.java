@@ -7,8 +7,9 @@ import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfigurat
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner;
 import java.util.Timer;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reliability.intreface.Configuration;
 import reliability.intreface.ExecutionTime;
 import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil;
@@ -16,6 +17,8 @@ import surveillance.SurveillancePackage;
 
 @SuppressWarnings("all")
 public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfiguration> implements ViatraSurveillanceUtil, StormSurveillanceUtil, ProblogSurveillanceUtil {
+  private static final Logger LOG4J = LoggerFactory.getLogger(SurveillanceScaleRunner.class);
+
   private final SurveillanceModelGenerator modelgen = new SurveillanceModelGenerator();
 
   private SurveillanceWrapper instance;
@@ -46,7 +49,7 @@ public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfi
     try {
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
+        SurveillanceScaleRunner.LOG4J.info("Viatra Timeout");
         Configuration.cancel();
         this.engine.dispose();
       };
@@ -65,17 +68,16 @@ public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfi
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("incremental.result", coverage);
+      SurveillanceScaleRunner.LOG4J.info("Viatra completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       return Configuration.isCancelled();
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
-        InputOutput.<String>println("Cancellation caught.");
         return Configuration.isCancelled();
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       log.log("incremental.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 

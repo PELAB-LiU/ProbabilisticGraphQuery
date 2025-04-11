@@ -5,7 +5,12 @@ import se.liu.ida.sas.pelab.storm.run.StormEvaluation
 import hu.bme.mit.inf.measurement.utilities.configuration.SatelliteConfiguration
 import hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteModelWrapper
 import hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
+package class LogHelper{
+	public static val Logger LOG4J = LoggerFactory.getLogger(StormSatelliteUtil);
+} 
 interface StormSatelliteUtil {
 	def runStorm(SatelliteConfiguration cfg, SatelliteModelWrapper instance, CSVLog log) {
 		val result = StormEvaluation.evalueate(cfg,
@@ -25,6 +30,11 @@ interface StormSatelliteUtil {
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", coverage)
 		log.log("storm.timeout", result.timeout)
+		LogHelper.LOG4J.info("ProbLog completed in {}ms with result #{} (timeout: {})", 
+			result.transformation_ms + result.run_ms, 
+			result.results.size,
+			result.timeout
+		)
 		return result.timeout
 	}
 }

@@ -46,10 +46,6 @@ interface ViatraRunnerUtil {
 		val cnt = newDoubleArrayOfSize(1)
 		engine.parsed.getQuerySpecification(name).ifPresent([specification |
 			val matcher = engine.engine.getMatcher(specification)	
-			println("Specification found: "+specification.simpleName)
-			matcher.forEachMatch([match |
-				println("\t"+match.prettyPrint)
-			])
 			matcher.oneArbitraryMatch.ifPresent([match |
 				cnt.set(0, match.get(0) as Double)
 			])

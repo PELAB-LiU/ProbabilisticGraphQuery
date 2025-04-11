@@ -142,7 +142,6 @@ class SatelliteModelGenerator {
 		 var count = 0
 		 wrapper.rnd = new Random
 		 wrapper.rnd.seed = seed
-		 println('''Model seed is «seed»''')
 		 
 		return addToModel(wrapper, component)
 	}

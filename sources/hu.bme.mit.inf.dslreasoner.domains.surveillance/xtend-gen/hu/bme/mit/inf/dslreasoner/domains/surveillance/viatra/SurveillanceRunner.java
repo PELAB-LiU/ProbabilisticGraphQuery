@@ -15,8 +15,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reliability.intreface.Configuration;
 import reliability.intreface.ExecutionTime;
 import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil;
@@ -24,6 +25,8 @@ import surveillance.SurveillancePackage;
 
 @SuppressWarnings("all")
 public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> implements ViatraSurveillanceUtil, StormSurveillanceUtil, ProblogSurveillanceUtil {
+  private static final Logger LOG4J = LoggerFactory.getLogger(SurveillanceRunner.class);
+
   private final SurveillanceModelGenerator modelgen = new SurveillanceModelGenerator();
 
   private SurveillanceWrapper instance;
@@ -41,9 +44,6 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
   @Override
   public void applyIncrement() {
     this.modelgen.iterate(this.instance, 0.1);
-    boolean _isTainted = this.incremental.getEngine().isTainted();
-    String _plus = ("Incremental query engine status after increment (is tainted): " + Boolean.valueOf(_isTainted));
-    InputOutput.<String>println(_plus);
   }
 
   @Override
@@ -69,7 +69,7 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       copier.entrySet().forEach(_function);
       ExecutionTime.reset();
       final Procedure0 _function_1 = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
+        SurveillanceRunner.LOG4J.info("Batch Timeout");
         Configuration.cancel();
         this.batch.dispose();
       };
@@ -88,16 +88,15 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       log.log("standalone.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("standalone.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("standalone.result", coverage);
+      SurveillanceRunner.LOG4J.info("Batch completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
-        InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       resource.getContents().clear();
       log.log("standalone.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 
@@ -114,10 +113,9 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
     try {
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
+        SurveillanceRunner.LOG4J.info("Incremental Timeout");
         Configuration.cancel();
         this.incremental.dispose();
-        log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       boolean _isTainted = this.incremental.getEngine().isTainted();
@@ -134,17 +132,14 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("incremental.result", coverage);
+      SurveillanceRunner.LOG4J.info("Incremental completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
-        final Exception e = (Exception)_t;
-        e.printStackTrace();
-        InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       log.log("incremental.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 

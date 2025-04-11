@@ -8,8 +8,9 @@ import java.util.Timer;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import problog.ProblogSatelliteUtil;
 import reliability.intreface.CancellationException;
 import reliability.intreface.Configuration;
@@ -20,6 +21,8 @@ import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil;
 
 @SuppressWarnings("all")
 public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> implements StormSatelliteUtil, ProblogSatelliteUtil {
+  private static final Logger LOG4J = LoggerFactory.getLogger(SatelliteSingleGraph.class);
+
   private final SatelliteModelGenerator modelgen = new SatelliteModelGenerator();
 
   private SatelliteModelWrapper instance;
@@ -42,9 +45,8 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       resource.getContents().add(EcoreUtil.<InterferometryMission>copy(this.instance.mission));
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        log.log("timeout", Boolean.valueOf(true));
+        SatelliteSingleGraph.LOG4J.info("Batch Timeout");
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       boolean _isTainted = this.batch.getEngine().isTainted();
@@ -61,15 +63,14 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       log.log("standalone.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("standalone.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("standalone.result", Double.valueOf(coverage));
+      SatelliteSingleGraph.LOG4J.info("Batch completed in {}ms with result {}", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)), Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {
-        InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       log.log("standalone.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 
@@ -91,9 +92,8 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
     try {
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        log.log("timeout", Boolean.valueOf(true));
+        SatelliteSingleGraph.LOG4J.info("Incremental Timeout");
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       boolean _isTainted = this.incremental.getEngine().isTainted();
@@ -110,15 +110,14 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("incremental.result", Double.valueOf(coverage));
+      SatelliteSingleGraph.LOG4J.info("Incremental completed in {}ms with result {}", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)), Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {
-        InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       log.log("incremental.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 

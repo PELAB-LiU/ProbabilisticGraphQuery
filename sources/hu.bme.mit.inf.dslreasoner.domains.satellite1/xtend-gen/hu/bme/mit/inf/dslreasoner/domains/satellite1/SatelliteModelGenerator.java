@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Functions.Function0;
@@ -46,10 +45,6 @@ public class SatelliteModelGenerator {
     Random _random = new Random();
     wrapper.rnd = _random;
     wrapper.rnd.setSeed(seed);
-    StringConcatenation _builder = new StringConcatenation();
-    _builder.append("Model seed is ");
-    _builder.append(seed);
-    InputOutput.<String>println(_builder.toString());
     return this.addToModel(wrapper, component);
   }
 

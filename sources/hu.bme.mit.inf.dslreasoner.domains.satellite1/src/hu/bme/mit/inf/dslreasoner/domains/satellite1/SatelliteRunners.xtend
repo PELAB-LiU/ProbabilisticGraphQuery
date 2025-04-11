@@ -12,6 +12,8 @@ import satellite1.SatellitePackage
 import org.eclipse.emf.ecore.util.EcoreUtil
 import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil
 import problog.ProblogSatelliteUtil
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 //class SatelliteSinglePrism extends SatelliteCommon{
 //	def run(Config cfg){
@@ -24,6 +26,8 @@ import problog.ProblogSatelliteUtil
 //	}
 //}
 class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> implements StormSatelliteUtil, ProblogSatelliteUtil{
+	static val Logger LOG4J = LoggerFactory.getLogger(SatelliteSingleGraph);
+	
 	val modelgen = new SatelliteModelGenerator
 	var SatelliteModelWrapper instance
 	
@@ -52,9 +56,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			 * Run evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
 				Configuration.cancel
-				log.log("timeout", true)
+				LOG4J.info("Batch Timeout")
 			])
 			log.log("standalone.healthy", !batch.engine.tainted)
 			
@@ -73,11 +76,10 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
 			log.log("standalone.result", coverage)
+			LOG4J.info("Batch completed in {}ms with result {}", ((it0end-it0start)/1000.0/1000), coverage)
 		} catch (CancellationException e) {
-			println("Cancellation caught.")
 		} finally {
 			log.log("standalone.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
 		}
 	}
 	override setupInitialModel(int seed){
@@ -103,9 +105,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			 * Run first evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
 				Configuration.cancel
-				log.log("timeout", true)
+				LOG4J.info("Incremental Timeout")
 			])
 			log.log("incremental.healthy", !incremental.engine.tainted)
 			
@@ -124,11 +125,10 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
 			log.log("incremental.result", coverage)
+			LOG4J.info("Incremental completed in {}ms with result {}", ((it0end-it0start)/1000.0/1000), coverage)
 		} catch (CancellationException e) {
-			println("Cancellation caught.")
 		} finally {
 			log.log("incremental.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
 		}
 	}
 	

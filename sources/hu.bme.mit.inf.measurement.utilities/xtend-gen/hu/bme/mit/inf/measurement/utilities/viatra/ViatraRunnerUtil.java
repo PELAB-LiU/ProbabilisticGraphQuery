@@ -66,20 +66,11 @@ public interface ViatraRunnerUtil {
     final double[] cnt = new double[1];
     final Consumer<IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>>> _function = (IQuerySpecification<? extends ViatraQueryMatcher<? extends IPatternMatch>> specification) -> {
       final ViatraQueryMatcher<? extends IPatternMatch> matcher = engine.getEngine().getMatcher(specification);
-      String _simpleName = specification.getSimpleName();
-      String _plus = ("Specification found: " + _simpleName);
-      InputOutput.<String>println(_plus);
       final Consumer<IPatternMatch> _function_1 = (IPatternMatch match) -> {
-        String _prettyPrint = match.prettyPrint();
-        String _plus_1 = ("\t" + _prettyPrint);
-        InputOutput.<String>println(_plus_1);
-      };
-      matcher.forEachMatch(_function_1);
-      final Consumer<IPatternMatch> _function_2 = (IPatternMatch match) -> {
         Object _get = match.get(0);
         cnt[0] = (((Double) _get)).doubleValue();
       };
-      matcher.getOneArbitraryMatch().ifPresent(_function_2);
+      matcher.getOneArbitraryMatch().ifPresent(_function_1);
     };
     engine.getParsed().getQuerySpecification(name).ifPresent(_function);
     return cnt[0];

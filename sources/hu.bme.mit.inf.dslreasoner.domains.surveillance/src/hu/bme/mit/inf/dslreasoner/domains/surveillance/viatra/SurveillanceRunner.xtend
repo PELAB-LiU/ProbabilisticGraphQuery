@@ -11,8 +11,12 @@ import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceHel
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.utilities.SurveillanceCopier
 import se.liu.ida.sas.pelab.surveillance.storm.StormSurveillanceUtil
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.problog.ProblogSurveillanceUtil
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> implements ViatraSurveillanceUtil, StormSurveillanceUtil, ProblogSurveillanceUtil{
+	static val Logger LOG4J = LoggerFactory.getLogger(SurveillanceRunner);
+	
 	val modelgen = new SurveillanceModelGenerator
 	var SurveillanceWrapper instance
 	
@@ -35,7 +39,6 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 	
 	override applyIncrement() {
 		modelgen.iterate(instance, 0.1)
-		println("Incremental query engine status after increment (is tainted): "+incremental.engine.tainted)
 	}
 	
 	override initBatch(){
@@ -67,7 +70,7 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			 * Run evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
+				LOG4J.info("Batch Timeout")
 				Configuration.cancel
 				batch.dispose
 			])
@@ -90,12 +93,11 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
 			log.log("standalone.result", coverage)
+			LOG4J.info("Batch completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch (Exception e) {
-			println("Cancellation caught.")
 		} finally {
 			resource.contents.clear
 			log.log("standalone.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
 		}
 	}
 	
@@ -118,10 +120,9 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			 * Run first evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
+				LOG4J.info("Incremental Timeout")
 				Configuration.cancel
 				incremental.dispose
-				log.log("timeout", true)
 			])
 			log.log("incremental.healthy", !incremental.engine.tainted)
 			
@@ -140,12 +141,10 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
 			log.log("incremental.result", coverage)
+			LOG4J.info("Incremental completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch(Exception e){
-			e.printStackTrace
-			println("Cancellation caught.")
 		} finally{
 			log.log("incremental.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
 		}
 	}
 	

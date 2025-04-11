@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
@@ -42,7 +41,6 @@ public interface ProblogSurveillanceUtil {
       final Process process2 = process;
       final AtomicBoolean timeoutFlag = new AtomicBoolean();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
         timeoutFlag.set(true);
         process2.destroyForcibly();
       };
@@ -51,7 +49,6 @@ public interface ProblogSurveillanceUtil {
       InputStream _inputStream = process.getInputStream();
       final Scanner io = new Scanner(_inputStream);
       final Procedure1<String> _function_1 = (String line) -> {
-        InputOutput.<String>println(("Debug: " + line));
         final Matcher match = cfg.getProbLogPattern().matcher(line);
         boolean _find = match.find();
         if (_find) {
@@ -63,7 +60,6 @@ public interface ProblogSurveillanceUtil {
       timeout.cancel();
       InputStream _inputStream_1 = process.getInputStream();
       final Procedure1<String> _function_2 = (String line) -> {
-        InputOutput.<String>println(("Debug problog.err: " + line));
       };
       IteratorExtensions.<String>forEach(new Scanner(_inputStream_1), _function_2);
       log.log("problog.total[ms]", Double.valueOf((((end - start) / 1000.0) / 1000)));
@@ -71,6 +67,9 @@ public interface ProblogSurveillanceUtil {
       log.log("problog.evaluation[ms]", Double.valueOf((((end - trafo) / 1000.0) / 1000)));
       log.log("problog.result", this.problogToJSON(instance, output, timeoutFlag.get()));
       log.log("problog.timeout", Boolean.valueOf(timeoutFlag.get()));
+      LogHelper.LOG4J.info("ProbLog complete in {}ms with result #{} (timeout: {})", Double.valueOf((((end - start) / 1000.0) / 1000)), 
+        Integer.valueOf(output.size()), 
+        Boolean.valueOf(timeoutFlag.get()));
       return timeoutFlag.get();
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);

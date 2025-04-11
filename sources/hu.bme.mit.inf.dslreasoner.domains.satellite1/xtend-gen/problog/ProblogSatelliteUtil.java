@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IteratorExtensions;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
@@ -39,7 +38,6 @@ public interface ProblogSatelliteUtil {
       final AtomicBoolean timeoutFlag = new AtomicBoolean();
       final Procedure0 _function = () -> {
         try {
-          InputOutput.<String>println("Run cancelled with timeout.");
           timeoutFlag.set(true);
           String _string = Long.valueOf(process.pid()).toString();
           Runtime.getRuntime().exec(new String[] { "kill", "-9", _string });
@@ -52,7 +50,6 @@ public interface ProblogSatelliteUtil {
       InputStream _inputStream = process.getInputStream();
       final Scanner io = new Scanner(_inputStream);
       final Procedure1<String> _function_1 = (String line) -> {
-        InputOutput.<String>println(("Debug: " + line));
         final Matcher match = cfg.getProbLogPattern().matcher(line);
         boolean _find = match.find();
         if (_find) {
@@ -74,6 +71,15 @@ public interface ProblogSatelliteUtil {
       }
       log.log("problog.result", _xifexpression);
       log.log("problog.timeout", Boolean.valueOf(timeoutFlag.get()));
+      Object _xifexpression_1 = null;
+      boolean _isEmpty_1 = output.values().isEmpty();
+      if (_isEmpty_1) {
+        _xifexpression_1 = Integer.valueOf(0);
+      } else {
+        _xifexpression_1 = ((Object[])Conversions.unwrapArray(output.values(), Object.class))[0];
+      }
+      LogHelper.LOG4J.info("ProbLog completed in {}ms with result {} (timeout: {})", Double.valueOf((((end - start) / 1000.0) / 1000)), _xifexpression_1, 
+        Boolean.valueOf(timeoutFlag.get()));
       return timeoutFlag.get();
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);

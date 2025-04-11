@@ -9,6 +9,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 import hu.bme.mit.inf.measurement.utilities.Config
 import java.util.HashMap
 import java.util.Scanner
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+package class LogHelper{
+	public static val Logger LOG4J = LoggerFactory.getLogger(ProblogSatelliteUtil);
+} 
 
 interface ProblogSatelliteUtil {
 	def runProblog(SatelliteConfiguration cfg, SatelliteModelWrapper instance, CSVLog log) {
@@ -16,7 +22,6 @@ interface ProblogSatelliteUtil {
 		file.createNewFile
 		val writer = new FileWriter(file)
 		val builder = new ProcessBuilder("problog", cfg.probLogFile);
-		//var Process process = null
 
 		val start = System.nanoTime
 		val plmodel = (new Generation).generateFrom(instance.mission).toString
@@ -28,7 +33,6 @@ interface ProblogSatelliteUtil {
 
 		val timeoutFlag = new AtomicBoolean
 		val timeout = Config.timeout(cfg.timeoutS, [|
-			println("Run cancelled with timeout.")
 			timeoutFlag.set(true)
 			//process.destroyForcibly
 			Runtime.runtime.exec(#["kill", "-9", process.pid.toString])
@@ -37,7 +41,6 @@ interface ProblogSatelliteUtil {
 		val output = new HashMap<String, Object>
 		val io = new Scanner(process.inputStream)
 		io.forEach [ line |
-			println("Debug: " + line)
 			val match = cfg.probLogPattern.matcher(line)
 			if (match.find) {
 				output.put(match.group(1), Double.parseDouble(match.group(2)))
@@ -51,6 +54,11 @@ interface ProblogSatelliteUtil {
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
 		log.log("problog.timeout", timeoutFlag.get)
+		LogHelper.LOG4J.info("ProbLog completed in {}ms with result {} (timeout: {})", 
+			((end - start)/1000.0/1000), 
+			if(output.values.empty) 0 else output.values.get(0),
+			timeoutFlag.get
+		)
 		return timeoutFlag.get
 	}
 }

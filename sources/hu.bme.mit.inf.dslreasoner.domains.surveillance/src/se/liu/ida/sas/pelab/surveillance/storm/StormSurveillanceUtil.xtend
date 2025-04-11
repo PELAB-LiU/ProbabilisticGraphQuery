@@ -5,7 +5,12 @@ import hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceWrappe
 import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfiguration
 import hu.bme.mit.inf.measurement.utilities.CSVLog
 import se.liu.ida.sas.pelab.storm.run.StormEvaluation
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
+package class LogHelper{
+	public static val Logger LOG4J = LoggerFactory.getLogger(StormSurveillanceUtil);
+} 
 interface StormSurveillanceUtil {
 	def runStorm(SurveillanceConfiguration cfg, SurveillanceWrapper instance, CSVLog log) {
 		val result = StormEvaluation.evalueate(cfg,
@@ -18,6 +23,11 @@ interface StormSurveillanceUtil {
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", stormToJSON(instance, result.results, result.timeout))
 		log.log("storm.timeout", result.timeout)
+		LogHelper.LOG4J.info("ProbLog complete in {}ms with result #{} (timeout: {})", 
+			result.transformation_ms + result.run_ms, 
+			result.results.size,
+			result.timeout
+		)
 		return result.timeout
 	}
 	

@@ -8,6 +8,8 @@ import java.util.Timer;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import problog.ProblogSatelliteUtil;
 import reliability.intreface.CancellationException;
 import reliability.intreface.Configuration;
@@ -17,6 +19,8 @@ import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil;
 
 @SuppressWarnings("all")
 public class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> implements StormSatelliteUtil, ProblogSatelliteUtil {
+  private static final Logger LOG4J = LoggerFactory.getLogger(SatelliteScaleRunners.class);
+
   private final SatelliteModelGenerator modelgen = new SatelliteModelGenerator();
 
   private SatelliteModelWrapper instance;
@@ -47,9 +51,8 @@ public class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfigurat
     try {
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
-        log.log("timeout", Boolean.valueOf(true));
+        SatelliteScaleRunners.LOG4J.info("Viatra Timeout");
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
       boolean _isTainted = this.engine.getEngine().isTainted();
@@ -66,6 +69,7 @@ public class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfigurat
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("incremental.result", Double.valueOf(coverage));
+      SatelliteScaleRunners.LOG4J.info("Viatra completed in {}ms with result {}", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)), Double.valueOf(coverage));
       return Configuration.isCancelled();
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {

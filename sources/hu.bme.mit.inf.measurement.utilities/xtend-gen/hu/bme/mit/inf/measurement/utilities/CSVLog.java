@@ -29,7 +29,7 @@ public class CSVLog {
   }
 
   public Object log(final String key, final Object object) {
-    CSVLog.LOG4J.info("CSVSET {} --> {}", key, object);
+    CSVLog.LOG4J.debug("CSVSET {} --> {}", key, object);
     boolean _contains = ArrayExtensions.contains(this.columns, key);
     boolean _not = (!_contains);
     if (_not) {
@@ -44,8 +44,9 @@ public class CSVLog {
       {
         final Object value = this.current.get(key);
         if ((value != null)) {
-          CSVLog.LOG4J.warn("Missing entry for key. {}", key);
           entry.put(key, value.toString());
+        } else {
+          CSVLog.LOG4J.warn("Missing entry for key. {}", key);
         }
       }
     }

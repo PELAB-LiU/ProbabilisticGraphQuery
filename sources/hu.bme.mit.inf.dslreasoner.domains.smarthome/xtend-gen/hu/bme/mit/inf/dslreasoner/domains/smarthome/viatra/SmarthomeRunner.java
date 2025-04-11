@@ -18,6 +18,8 @@ import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reliability.intreface.Configuration;
 import reliability.intreface.ExecutionTime;
 import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeUtil;
@@ -25,6 +27,8 @@ import smarthome.SmarthomePackage;
 
 @SuppressWarnings("all")
 public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implements ViatraSmarthomeUtil, StormSmarthomeUtil, ProblogSmarthomeUtil {
+  private static final Logger LOG4J = LoggerFactory.getLogger(SmarthomeRunner.class);
+
   private final SmarthomeModelGenerator modelgen = new SmarthomeModelGenerator();
 
   private SmarthomeModel instance;
@@ -61,7 +65,7 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
       copier.entrySet().forEach(_function);
       ExecutionTime.reset();
       final Procedure0 _function_1 = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
+        SmarthomeRunner.LOG4J.info("Batch Timeout");
         Configuration.cancel();
         this.batch.dispose();
       };
@@ -80,15 +84,14 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
       log.log("standalone.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("standalone.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("standalone.result", coverage);
+      SmarthomeRunner.LOG4J.info("Batch completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
-        InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       log.log("standalone.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 
@@ -110,7 +113,7 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
     try {
       ExecutionTime.reset();
       final Procedure0 _function = () -> {
-        InputOutput.<String>println("Run cancelled with timeout.");
+        SmarthomeRunner.LOG4J.info("Incremental Timeout");
         Configuration.cancel();
         this.incremental.dispose();
       };
@@ -129,15 +132,14 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
       log.log("incremental.result", coverage);
+      SmarthomeRunner.LOG4J.info("Incremental completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
-        InputOutput.<String>println("Cancellation caught.");
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
     } finally {
       log.log("incremental.timeout", Boolean.valueOf(Configuration.isCancelled()));
-      InputOutput.<String>println("Finally block executed.");
     }
   }
 

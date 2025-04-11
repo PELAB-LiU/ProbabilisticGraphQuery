@@ -12,8 +12,12 @@ import hu.bme.mit.inf.dslreasoner.domains.smarthome.utilities.SmarthomeModel
 import org.eclipse.emf.ecore.util.EcoreUtil.Copier
 import se.liu.ida.sas.pelab.smarthome.storm.StormSmarthomeUtil
 import hu.bme.mit.inf.dslreasoner.domains.smarthome.problog.ProblogSmarthomeUtil
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implements ViatraSmarthomeUtil, StormSmarthomeUtil, ProblogSmarthomeUtil{
+	static val Logger LOG4J = LoggerFactory.getLogger(SmarthomeRunner);
+	
 	val modelgen = new SmarthomeModelGenerator
 	var SmarthomeModel instance
 	
@@ -48,7 +52,7 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			 * Run evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
+				LOG4J.info("Batch Timeout")
 				Configuration.cancel
 				batch.dispose
 			])
@@ -70,11 +74,10 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
 			log.log("standalone.result", coverage)
+			LOG4J.info("Batch completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch (Exception e){
-			println("Cancellation caught.")
 		} finally{
 			log.log("standalone.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
 		}
 	}
 	
@@ -101,7 +104,7 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			 * Run first evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
+				LOG4J.info("Incremental Timeout")
 				Configuration.cancel
 				incremental.dispose
 			])
@@ -122,11 +125,10 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
 			log.log("incremental.result", coverage)
+			LOG4J.info("Incremental completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch(Exception e){
-			println("Cancellation caught.")
 		} finally{
 			log.log("incremental.timeout", Configuration.isCancelled)
-			println("Finally block executed.")
 		}
 	}
 	

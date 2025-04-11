@@ -11,8 +11,12 @@ import satellite1.SatellitePackage
 import hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner
 import se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil
 import problog.ProblogSatelliteUtil
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> implements StormSatelliteUtil, ProblogSatelliteUtil{
+	static val Logger LOG4J = LoggerFactory.getLogger(SatelliteScaleRunners);
+	
 	val modelgen = new SatelliteModelGenerator
 	var SatelliteModelWrapper instance
 	
@@ -43,9 +47,8 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 			 * Run first evaluation
 			 */
 			val timeout = Config.timeout(cfg.timeoutS, [|
-				println("Run cancelled with timeout.")
 				Configuration.cancel
-				log.log("timeout", true)
+				LOG4J.info("Viatra Timeout")
 			])
 			log.log("incremental.healthy", !engine.engine.tainted)
 			
@@ -64,6 +67,7 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
 			log.log("incremental.result", coverage)
+			LOG4J.info("Viatra completed in {}ms with result {}", ((it0end-it0start)/1000.0/1000), coverage)
 			return Configuration.isCancelled
 		} catch (CancellationException e) {
 			println("Cancellation caught.")
