@@ -51,5 +51,6 @@ interface ProblogSatelliteUtil {
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
 		log.log("problog.timeout", timeoutFlag.get)
+		return timeoutFlag.get
 	}
 }

@@ -56,6 +56,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 				Configuration.cancel
 				log.log("timeout", true)
 			])
+			log.log("standalone.healthy", !batch.engine.tainted)
+			
 			val it0start = System.nanoTime
 			batch.enable
 			val it0sync = batch.mdd.unaryForAll(batch.engine)
@@ -70,7 +72,6 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			log.log("standalone.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
-			log.log("standalone.healthy", !batch.engine.tainted)
 			log.log("standalone.result", coverage)
 		} catch (CancellationException e) {
 			println("Cancellation caught.")
@@ -106,6 +107,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 				Configuration.cancel
 				log.log("timeout", true)
 			])
+			log.log("incremental.healthy", !incremental.engine.tainted)
+			
 			val it0start = System.nanoTime
 			incremental.enable
 			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
@@ -120,7 +123,6 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !incremental.engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch (CancellationException e) {
 			println("Cancellation caught.")

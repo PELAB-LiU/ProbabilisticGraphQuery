@@ -56,6 +56,20 @@ public class BaseConfiguration {
     return this.prefix;
   }
 
+  @Parameter(names = "--minimum", description = "Minimum number of measurements before early abort.")
+  private int minimum = 20;
+
+  public int getMinimum() {
+    return this.minimum;
+  }
+
+  @Parameter(names = "--minrate", description = "Minimum success rate of analysis to continue.")
+  private double rate = 0.1;
+
+  public double getRate() {
+    return this.rate;
+  }
+
   @Parameter(names = "--warmups", description = "Number of warmup runs before measurement. Use format \'<from>..<to>\'.", listConverter = IntRangeConverter.class)
   private List<Integer> warmups = IterableExtensions.<Integer>toList(new IntegerRange(1, 3));
 
@@ -89,6 +103,13 @@ public class BaseConfiguration {
 
   public String getDelimiter() {
     return this.delimiter;
+  }
+
+  @Parameter(names = "--preferabort", description = "Abort execution on erroneous state.")
+  private boolean abort = false;
+
+  public boolean isFavourAbort() {
+    return this.abort;
   }
 
   @Parameter(names = "--plmodel", description = "Temporary file for problog model.")

@@ -51,8 +51,9 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 				println("Run cancelled with timeout.")
 				Configuration.cancel
 				batch.dispose
-				log.log("timeout", true)
 			])
+			log.log("standalone.healthy", !batch.engine.tainted)
+			
 			val it0start = System.nanoTime
 			batch.enable
 			val it0sync = batch.mdd.unaryForAll(batch.engine)
@@ -64,10 +65,10 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			/**
 			 * Make logs
 			 */
+			
 			log.log("standalone.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
-			log.log("standalone.healthy", !batch.engine.tainted)
 			log.log("standalone.result", coverage)
 		} catch (Exception e){
 			println("Cancellation caught.")
@@ -103,8 +104,9 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 				println("Run cancelled with timeout.")
 				Configuration.cancel
 				incremental.dispose
-				log.log("timeout", true)
 			])
+			log.log("incremental.healthy", !incremental.engine.tainted)
+			
 			val it0start = System.nanoTime
 			incremental.enable
 			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
@@ -119,7 +121,6 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !incremental.engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch(Exception e){
 			println("Cancellation caught.")

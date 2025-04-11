@@ -27,9 +27,13 @@ public class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfigurati
   }
 
   @Override
-  public void preRun(final int seed) {
-    this.instance = this.modelgen.make(this.cfg.getHomes(), this.cfg.getPersons(), this.cfg.getSize());
-    this.engine.getModel().getContents().add(this.instance.model);
+  public boolean preRun(final int seed) {
+    boolean _xblockexpression = false;
+    {
+      this.instance = this.modelgen.make(this.cfg.getHomes(), this.cfg.getPersons(), this.cfg.getSize());
+      _xblockexpression = this.engine.getModel().getContents().add(this.instance.model);
+    }
+    return _xblockexpression;
   }
 
   @Override
@@ -39,7 +43,7 @@ public class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfigurati
   }
 
   @Override
-  public void runViatra(final CSVLog log) {
+  public boolean runViatra(final CSVLog log) {
     Configuration.enable();
     try {
       ExecutionTime.reset();
@@ -47,9 +51,11 @@ public class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfigurati
         InputOutput.<String>println("Run cancelled with timeout.");
         Configuration.cancel();
         this.engine.dispose();
-        log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
+      boolean _isTainted = this.engine.getEngine().isTainted();
+      boolean _not = (!_isTainted);
+      log.log("incremental.healthy", Boolean.valueOf(_not));
       final long it0start = System.nanoTime();
       this.engine.enable();
       final long it0sync = this.engine.getMdd().unaryForAll(this.engine.getEngine());
@@ -60,13 +66,12 @@ public class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfigurati
       log.log("incremental.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
-      boolean _isTainted = this.engine.getEngine().isTainted();
-      boolean _not = (!_isTainted);
-      log.log("incremental.healthy", Boolean.valueOf(_not));
       log.log("incremental.result", coverage);
+      return Configuration.isCancelled();
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
         InputOutput.<String>println("Cancellation caught.");
+        return Configuration.isCancelled();
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
@@ -77,12 +82,12 @@ public class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfigurati
   }
 
   @Override
-  public void runProblog(final CSVLog log) {
-    this.runProblog(this.cfg, this.instance, log);
+  public boolean runProblog(final CSVLog log) {
+    return this.runProblog(this.cfg, this.instance, log);
   }
 
   @Override
-  public void runStorm(final CSVLog log) {
-    this.runStorm(this.cfg, this.instance, log);
+  public boolean runStorm(final CSVLog log) {
+    return this.runStorm(this.cfg, this.instance, log);
   }
 }

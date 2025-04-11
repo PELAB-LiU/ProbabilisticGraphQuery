@@ -25,5 +25,6 @@ interface StormSatelliteUtil {
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", coverage)
 		log.log("storm.timeout", result.timeout)
+		return result.timeout
 	}
 }

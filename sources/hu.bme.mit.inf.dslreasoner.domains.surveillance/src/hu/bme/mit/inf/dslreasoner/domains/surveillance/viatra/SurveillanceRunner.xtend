@@ -70,8 +70,9 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 				println("Run cancelled with timeout.")
 				Configuration.cancel
 				batch.dispose
-				log.log("timeout", true)
 			])
+			log.log("standalone.healthy", !batch.engine.tainted)
+			
 			val it0start = System.nanoTime
 			batch.enable
 			val it0sync = batch.mdd.unaryForAll(batch.engine)
@@ -88,7 +89,6 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			log.log("standalone.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("standalone.sync[ms]", it0sync/1000.0/1000)
 			log.log("standalone.prop[ms]", it0prop/1000.0/1000)
-			log.log("standalone.healthy", !batch.engine.tainted)
 			log.log("standalone.result", coverage)
 		} catch (Exception e) {
 			println("Cancellation caught.")
@@ -123,6 +123,8 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 				incremental.dispose
 				log.log("timeout", true)
 			])
+			log.log("incremental.healthy", !incremental.engine.tainted)
+			
 			val it0start = System.nanoTime
 			incremental.enable
 			val it0sync = incremental.mdd.unaryForAll(incremental.engine)
@@ -134,12 +136,9 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			/**
 			 * Make logs
 			 */
-			//log.log("incremental.matches", (new DebugUtil{}).getMatchesJSON(incremental, instance.ordering))
-			
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !incremental.engine.tainted)
 			log.log("incremental.result", coverage)
 		} catch(Exception e){
 			e.printStackTrace

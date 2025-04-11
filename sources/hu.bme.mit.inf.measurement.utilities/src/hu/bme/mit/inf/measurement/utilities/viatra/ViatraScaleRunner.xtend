@@ -13,6 +13,8 @@ import hu.bme.mit.inf.measurement.utilities.configuration.BaseConfiguration
 import org.eclipse.emf.ecore.EPackage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import hu.bme.mit.inf.measurement.utilities.configuration.EarlyCancelMonitor
+import static hu.bme.mit.inf.measurement.utilities.configuration.CancellationThresholdMode.IF_BELOW
 
 abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements ViatraRunnerUtil { 
 	static val Logger LOG4J = LoggerFactory.getLogger(ViatraScaleRunner);
@@ -25,7 +27,7 @@ abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements Vi
 	protected var EngineConfig engine
 	
 	def void initViatra(){ 
-		engine = new EngineConfig(transformed, "standalone")
+		engine = new EngineConfig(transformed, "standalone", cfg.isFavourAbort)
 		LOG4J.debug("Init VIATRA {}", engine.engine.hashCode)
 	}
 	
@@ -106,6 +108,10 @@ abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements Vi
 		}
 	}
 	def void measure(CSVLog log){
+		val viatraMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
+		val problogMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
+		val stormMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
+		
 		for(seed : cfg.seeds){
 			LOG4J.info("[MEASURE {} ({} of {}) ]===============================================================", seed, cfg.seeds.indexOf(seed)+1, cfg.seeds.size)
 			initViatra()
@@ -117,14 +123,14 @@ abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements Vi
 			
 			gc()
 			MddModel.changeTo("incremental")
-			runViatra(log)
+			viatraMonitor.conditionalRun[|runViatra(log)]
 			engine.dispose
 			
 			gc()
-			runProblog(log)
+			problogMonitor.conditionalRun[|runProblog(log)]
 			
 			gc()
-			runStorm(log)
+			stormMonitor.conditionalRun[|runStorm(log)] 
 			
 			log.log("iteration", 0)
 			log.log("run",seed)
@@ -134,9 +140,9 @@ abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements Vi
 		}
 	}
 	
-	def abstract void preRun(int seed)
-	def abstract void runViatra(CSVLog log)
-	def abstract void runProblog(CSVLog log)
-	def abstract void runStorm(CSVLog log)
+	def abstract boolean preRun(int seed)
+	def abstract boolean runViatra(CSVLog log)
+	def abstract boolean runProblog(CSVLog log)
+	def abstract boolean runStorm(CSVLog log)
 	
 }

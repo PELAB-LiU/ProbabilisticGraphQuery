@@ -47,6 +47,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
         log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
+      boolean _isTainted = this.batch.getEngine().isTainted();
+      boolean _not = (!_isTainted);
+      log.log("standalone.healthy", Boolean.valueOf(_not));
       final long it0start = System.nanoTime();
       this.batch.enable();
       final long it0sync = this.batch.getMdd().unaryForAll(this.batch.getEngine());
@@ -57,9 +60,6 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       log.log("standalone.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       log.log("standalone.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("standalone.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
-      boolean _isTainted = this.batch.getEngine().isTainted();
-      boolean _not = (!_isTainted);
-      log.log("standalone.healthy", Boolean.valueOf(_not));
       log.log("standalone.result", Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {
@@ -96,6 +96,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
         log.log("timeout", Boolean.valueOf(true));
       };
       final Timer timeout = Config.timeout(this.cfg.getTimeoutS(), _function);
+      boolean _isTainted = this.incremental.getEngine().isTainted();
+      boolean _not = (!_isTainted);
+      log.log("incremental.healthy", Boolean.valueOf(_not));
       final long it0start = System.nanoTime();
       this.incremental.enable();
       final long it0sync = this.incremental.getMdd().unaryForAll(this.incremental.getEngine());
@@ -106,9 +109,6 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       log.log("incremental.total[ms]", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
       log.log("incremental.sync[ms]", Double.valueOf(((it0sync / 1000.0) / 1000)));
       log.log("incremental.prop[ms]", Double.valueOf(((it0prop / 1000.0) / 1000)));
-      boolean _isTainted = this.incremental.getEngine().isTainted();
-      boolean _not = (!_isTainted);
-      log.log("incremental.healthy", Boolean.valueOf(_not));
       log.log("incremental.result", Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {

@@ -26,6 +26,10 @@ class CSVLog {
 	def Object log(String key, Object object){
 		LOG4J.info("CSVSET {} --> {}", key, object);
 		//println('''CSVSET «key» --> «object.toString.stringify»''')
+		
+		if(!columns.contains(key)){
+			LOG4J.warn("Unlogged value for key. {}", key)
+		}
 		return current.put(key, object)
 	}
 	def commit(){
@@ -33,6 +37,7 @@ class CSVLog {
 		for(key : columns){
 			val value = current.get(key);
 			if(value !== null){
+				LOG4J.warn("Missing entry for key. {}", key)
 				entry.put(key, value.toString);
 			}
 		}

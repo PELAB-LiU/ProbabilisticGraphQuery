@@ -33,13 +33,15 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> impleme
   protected EngineConfig incremental;
 
   public void initBatch() {
-    EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone");
+    boolean _isFavourAbort = this.cfg.isFavourAbort();
+    EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone", _isFavourAbort);
     this.batch = _engineConfig;
     ViatraBaseRunner.LOG4J.debug("Init Batch {}", Integer.valueOf(this.batch.getEngine().hashCode()));
   }
 
   public void initIncremental() {
-    EngineConfig _engineConfig = new EngineConfig(this.transformed, "incremental");
+    boolean _isFavourAbort = this.cfg.isFavourAbort();
+    EngineConfig _engineConfig = new EngineConfig(this.transformed, "incremental", _isFavourAbort);
     this.incremental = _engineConfig;
     ViatraBaseRunner.LOG4J.debug("Init Incremetnal {}", Integer.valueOf(this.incremental.getEngine().hashCode()));
   }

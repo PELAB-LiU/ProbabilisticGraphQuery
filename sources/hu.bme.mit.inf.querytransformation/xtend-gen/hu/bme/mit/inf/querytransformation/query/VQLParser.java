@@ -44,6 +44,7 @@ import org.eclipse.xtext.xbase.XFeatureCall;
 import org.eclipse.xtext.xbase.XMemberFeatureCall;
 import org.eclipse.xtext.xbase.XNumberLiteral;
 import org.eclipse.xtext.xbase.lib.Conversions;
+import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xtype.XImportDeclaration;
@@ -86,8 +87,12 @@ public class VQLParser {
     }
     _builder.newLine();
     {
-      EList<XImportDeclaration> _importDeclarations = model.getImportPackages().getImportDeclarations();
-      for(final XImportDeclaration javaImport : _importDeclarations) {
+      final Function1<XImportDeclaration, Boolean> _function = (XImportDeclaration it) -> {
+        boolean _equals = KGate.class.getName().equals(it.getImportedName());
+        return Boolean.valueOf((!_equals));
+      };
+      Iterable<XImportDeclaration> _filter = IterableExtensions.<XImportDeclaration>filter(model.getImportPackages().getImportDeclarations(), _function);
+      for(final XImportDeclaration javaImport : _filter) {
         _builder.append("import java ");
         String _packageName = javaImport.getImportedType().getPackageName();
         _builder.append(_packageName);

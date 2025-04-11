@@ -38,6 +38,14 @@ class BaseConfiguration {
 	var String prefix = "N/A"
 	def String getPrefix(){prefix}
 	
+	@Parameter(names = "--minimum", description = "Minimum number of measurements before early abort.")
+	var int minimum = 20
+	def int getMinimum(){minimum}
+	
+	@Parameter(names = "--minrate", description = "Minimum success rate of analysis to continue.")
+	var double rate = 0.1
+	def double getRate(){rate}
+	
 	@Parameter(names = "--warmups", description = "Number of warmup runs before measurement. Use format '<from>..<to>'.", listConverter=IntRangeConverter)
 	var List<Integer> warmups = (1..3).toList
 	def List<Integer> getWarmups(){
@@ -65,6 +73,10 @@ class BaseConfiguration {
 	@Parameter(names = "--delimiter", description = "Separator in the output CSV file.")
 	var String delimiter = ","
 	def String getDelimiter(){delimiter}
+	
+	@Parameter(names = "--preferabort", description = "Abort execution on erroneous state.")
+	var boolean abort = false
+	def boolean isFavourAbort(){abort}
 	
 	@Parameter(names = "--plmodel", description = "Temporary file for problog model.")
 	var String plfile = "tmp-problog.pl"

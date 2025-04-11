@@ -27,11 +27,11 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 	//protected var Resource model
 	
 	def void initBatch(){
-		batch = new EngineConfig(transformed, "standalone")
+		batch = new EngineConfig(transformed, "standalone", cfg.isFavourAbort)
 		LOG4J.debug("Init Batch {}", batch.engine.hashCode)
 	}
 	def void initIncremental(){
-		incremental = new EngineConfig(transformed, "incremental")
+		incremental = new EngineConfig(transformed, "incremental", cfg.isFavourAbort)
 		LOG4J.debug("Init Incremetnal {}", incremental.engine.hashCode)
 	}
 	

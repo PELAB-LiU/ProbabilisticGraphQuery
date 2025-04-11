@@ -30,7 +30,7 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 		initializePatterns(engine, "coverage")
 	}
 	
-	override runViatra(CSVLog log) {
+	override boolean runViatra(CSVLog log) {
 		Configuration.enable
 		
 		try {
@@ -47,6 +47,8 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 				Configuration.cancel
 				log.log("timeout", true)
 			])
+			log.log("incremental.healthy", !engine.engine.tainted)
+			
 			val it0start = System.nanoTime
 			engine.enable
 			val it0sync = engine.mdd.unaryForAll(engine.engine)
@@ -61,21 +63,22 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 			log.log("incremental.total[ms]", ((it0end-it0start)/1000.0/1000))
 			log.log("incremental.sync[ms]", it0sync/1000.0/1000)
 			log.log("incremental.prop[ms]", it0prop/1000.0/1000)
-			log.log("incremental.healthy", !engine.engine.tainted)
 			log.log("incremental.result", coverage)
+			return Configuration.isCancelled
 		} catch (CancellationException e) {
 			println("Cancellation caught.")
+			return Configuration.isCancelled
 		} finally {
 			log.log("incremental.timeout", Configuration.isCancelled)
 			println("Finally block executed.")
 		}
 	}
 	
-	override runProblog(CSVLog log) {
-		runProblog(cfg, instance, log)
+	override boolean runProblog(CSVLog log) {
+		return runProblog(cfg, instance, log)
 	}
 	
-	override runStorm(CSVLog log) {
-		runStorm(cfg, instance, log)
+	override boolean runStorm(CSVLog log) {
+		return runStorm(cfg, instance, log)
 	}
 }

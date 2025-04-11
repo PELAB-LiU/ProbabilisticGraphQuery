@@ -2,6 +2,8 @@ package hu.bme.mit.inf.measurement.utilities.viatra;
 
 import hu.bme.mit.inf.measurement.utilities.CSVLog;
 import hu.bme.mit.inf.measurement.utilities.configuration.BaseConfiguration;
+import hu.bme.mit.inf.measurement.utilities.configuration.CancellationThresholdMode;
+import hu.bme.mit.inf.measurement.utilities.configuration.EarlyCancelMonitor;
 import hu.bme.mit.inf.querytransformation.query.StochasticPatternGenerator;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import org.eclipse.viatra.query.runtime.localsearch.matcher.integration.LocalSea
 import org.eclipse.viatra.query.runtime.rete.matcher.ReteBackendFactory;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
+import org.eclipse.xtext.xbase.lib.Functions.Function0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reliability.mdd.MddModel;
@@ -31,7 +34,8 @@ public abstract class ViatraScaleRunner<Config extends BaseConfiguration> implem
   protected EngineConfig engine;
 
   public void initViatra() {
-    EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone");
+    boolean _isFavourAbort = this.cfg.isFavourAbort();
+    EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone", _isFavourAbort);
     this.engine = _engineConfig;
     ViatraScaleRunner.LOG4J.debug("Init VIATRA {}", Integer.valueOf(this.engine.getEngine().hashCode()));
   }
@@ -115,6 +119,15 @@ public abstract class ViatraScaleRunner<Config extends BaseConfiguration> implem
   }
 
   public void measure(final CSVLog log) {
+    int _minimum = this.cfg.getMinimum();
+    double _rate = this.cfg.getRate();
+    final EarlyCancelMonitor viatraMonitor = new EarlyCancelMonitor(_minimum, _rate, CancellationThresholdMode.IF_BELOW);
+    int _minimum_1 = this.cfg.getMinimum();
+    double _rate_1 = this.cfg.getRate();
+    final EarlyCancelMonitor problogMonitor = new EarlyCancelMonitor(_minimum_1, _rate_1, CancellationThresholdMode.IF_BELOW);
+    int _minimum_2 = this.cfg.getMinimum();
+    double _rate_2 = this.cfg.getRate();
+    final EarlyCancelMonitor stormMonitor = new EarlyCancelMonitor(_minimum_2, _rate_2, CancellationThresholdMode.IF_BELOW);
     List<Integer> _seeds = this.cfg.seeds();
     for (final Integer seed : _seeds) {
       {
@@ -125,12 +138,21 @@ public abstract class ViatraScaleRunner<Config extends BaseConfiguration> implem
         this.preRun((seed).intValue());
         this.gc();
         MddModel.changeTo("incremental");
-        this.runViatra(log);
+        final Function0<Boolean> _function = () -> {
+          return Boolean.valueOf(this.runViatra(log));
+        };
+        viatraMonitor.conditionalRun(_function);
         this.engine.dispose();
         this.gc();
-        this.runProblog(log);
+        final Function0<Boolean> _function_1 = () -> {
+          return Boolean.valueOf(this.runProblog(log));
+        };
+        problogMonitor.conditionalRun(_function_1);
         this.gc();
-        this.runStorm(log);
+        final Function0<Boolean> _function_2 = () -> {
+          return Boolean.valueOf(this.runStorm(log));
+        };
+        stormMonitor.conditionalRun(_function_2);
         log.log("iteration", Integer.valueOf(0));
         log.log("run", seed);
         log.log("prefix", this.cfg.getPrefix());
@@ -140,11 +162,11 @@ public abstract class ViatraScaleRunner<Config extends BaseConfiguration> implem
     }
   }
 
-  public abstract void preRun(final int seed);
+  public abstract boolean preRun(final int seed);
 
-  public abstract void runViatra(final CSVLog log);
+  public abstract boolean runViatra(final CSVLog log);
 
-  public abstract void runProblog(final CSVLog log);
+  public abstract boolean runProblog(final CSVLog log);
 
-  public abstract void runStorm(final CSVLog log);
+  public abstract boolean runStorm(final CSVLog log);
 }

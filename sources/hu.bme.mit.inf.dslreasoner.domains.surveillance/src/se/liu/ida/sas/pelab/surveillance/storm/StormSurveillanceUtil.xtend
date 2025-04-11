@@ -18,6 +18,7 @@ interface StormSurveillanceUtil {
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", stormToJSON(instance, result.results, result.timeout))
 		log.log("storm.timeout", result.timeout)
+		return result.timeout
 	}
 	
 	def String stormToJSON(SurveillanceWrapper instance, Map<String,Double> data, boolean timeout){

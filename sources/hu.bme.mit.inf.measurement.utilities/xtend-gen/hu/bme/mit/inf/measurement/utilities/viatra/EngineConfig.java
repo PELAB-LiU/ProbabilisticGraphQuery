@@ -42,8 +42,15 @@ public class EngineConfig {
   @Accessors(AccessorType.PUBLIC_GETTER)
   private final MddModel mdd;
 
+  private final boolean abortPreference;
+
   public EngineConfig(final String queries, final String name) {
+    this(queries, name, false);
+  }
+
+  public EngineConfig(final String queries, final String name, final boolean abort) {
     try {
+      this.abortPreference = abort;
       this.mddInstanceName = name;
       ResourceSetImpl _resourceSetImpl = new ResourceSetImpl();
       this.resourceSet = _resourceSetImpl;
@@ -98,9 +105,10 @@ public class EngineConfig {
   public void enable() {
     boolean _isTainted = this.engine.isTainted();
     if (_isTainted) {
-      final IllegalStateException e = new IllegalStateException("Attempting to use tainted query engine.");
       EngineConfig.LOG4J.error("Enable tainted engine! {}", Integer.valueOf(this.engine.hashCode()));
-      throw e;
+      if (this.abortPreference) {
+        throw new IllegalStateException("Attempting to use tainted query engine.");
+      }
     }
     EngineConfig.LOG4J.debug("Propagate {}", Integer.valueOf(this.engine.hashCode()));
     this.engine.enableAndPropagate();

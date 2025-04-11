@@ -38,12 +38,9 @@ import org.eclipse.xtext.xbase.XCastedExpression
 
 class VQLParser {
 	def test() {
-		// Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().putIfAbsent("xmi", new XMIResourceFactoryImpl());
 		EPackage.Registry.INSTANCE.put(TracemodelPackage.eNS_URI, TracemodelPackage.eINSTANCE)
 		EMFPatternLanguageStandaloneSetup.doSetup()
-
-		// ViatraQueryEngineOptions.setSystemDefaultBackends(ReteBackendFactory.INSTANCE, ReteBackendFactory.INSTANCE,
-		// LocalSearchEMFBackendFactory.INSTANCE);
+		
 		val parsed = PatternParserBuilder.instance.parse(query().toString)
 		if (parsed.hasError || parsed.patterns.empty) {
 			println("Input contains errors or empty.")
@@ -63,7 +60,10 @@ class VQLParser {
 	import "«packageImport.EPackage.nsURI»"
 	«ENDFOR»
 	
-	«FOR javaImport : model.importPackages.importDeclarations»
+	«FOR javaImport : model.importPackages.importDeclarations.filter[
+		! KGate.name.equals(it.importedName)
+		
+	]»
 	import java «javaImport.importedType.packageName».«javaImport.importedType.simpleName»
 	«ENDFOR»
 	'''

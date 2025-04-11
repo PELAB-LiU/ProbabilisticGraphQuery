@@ -3,27 +3,30 @@ package se.liu.ida.sas.pelab.surveillance.storm;
 import hu.bme.mit.inf.dslreasoner.domains.surveillance.viatra.SurveillanceWrapper;
 import hu.bme.mit.inf.measurement.utilities.CSVLog;
 import hu.bme.mit.inf.measurement.utilities.configuration.SurveillanceConfiguration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.Functions.Function0;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.eclipse.xtext.xbase.lib.Pair;
+import se.liu.ida.sas.pelab.storm.run.StormEvaluation;
+import se.liu.ida.sas.pelab.storm.run.StormRunInfo;
 
 @SuppressWarnings("all")
 public interface StormSurveillanceUtil {
-  default Object runStorm(final SurveillanceConfiguration cfg, final SurveillanceWrapper instance, final CSVLog log) {
-    throw new Error("Unresolved compilation problems:"
-      + "\nThe method or field StormEvaluation is undefined"
-      + "\nevalueate cannot be resolved"
-      + "\ntransformation_ms cannot be resolved"
-      + "\n+ cannot be resolved"
-      + "\nrun_ms cannot be resolved"
-      + "\ntransformation_ms cannot be resolved"
-      + "\nrun_ms cannot be resolved"
-      + "\nresults cannot be resolved"
-      + "\ntimeout cannot be resolved"
-      + "\ntimeout cannot be resolved");
+  default boolean runStorm(final SurveillanceConfiguration cfg, final SurveillanceWrapper instance, final CSVLog log) {
+    final Function0<Pair<String, List<String>>> _function = () -> {
+      return new StormSurveillanceGenerator().generateFrom(instance.model);
+    };
+    final StormRunInfo result = StormEvaluation.evalueate(cfg, _function);
+    log.log("storm.total[ms]", Double.valueOf((result.transformation_ms + result.run_ms)));
+    log.log("storm.trafo[ms]", Double.valueOf(result.transformation_ms));
+    log.log("storm.evaluation[ms]", Double.valueOf(result.run_ms));
+    log.log("storm.result", this.stormToJSON(instance, result.results, result.timeout));
+    log.log("storm.timeout", Boolean.valueOf(result.timeout));
+    return result.timeout;
   }
 
   default String stormToJSON(final SurveillanceWrapper instance, final Map<String, Double> data, final boolean timeout) {

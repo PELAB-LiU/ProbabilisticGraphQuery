@@ -55,6 +55,7 @@ interface ProblogSurveillanceUtil {
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", problogToJSON(instance, output, timeoutFlag.get))
 		log.log("problog.timeout", timeoutFlag.get)
+		return timeoutFlag.get
 	}
 	
 	def String problogToJSON(SurveillanceWrapper instance, Map<String,Object> data, boolean timeout){

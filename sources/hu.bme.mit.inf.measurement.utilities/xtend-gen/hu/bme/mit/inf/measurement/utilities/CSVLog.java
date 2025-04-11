@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import org.eclipse.xtend2.lib.StringConcatenation;
+import org.eclipse.xtext.xbase.lib.ArrayExtensions;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,11 @@ public class CSVLog {
 
   public Object log(final String key, final Object object) {
     CSVLog.LOG4J.info("CSVSET {} --> {}", key, object);
+    boolean _contains = ArrayExtensions.contains(this.columns, key);
+    boolean _not = (!_contains);
+    if (_not) {
+      CSVLog.LOG4J.warn("Unlogged value for key. {}", key);
+    }
     return this.current.put(key, object);
   }
 
@@ -38,6 +44,7 @@ public class CSVLog {
       {
         final Object value = this.current.get(key);
         if ((value != null)) {
+          CSVLog.LOG4J.warn("Missing entry for key. {}", key);
           entry.put(key, value.toString());
         }
       }

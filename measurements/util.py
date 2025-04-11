@@ -4,9 +4,9 @@ import json
 
 def load_batch_incremental_problog():
     df = pd.concat([
-        pd.read_csv('logs-sip/log-SAT-run.txt'),
-        pd.read_csv('logs-sip/log-SRV-run.txt'),
-        pd.read_csv('logs-sip/log-SH-run.txt')
+        pd.read_csv('logs/log-SAT-run-inc.txt'),
+        pd.read_csv('logs/log-SRV-run-inc.txt'),
+        pd.read_csv('logs/log-SH-run-inc.txt')
     ],ignore_index=True)
     df['standalone.engine[ms]']=df['standalone.total[ms]']-(df['standalone.sync[ms]']+df["standalone.prop[ms]"])
     df['incremental.engine[ms]']=df['incremental.total[ms]']-(df['incremental.sync[ms]']+df["incremental.prop[ms]"])
@@ -14,18 +14,18 @@ def load_batch_incremental_problog():
 
 def load_scale():
     df = pd.concat([
-        pd.read_csv('logs-scale/log-SAT-20-run.txt'),
-        pd.read_csv('logs-scale/log-SAT-40-run.txt'),
-        pd.read_csv('logs-scale/log-SAT-60-run.txt'),
-        pd.read_csv('logs-scale/log-SAT-80-run.txt'),
-        pd.read_csv('logs-scale/log-SH-100-run.txt'),
-        pd.read_csv('logs-scale/log-SH-200-run.txt'),
-        pd.read_csv('logs-scale/log-SH-300-run.txt'),
-        pd.read_csv('logs-scale/log-SH-400-run.txt'),
-        pd.read_csv('logs-scale/log-SRV-10-run.txt'),
-        pd.read_csv('logs-scale/log-SRV-100-run.txt'),
-        pd.read_csv('logs-scale/log-SRV-1000-run.txt'),
-        pd.read_csv('logs-scale/log-SRV-10000-run.txt') 
+        pd.read_csv('logs/log-SAT-20-run.txt'),
+        pd.read_csv('logs/log-SAT-40-run.txt'),
+        pd.read_csv('logs/log-SAT-60-run.txt'),
+        pd.read_csv('logs/log-SAT-80-run.txt'),
+        pd.read_csv('logs/log-SH-100-run.txt'),
+        pd.read_csv('logs/log-SH-200-run.txt'),
+        pd.read_csv('logs/log-SH-300-run.txt'),
+        pd.read_csv('logs/log-SH-400-run.txt'),
+        pd.read_csv('logs/log-SRV-10-run.txt'),
+        pd.read_csv('logs/log-SRV-100-run.txt'),
+        pd.read_csv('logs/log-SRV-1000-run.txt'),
+        pd.read_csv('logs/log-SRV-10000-run.txt') 
     ],ignore_index=True)
     df['incremental.engine[ms]']=df['incremental.total[ms]']-(df['incremental.sync[ms]']+df["incremental.prop[ms]"])
 

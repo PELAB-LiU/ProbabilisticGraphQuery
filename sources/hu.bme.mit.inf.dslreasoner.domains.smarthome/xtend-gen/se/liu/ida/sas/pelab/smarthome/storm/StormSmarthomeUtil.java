@@ -16,20 +16,17 @@ import se.liu.ida.sas.pelab.storm.run.StormRunInfo;
 
 @SuppressWarnings("all")
 public interface StormSmarthomeUtil {
-  default Object runStorm(final SmarthomeConfiguration cfg, final SmarthomeModel instance, final CSVLog log) {
-    Object _xblockexpression = null;
-    {
-      final Function0<Pair<String, List<String>>> _function = () -> {
-        return new StormSmarthomeGenerator().generateFrom(instance.model);
-      };
-      final StormRunInfo result = StormEvaluation.evalueate(cfg, _function);
-      log.log("storm.total[ms]", Double.valueOf((result.transformation_ms + result.run_ms)));
-      log.log("storm.trafo[ms]", Double.valueOf(result.transformation_ms));
-      log.log("storm.evaluation[ms]", Double.valueOf(result.run_ms));
-      log.log("storm.result", this.stormToJSON(instance, result.results, result.timeout));
-      _xblockexpression = log.log("storm.timeout", Boolean.valueOf(result.timeout));
-    }
-    return _xblockexpression;
+  default boolean runStorm(final SmarthomeConfiguration cfg, final SmarthomeModel instance, final CSVLog log) {
+    final Function0<Pair<String, List<String>>> _function = () -> {
+      return new StormSmarthomeGenerator().generateFrom(instance.model);
+    };
+    final StormRunInfo result = StormEvaluation.evalueate(cfg, _function);
+    log.log("storm.total[ms]", Double.valueOf((result.transformation_ms + result.run_ms)));
+    log.log("storm.trafo[ms]", Double.valueOf(result.transformation_ms));
+    log.log("storm.evaluation[ms]", Double.valueOf(result.run_ms));
+    log.log("storm.result", this.stormToJSON(instance, result.results, result.timeout));
+    log.log("storm.timeout", Boolean.valueOf(result.timeout));
+    return result.timeout;
   }
 
   default String stormToJSON(final SmarthomeModel instance, final Map<String, Double> data, final boolean timeout) {

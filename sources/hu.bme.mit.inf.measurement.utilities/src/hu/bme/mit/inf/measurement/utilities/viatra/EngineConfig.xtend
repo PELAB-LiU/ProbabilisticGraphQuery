@@ -27,8 +27,14 @@ class EngineConfig{
 	@Accessors(PUBLIC_GETTER) val PatternParsingResults parsed
 	@Accessors(PUBLIC_GETTER) val MddModel mdd
 	
+	val boolean abortPreference
+	new (String queries, String name){
+		this(queries, name, false)
+	}
 	
-	new(String queries, String name){
+	new(String queries, String name, boolean abort){
+		abortPreference = abort
+		
 		mddInstanceName = name
 		resourceSet = new ResourceSetImpl
 		model = resourceSet.createResource(URI.createFileURI("model-tmp-"+mddInstanceName+this.hashCode+".xmi"))
@@ -69,10 +75,11 @@ class EngineConfig{
 		engine.suspend
 	}
 	def enable(){
-		if(engine.tainted){
-			val e = new IllegalStateException("Attempting to use tainted query engine.")
+		if(engine.tainted){ 
 			LOG4J.error("Enable tainted engine! {}", engine.hashCode)
-			throw e
+			if(abortPreference){
+				throw new IllegalStateException("Attempting to use tainted query engine.")
+			}
 		}
 		LOG4J.debug("Propagate {}", engine.hashCode)
 		engine.enableAndPropagate
