@@ -71,6 +71,8 @@ class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfiguration> imp
 			LOG4J.info("Viatra completed in {}ms", ((it0end-it0start)/1000.0/1000))
 			return Configuration.isCancelled
 		} catch(Exception e){
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 			return Configuration.isCancelled
 		} finally{
 			log.log("incremental.timeout", Configuration.isCancelled)

@@ -91,6 +91,9 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       SurveillanceRunner.LOG4J.info("Batch completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        SurveillanceRunner.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SurveillanceRunner.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
@@ -135,6 +138,9 @@ public class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfigurati
       SurveillanceRunner.LOG4J.info("Incremental completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        SurveillanceRunner.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SurveillanceRunner.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
       } else {
         throw Exceptions.sneakyThrow(_t);
       }

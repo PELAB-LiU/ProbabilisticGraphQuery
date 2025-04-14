@@ -150,6 +150,10 @@ class SmarthomeConfiguration extends BaseConfiguration{
   			.parse(args)
   		return config
 	}
+	
+	@Parameter(names = "--batching", description = "Batch size for increments. (Number of measurements to add and remove in each iteration.)")
+	var int changesize = 1
+	def int getChangeSize(){changesize}
 }
 class SurveillanceConfiguration extends BaseConfiguration{
 	@Parameter(names = "--threshold", description = "Probability of removing an object in an iteration.")

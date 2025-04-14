@@ -74,6 +74,9 @@ public class SmarthomeScaleRunner extends ViatraScaleRunner<SmarthomeConfigurati
       return Configuration.isCancelled();
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        SmarthomeScaleRunner.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SmarthomeScaleRunner.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
         return Configuration.isCancelled();
       } else {
         throw Exceptions.sneakyThrow(_t);

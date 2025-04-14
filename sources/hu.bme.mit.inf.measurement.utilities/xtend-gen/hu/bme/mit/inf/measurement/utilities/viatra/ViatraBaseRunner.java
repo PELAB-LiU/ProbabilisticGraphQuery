@@ -167,6 +167,10 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> impleme
             this.batch.acquire();
             this.runBatch(log);
             this.batch.dispose();
+            this.gc();
+            this.runProblog(log);
+            this.gc();
+            this.runStorm(log);
             log.log("iteration", iter);
             log.log("prefix", this.cfg.getPrefix());
             log.log("run", seed);

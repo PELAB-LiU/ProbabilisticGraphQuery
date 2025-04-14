@@ -78,6 +78,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			log.log("standalone.result", coverage)
 			LOG4J.info("Batch completed in {}ms with result {}", ((it0end-it0start)/1000.0/1000), coverage)
 		} catch (CancellationException e) {
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 		} finally {
 			log.log("standalone.timeout", Configuration.isCancelled)
 		}
@@ -127,6 +129,8 @@ class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguration> impl
 			log.log("incremental.result", coverage)
 			LOG4J.info("Incremental completed in {}ms with result {}", ((it0end-it0start)/1000.0/1000), coverage)
 		} catch (CancellationException e) {
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 		} finally {
 			log.log("incremental.timeout", Configuration.isCancelled)
 		}

@@ -44,7 +44,7 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			resource.contents.add(result)
 			val index = newHashMap
 			copier.entrySet.forEach[index.put(it.value, instance.idmap.get(it.key))
-				println("Mapping "+it.value+" to "+instance.idmap.get(it.key))
+				LOG4J.debug("Map object {} to name {}", it.value, instance.idmap.get(it.key))
 			]
 			ExecutionTime.reset;
 			
@@ -76,6 +76,8 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			log.log("standalone.result", coverage)
 			LOG4J.info("Batch completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch (Exception e){
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 		} finally{
 			log.log("standalone.timeout", Configuration.isCancelled)
 		}
@@ -127,13 +129,15 @@ class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> implement
 			log.log("incremental.result", coverage)
 			LOG4J.info("Incremental completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch(Exception e){
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 		} finally{
 			log.log("incremental.timeout", Configuration.isCancelled)
 		}
 	}
 	
 	override applyIncrement(){
-		modelgen.iterate(instance, 1)//TODO
+		modelgen.iterate(instance, cfg.getChangeSize())
 	}
 	override runProblog(CSVLog log) {
 		runProblog(cfg, instance, log)

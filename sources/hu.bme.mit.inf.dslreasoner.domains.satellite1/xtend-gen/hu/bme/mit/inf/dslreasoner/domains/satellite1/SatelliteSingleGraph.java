@@ -66,6 +66,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       SatelliteSingleGraph.LOG4J.info("Batch completed in {}ms with result {}", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)), Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {
+        final CancellationException e = (CancellationException)_t;
+        SatelliteSingleGraph.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SatelliteSingleGraph.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
@@ -113,6 +116,9 @@ public class SatelliteSingleGraph extends ViatraBaseRunner<SatelliteConfiguratio
       SatelliteSingleGraph.LOG4J.info("Incremental completed in {}ms with result {}", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)), Double.valueOf(coverage));
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {
+        final CancellationException e = (CancellationException)_t;
+        SatelliteSingleGraph.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SatelliteSingleGraph.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
       } else {
         throw Exceptions.sneakyThrow(_t);
       }

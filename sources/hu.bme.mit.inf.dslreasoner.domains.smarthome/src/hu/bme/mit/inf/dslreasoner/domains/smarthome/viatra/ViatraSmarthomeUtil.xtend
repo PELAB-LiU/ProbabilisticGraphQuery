@@ -15,8 +15,8 @@ interface ViatraSmarthomeUtil {
 				"matches" : [
 				«FOR match : engine.engine.getMatcher(matcher).allMatches SEPARATOR ","»
 					{
-						"measurement" : "«index.get(match.get(1))»",
-						"probability" : «match.get(2)»
+						"measurement" : "«index.get(match.get(0))»",
+						"probability" : «match.get(1)»
 					}
 				«ENDFOR»
 				]

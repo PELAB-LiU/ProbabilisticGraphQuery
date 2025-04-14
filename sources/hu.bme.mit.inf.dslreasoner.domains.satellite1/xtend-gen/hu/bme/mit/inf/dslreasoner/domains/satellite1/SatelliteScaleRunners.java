@@ -73,7 +73,9 @@ public class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfigurat
       return Configuration.isCancelled();
     } catch (final Throwable _t) {
       if (_t instanceof CancellationException) {
-        InputOutput.<String>println("Cancellation caught.");
+        final CancellationException e = (CancellationException)_t;
+        SatelliteScaleRunners.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SatelliteScaleRunners.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
         return Configuration.isCancelled();
       } else {
         throw Exceptions.sneakyThrow(_t);

@@ -70,7 +70,8 @@ class SatelliteScaleRunners extends ViatraScaleRunner<SatelliteConfiguration> im
 			LOG4J.info("Viatra completed in {}ms with result {}", ((it0end-it0start)/1000.0/1000), coverage)
 			return Configuration.isCancelled
 		} catch (CancellationException e) {
-			println("Cancellation caught.")
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 			return Configuration.isCancelled
 		} finally {
 			log.log("incremental.timeout", Configuration.isCancelled)

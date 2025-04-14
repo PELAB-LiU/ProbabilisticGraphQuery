@@ -32,4 +32,11 @@ public class SmarthomeConfiguration extends BaseConfiguration {
     JCommander.newBuilder().addObject(config).build().parse(args);
     return config;
   }
+
+  @Parameter(names = "--batching", description = "Batch size for increments. (Number of measurements to add and remove in each iteration.)")
+  private int changesize = 1;
+
+  public int getChangeSize() {
+    return this.changesize;
+  }
 }

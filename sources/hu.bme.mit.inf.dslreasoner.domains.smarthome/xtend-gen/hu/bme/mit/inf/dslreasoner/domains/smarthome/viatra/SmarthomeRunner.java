@@ -16,7 +16,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
-import org.eclipse.xtext.xbase.lib.InputOutput;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +54,7 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
       final HashMap<EObject, String> index = CollectionLiterals.<EObject, String>newHashMap();
       final Consumer<Map.Entry<EObject, EObject>> _function = (Map.Entry<EObject, EObject> it) -> {
         index.put(it.getValue(), this.instance.idmap.get(it.getKey()));
-        EObject _value = it.getValue();
-        String _plus = ("Mapping " + _value);
-        String _plus_1 = (_plus + " to ");
-        String _get = this.instance.idmap.get(it.getKey());
-        String _plus_2 = (_plus_1 + _get);
-        InputOutput.<String>println(_plus_2);
+        SmarthomeRunner.LOG4J.debug("Map object {} to name {}", it.getValue(), this.instance.idmap.get(it.getKey()));
       };
       copier.entrySet().forEach(_function);
       ExecutionTime.reset();
@@ -87,6 +81,9 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
       SmarthomeRunner.LOG4J.info("Batch completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        SmarthomeRunner.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SmarthomeRunner.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
@@ -135,6 +132,9 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
       SmarthomeRunner.LOG4J.info("Incremental completed in {}ms", Double.valueOf((((it0end - it0start) / 1000.0) / 1000)));
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        SmarthomeRunner.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SmarthomeRunner.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
       } else {
         throw Exceptions.sneakyThrow(_t);
       }
@@ -145,7 +145,7 @@ public class SmarthomeRunner extends ViatraBaseRunner<SmarthomeConfiguration> im
 
   @Override
   public void applyIncrement() {
-    this.modelgen.iterate(this.instance, 1);
+    this.modelgen.iterate(this.instance, this.cfg.getChangeSize());
   }
 
   @Override

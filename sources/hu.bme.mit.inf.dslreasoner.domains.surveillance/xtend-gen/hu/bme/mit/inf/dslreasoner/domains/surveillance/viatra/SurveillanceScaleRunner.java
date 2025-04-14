@@ -72,6 +72,9 @@ public class SurveillanceScaleRunner extends ViatraScaleRunner<SurveillanceConfi
       return Configuration.isCancelled();
     } catch (final Throwable _t) {
       if (_t instanceof Exception) {
+        final Exception e = (Exception)_t;
+        SurveillanceScaleRunner.LOG4J.warn("Exception logged: {}", e.getMessage());
+        SurveillanceScaleRunner.LOG4J.debug("Exception logged: {}, exception: {}", e.getMessage(), e);
         return Configuration.isCancelled();
       } else {
         throw Exceptions.sneakyThrow(_t);

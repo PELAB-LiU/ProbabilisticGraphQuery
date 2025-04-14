@@ -95,6 +95,8 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			log.log("standalone.result", coverage)
 			LOG4J.info("Batch completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch (Exception e) {
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 		} finally {
 			resource.contents.clear
 			log.log("standalone.timeout", Configuration.isCancelled)
@@ -143,6 +145,8 @@ class SurveillanceRunner extends ViatraBaseRunner<SurveillanceConfiguration> imp
 			log.log("incremental.result", coverage)
 			LOG4J.info("Incremental completed in {}ms", ((it0end-it0start)/1000.0/1000))
 		} catch(Exception e){
+			LOG4J.warn("Exception logged: {}", e.message)
+			LOG4J.debug("Exception logged: {}, exception: {}", e.message, e)
 		} finally{
 			log.log("incremental.timeout", Configuration.isCancelled)
 		}

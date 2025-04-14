@@ -4,3 +4,5 @@
 /__pycache__/
 debug*.txt
 debug*.csv
+tmp-problog.pl
+tmp-storm.dft

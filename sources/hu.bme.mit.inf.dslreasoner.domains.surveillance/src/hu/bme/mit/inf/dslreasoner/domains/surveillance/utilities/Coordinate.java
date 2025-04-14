@@ -17,10 +17,7 @@ public class Coordinate {
 	}
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof Coordinate) {
-			Coordinate c = (Coordinate) o;
-			return x.equals(c.x) && y.equals(c.y);
-		}
-		return false;
+		// Force reference equality
+		return o == this;
 	}
 }

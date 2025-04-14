@@ -4,6 +4,7 @@ import org.eclipse.viatra.query.patternlanguage.emf.annotations.PatternAnnotatio
 import org.eclipse.viatra.query.patternlanguage.emf.annotations.PatternAnnotationParameter
 import org.eclipse.viatra.query.runtime.matchers.psystem.aggregations.IAggregatorFactory
 import org.eclipse.viatra.query.runtime.matchers.psystem.aggregations.AggregatorType
+import org.eclipse.viatra.query.runtime.matchers.psystem.aggregations.BoundAggregator
 
 class Weight extends PatternAnnotationValidator{
 	static val NAME = "KGate"
@@ -17,7 +18,7 @@ class Weight extends PatternAnnotationValidator{
 }
 
 @AggregatorType(parameterTypes = Void, returnTypes = Double)
-final class KGate implements IAggregatorFactory {
+final class KGate implements IAggregatorFactory{
 	
 	override getAggregatorLogic(Class<?> domainClass) {
 		throw new UnsupportedOperationException("KGate is only a placeholder prior to transformation.")

@@ -24,8 +24,6 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 	protected var EngineConfig batch
 	protected var EngineConfig incremental
 	
-	//protected var Resource model
-	
 	def void initBatch(){
 		batch = new EngineConfig(transformed, "standalone", cfg.isFavourAbort)
 		LOG4J.debug("Init Batch {}", batch.engine.hashCode)
@@ -52,6 +50,7 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 		EPackage.Registry.INSTANCE.put(domain.nsURI, domain)
 
 		transformed = generator.transformPatternFile(cfg.vql)
+		
 		LOG4J.info("Queries {}", transformed)
 	}
 	
@@ -145,11 +144,11 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 				
 				
 				
-				/*gc()
+				gc()
 				runProblog(log)
 				
 				gc()
-				runStorm(log)*/
+				runStorm(log)
 				
 				log.log("iteration", iter)
 				log.log("prefix", cfg.prefix)

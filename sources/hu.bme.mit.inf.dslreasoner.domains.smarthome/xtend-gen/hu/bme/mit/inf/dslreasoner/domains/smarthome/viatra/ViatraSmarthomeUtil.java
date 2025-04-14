@@ -46,14 +46,14 @@ public interface ViatraSmarthomeUtil {
               _builder.append("\t");
               _builder.append("\t");
               _builder.append("\"measurement\" : \"");
-              String _get = index.get(match.get(1));
+              String _get = index.get(match.get(0));
               _builder.append(_get, "\t\t");
               _builder.append("\",");
               _builder.newLineIfNotEmpty();
               _builder.append("\t");
               _builder.append("\t");
               _builder.append("\"probability\" : ");
-              Object _get_1 = match.get(2);
+              Object _get_1 = match.get(1);
               _builder.append(_get_1, "\t\t");
               _builder.newLineIfNotEmpty();
               _builder.append("\t");
