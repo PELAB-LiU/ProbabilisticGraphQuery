@@ -12,23 +12,19 @@ def load_incremental():
 
 def load_scale():
     df = pd.concat([
-        pd.read_csv('logs/log-SAT-20-run.txt'),
-        pd.read_csv('logs/log-SAT-40-run.txt'),
-        pd.read_csv('logs/log-SAT-60-run.txt'),
-        pd.read_csv('logs/log-SAT-80-run.txt'),
-        pd.read_csv('logs/log-SH-100-run.txt'),
-        pd.read_csv('logs/log-SH-200-run.txt'),
-        pd.read_csv('logs/log-SH-300-run.txt'),
-        pd.read_csv('logs/log-SH-400-run.txt'),
-        pd.read_csv('logs/log-SRV-10-run.txt'),
-        pd.read_csv('logs/log-SRV-100-run.txt'),
-        pd.read_csv('logs/log-SRV-1000-run.txt'),
-        pd.read_csv('logs/log-SRV-10000-run.txt') 
+        pd.read_csv('logs-test/log-SAT-20-run.txt'),
+        pd.read_csv('logs-test/log-SAT-40-run.txt'),
+        pd.read_csv('logs-test/log-SAT-60-run.txt'),
+        #pd.read_csv('logs/log-SAT-80-run.txt'),
+        pd.read_csv('logs-test/log-SH-100-run.txt'),
+        pd.read_csv('logs-test/log-SH-200-run.txt'),
+        pd.read_csv('logs-test/log-SH-300-run.txt'),
+        #pd.read_csv('logs/log-SH-400-run.txt'),
+        pd.read_csv('logs-test/log-SRV-10-run.txt'),
+        pd.read_csv('logs-test/log-SRV-100-run.txt'),
+        pd.read_csv('logs-test/log-SRV-1000-run.txt'),
+        #pd.read_csv('logs/log-SRV-10000-run.txt') 
     ],ignore_index=True)
-    df['incremental.engine[ms]']=df['incremental.total[ms]']-(df['incremental.sync[ms]']+df["incremental.prop[ms]"])
-
-    df['incremental.total[s]'] = df['incremental.total[ms]']/1000
-    df['problog.total[s]'] = df['problog.total[ms]']/1000
     return df
 
 
@@ -86,10 +82,10 @@ def errorJSON(a, b, keys, value, message=True):
     return False
 
 def validHealth(df, tool):
-    return df[f"{tool}.healthy"] & ~df[f"{tool}.timeout"]
+    return (df[f"{tool}.healthy"]) & (~df[f"{tool}.timeout"])
 
 def validCode(df, tool):
-    return df[f"{tool}.exitcode"]==0 & ~df[f"{tool}.timeout"]
+    return (df[f"{tool}.exitcode"]==0) & (~df[f"{tool}.timeout"])
     
 def validResult(df, tool):
     if tool in ["problog"]:
@@ -104,9 +100,17 @@ def closeJson(df, a, b, keys, value):
     return ~df.apply(lambda x: 
                     errorJSON(x[f'{a}.result'], x[f'{b}.result'], keys, value), axis=1)
 
+def timeoutHealth(df, tool):
+    return (df[f"{tool}.healthy"]) & (df[f"{tool}.timeout"])
 
-
-
+def timeoutCode(df, tool):
+    return (df[f"{tool}.exitcode"]==0) & (df[f"{tool}.timeout"])
+    
+def timeoutResult(df, tool):
+    if tool in ["problog"]:
+        return timeoutCode(df, tool)
+    else:
+        return timeoutHealth(df, tool)
 
 
 
