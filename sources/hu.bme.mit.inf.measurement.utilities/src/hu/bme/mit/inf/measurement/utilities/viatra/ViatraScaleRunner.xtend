@@ -27,7 +27,7 @@ abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements Vi
 	protected var EngineConfig engine
 	
 	def void initViatra(){ 
-		engine = new EngineConfig(transformed, "standalone", cfg.isFavourAbort)
+		engine = new EngineConfig(transformed, "incremental", cfg.isFavourAbort)
 		LOG4J.debug("Init VIATRA {}", engine.engine.hashCode)
 	}
 	

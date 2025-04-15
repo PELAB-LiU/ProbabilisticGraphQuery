@@ -49,19 +49,21 @@ interface ProblogSurveillanceUtil {
 		]
 		val end = System.nanoTime
 		timeout.cancel()
-		
-		(new Scanner(process.inputStream)).forEach [ line |
-		]
+
 		log.log("problog.total[ms]", ((end - start) / 1000.0 / 1000))
 		log.log("problog.trafo[ms]", (trafo - start) / 1000.0 / 1000)
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", problogToJSON(instance, output, timeoutFlag.get))
 		log.log("problog.timeout", timeoutFlag.get)
+		log.log("problog.exitcode", process.waitFor)
 		LogHelper.LOG4J.info("ProbLog complete in {}ms with result #{} (timeout: {})", 
 			((end - start)/1000.0/1000), 
 			output.size,
 			timeoutFlag.get
 		)
+		if(process.exitValue!=0){
+			LogHelper.LOG4J.warn("Exit code {} with model: {}", process.exitValue, plmodel)
+		}
 		return timeoutFlag.get
 	}
 	

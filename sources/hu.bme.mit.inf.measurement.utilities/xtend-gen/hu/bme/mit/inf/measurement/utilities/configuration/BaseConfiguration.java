@@ -92,7 +92,7 @@ public class BaseConfiguration {
   }
 
   @Parameter(names = "--header", description = "List of CSV columns to include in the output.")
-  private List<String> columns = CollectionLiterals.<String>newArrayList("prefix", "size", "run", "iteration", "incremental.total[ms]", "incremental.result", "incremental.sync[ms]", "incremental.prop[ms]", "incremental.timeout", "standalone.total[ms]", "standalone.result", "standalone.sync[ms]", "standalone.prop[ms]", "standalone.timeout", "problog.total[ms]", "problog.result", "problog.trafo[ms]", "problog.evaluation[ms]", "problog.timeout", "storm.total[ms]", "storm.result", "storm.trafo[ms]", "storm.evaluation[ms]", "storm.timeout", "incremental.healthy", "standalone.healthy");
+  private List<String> columns = CollectionLiterals.<String>newArrayList("prefix", "size", "run", "iteration", "incremental.total[ms]", "incremental.result", "incremental.sync[ms]", "incremental.prop[ms]", "incremental.timeout", "standalone.total[ms]", "standalone.result", "standalone.sync[ms]", "standalone.prop[ms]", "standalone.timeout", "problog.total[ms]", "problog.result", "problog.trafo[ms]", "problog.evaluation[ms]", "problog.timeout", "storm.total[ms]", "storm.result", "storm.trafo[ms]", "storm.evaluation[ms]", "storm.timeout", "incremental.healthy", "standalone.healthy", "storm.healthy", "problog.exitcode");
 
   public List<String> getCSVcolumns() {
     return this.columns;

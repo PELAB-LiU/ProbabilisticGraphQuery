@@ -58,18 +58,20 @@ public interface ProblogSurveillanceUtil {
       IteratorExtensions.<String>forEach(io, _function_1);
       final long end = System.nanoTime();
       timeout.cancel();
-      InputStream _inputStream_1 = process.getInputStream();
-      final Procedure1<String> _function_2 = (String line) -> {
-      };
-      IteratorExtensions.<String>forEach(new Scanner(_inputStream_1), _function_2);
       log.log("problog.total[ms]", Double.valueOf((((end - start) / 1000.0) / 1000)));
       log.log("problog.trafo[ms]", Double.valueOf((((trafo - start) / 1000.0) / 1000)));
       log.log("problog.evaluation[ms]", Double.valueOf((((end - trafo) / 1000.0) / 1000)));
       log.log("problog.result", this.problogToJSON(instance, output, timeoutFlag.get()));
       log.log("problog.timeout", Boolean.valueOf(timeoutFlag.get()));
+      log.log("problog.exitcode", Integer.valueOf(process.waitFor()));
       LogHelper.LOG4J.info("ProbLog complete in {}ms with result #{} (timeout: {})", Double.valueOf((((end - start) / 1000.0) / 1000)), 
         Integer.valueOf(output.size()), 
         Boolean.valueOf(timeoutFlag.get()));
+      int _exitValue = process.exitValue();
+      boolean _notEquals = (_exitValue != 0);
+      if (_notEquals) {
+        LogHelper.LOG4J.warn("Exit code {} with model: {}", Integer.valueOf(process.exitValue()), plmodel);
+      }
       return timeoutFlag.get();
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);

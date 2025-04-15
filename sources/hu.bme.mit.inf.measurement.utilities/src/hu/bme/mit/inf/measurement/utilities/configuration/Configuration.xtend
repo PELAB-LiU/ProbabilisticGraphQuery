@@ -66,7 +66,7 @@ class BaseConfiguration {
 		,"standalone.total[ms]","standalone.result","standalone.sync[ms]", "standalone.prop[ms]","standalone.timeout"
 		,"problog.total[ms]","problog.result","problog.trafo[ms]", "problog.evaluation[ms]","problog.timeout"
 		,"storm.total[ms]","storm.result","storm.trafo[ms]","storm.evaluation[ms]","storm.timeout"
-		,"incremental.healthy","standalone.healthy"
+		,"incremental.healthy","standalone.healthy","storm.healthy","problog.exitcode"
 	)
 	def List<String> getCSVcolumns(){columns}
 	

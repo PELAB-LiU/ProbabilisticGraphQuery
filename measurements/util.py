@@ -2,14 +2,12 @@ import pandas as pd
 import numpy as np
 import json
 
-def load_batch_incremental_problog():
+def load_incremental():
     df = pd.concat([
         pd.read_csv('logs/log-SAT-run-inc.txt'),
-        pd.read_csv('logs/log-SRV-run-inc.txt'),
-        pd.read_csv('logs/log-SH-run-inc.txt')
+        pd.read_csv('logs/log-SRV-run-inc-demo.txt'),
+        pd.read_csv('logs/log-SH-run-inc-demo.txt')
     ],ignore_index=True)
-    df['standalone.engine[ms]']=df['standalone.total[ms]']-(df['standalone.sync[ms]']+df["standalone.prop[ms]"])
-    df['incremental.engine[ms]']=df['incremental.total[ms]']-(df['incremental.sync[ms]']+df["incremental.prop[ms]"])
     return df
 
 def load_scale():
@@ -43,7 +41,7 @@ def identicalJSONKeys(match1, match2, keys):
 # Returns true if
 #   * both JSON objects are valid, but
 #   * values are different
-def errorJSON(a, b, keys, value, message=False):
+def errorJSON(a, b, keys, value, message=True):
     try:
         a = json.loads(a)
         if not a['valid']:
@@ -86,3 +84,51 @@ def errorJSON(a, b, keys, value, message=False):
             return True
         
     return False
+
+def validHealth(df, tool):
+    return df[f"{tool}.healthy"] & ~df[f"{tool}.timeout"]
+
+def validCode(df, tool):
+    return df[f"{tool}.exitcode"]==0 & ~df[f"{tool}.timeout"]
+    
+def validResult(df, tool):
+    if tool in ["problog"]:
+        return validCode(df, tool)
+    else:
+        return validHealth(df, tool)
+    
+def closeDouble(df, a, b):
+    return np.isclose(df[f"{a}.result"].astype(float),df[f"{b}.result"].astype(float))
+
+def closeJson(df, a, b, keys, value):
+    return ~df.apply(lambda x: 
+                    errorJSON(x[f'{a}.result'], x[f'{b}.result'], keys, value), axis=1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

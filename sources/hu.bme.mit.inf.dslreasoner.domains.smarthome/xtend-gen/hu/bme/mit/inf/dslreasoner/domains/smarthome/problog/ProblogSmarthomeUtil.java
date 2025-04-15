@@ -63,9 +63,15 @@ public interface ProblogSmarthomeUtil {
       log.log("problog.evaluation[ms]", Double.valueOf((((end - trafo) / 1000.0) / 1000)));
       log.log("problog.result", this.problogToJSON(instance, output, timeoutFlag.get()));
       log.log("problog.timeout", Boolean.valueOf(timeoutFlag.get()));
+      log.log("problog.exitcode", Integer.valueOf(process.waitFor()));
       LogHelper.LOG4J.info("ProbLog completed in {}ms with result #{} (timeout: {})", Double.valueOf((((end - start) / 1000.0) / 1000)), 
         Integer.valueOf(output.size()), 
         Boolean.valueOf(timeoutFlag.get()));
+      int _exitValue = process.exitValue();
+      boolean _notEquals = (_exitValue != 0);
+      if (_notEquals) {
+        LogHelper.LOG4J.warn("Exit code {} with model: {}", Integer.valueOf(process.exitValue()), plmodel);
+      }
       return timeoutFlag.get();
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);

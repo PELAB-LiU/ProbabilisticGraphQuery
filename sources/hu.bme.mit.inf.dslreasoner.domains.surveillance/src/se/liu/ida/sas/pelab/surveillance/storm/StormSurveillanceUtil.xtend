@@ -23,10 +23,12 @@ interface StormSurveillanceUtil {
 		log.log("storm.evaluation[ms]", result.run_ms)
 		log.log("storm.result", stormToJSON(instance, result.results, result.timeout))
 		log.log("storm.timeout", result.timeout)
-		LogHelper.LOG4J.info("Storm complete in {}ms with result #{} (timeout: {})", 
+		log.log("storm.healthy", result.healty)
+		LogHelper.LOG4J.info("Storm complete in {}ms with result #{} (timeout: {}, healthy: {})", 
 			result.transformation_ms + result.run_ms, 
 			result.results.size,
-			result.timeout
+			result.timeout,
+			result.healty
 		)
 		return result.timeout
 	}

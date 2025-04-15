@@ -50,7 +50,6 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 		EPackage.Registry.INSTANCE.put(domain.nsURI, domain)
 
 		transformed = generator.transformPatternFile(cfg.vql)
-		
 		LOG4J.info("Queries {}", transformed)
 	}
 	

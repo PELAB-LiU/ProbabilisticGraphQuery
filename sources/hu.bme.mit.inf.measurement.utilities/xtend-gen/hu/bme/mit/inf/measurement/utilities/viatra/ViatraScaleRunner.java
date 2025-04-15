@@ -35,7 +35,7 @@ public abstract class ViatraScaleRunner<Config extends BaseConfiguration> implem
 
   public void initViatra() {
     boolean _isFavourAbort = this.cfg.isFavourAbort();
-    EngineConfig _engineConfig = new EngineConfig(this.transformed, "standalone", _isFavourAbort);
+    EngineConfig _engineConfig = new EngineConfig(this.transformed, "incremental", _isFavourAbort);
     this.engine = _engineConfig;
     ViatraScaleRunner.LOG4J.debug("Init VIATRA {}", Integer.valueOf(this.engine.getEngine().hashCode()));
   }

@@ -19,7 +19,8 @@ class StormEvaluation {
 		var results = newHashMap
 		var cumTransformationTime = 0.0
 		var cumAnalysisTime = 0.0
-
+		var healty = true
+		
 		/**
 		 * Transform base model
 		 * (measured as transformation)
@@ -68,6 +69,7 @@ class StormEvaluation {
 				 * Process results
 				 */
 				val io = new Scanner(process.inputStream)
+				var error = false
 				while (io.hasNextLine) {
 					val line = io.nextLine
 					LOG4J.debug("LINE {}", line)
@@ -75,8 +77,17 @@ class StormEvaluation {
 					if (match.find) {
 						results.put(top, Double.parseDouble(match.group(1)))
 					}
+					if(error || line.startsWith("ERROR")){
+						error = true
+						LOG4J.warn("Fault Log: {}", line)
+					}
 				}
 				val analysisEnd = System.nanoTime
+				
+				if(process.waitFor!=0){
+					LOG4J.warn("Exit code {} with top event: {} and base model: {}", process.exitValue, top, basemodel)
+				}
+				healty = healty && process.exitValue==0
 				/**
 				 * Update configuration
 				 */
@@ -86,7 +97,7 @@ class StormEvaluation {
 		}
 		var remainingtime_ms = (cfg.timeoutS * 1000) - (cumAnalysisTime + cumTransformationTime)
 		val timeout = remainingtime_ms < 0
-		return new StormRunInfo(cumTransformationTime, cumAnalysisTime, results, timeout)
+		return new StormRunInfo(cumTransformationTime, cumAnalysisTime, results, timeout, healty)
 	}
 }
 
@@ -95,11 +106,13 @@ class StormRunInfo {
 	public val double run_ms
 	public val Map<String, Double> results
 	public val boolean timeout
+	public val boolean healty
 	
-	new(double trafo, double run, Map<String, Double> results, boolean timeout) {
+	new(double trafo, double run, Map<String, Double> results, boolean timeout, boolean healty) {
 		this.transformation_ms = trafo
 		this.run_ms = run
 		this.results = results
 		this.timeout = timeout
+		this.healty = healty
 	}
 }

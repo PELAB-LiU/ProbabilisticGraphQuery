@@ -54,11 +54,15 @@ interface ProblogSatelliteUtil {
 		log.log("problog.evaluation[ms]", (end - trafo) / 1000.0 / 1000)
 		log.log("problog.result", if(output.values.empty) 0 else output.values.get(0))
 		log.log("problog.timeout", timeoutFlag.get)
+		log.log("problog.exitcode", process.waitFor)
 		LogHelper.LOG4J.info("ProbLog completed in {}ms with result {} (timeout: {})", 
 			((end - start)/1000.0/1000), 
 			if(output.values.empty) 0 else output.values.get(0),
 			timeoutFlag.get
 		)
+		if(process.exitValue!=0){
+			LogHelper.LOG4J.warn("Exit code {} with model: {}", process.exitValue, plmodel)
+		}
 		return timeoutFlag.get
 	}
 }

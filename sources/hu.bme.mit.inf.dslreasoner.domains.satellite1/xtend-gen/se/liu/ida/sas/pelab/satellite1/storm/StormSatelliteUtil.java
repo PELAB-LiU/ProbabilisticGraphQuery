@@ -43,10 +43,12 @@ public interface StormSatelliteUtil {
     log.log("storm.evaluation[ms]", Double.valueOf(result.run_ms));
     log.log("storm.result", coverage);
     log.log("storm.timeout", Boolean.valueOf(result.timeout));
-    LogHelper.LOG4J.info("Storm completed in {}ms with result #{} (timeout: {})", 
+    log.log("storm.healthy", Boolean.valueOf(result.healty));
+    LogHelper.LOG4J.info("Storm completed in {}ms with result #{} (timeout: {}, healthy: {})", 
       Double.valueOf((result.transformation_ms + result.run_ms)), 
       Integer.valueOf(result.results.size()), 
-      Boolean.valueOf(result.timeout));
+      Boolean.valueOf(result.timeout), 
+      Boolean.valueOf(result.healty));
     return result.timeout;
   }
 }
