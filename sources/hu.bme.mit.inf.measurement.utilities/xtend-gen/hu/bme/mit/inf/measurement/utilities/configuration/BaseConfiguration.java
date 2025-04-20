@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.IntegerRange;
@@ -140,9 +141,44 @@ public class BaseConfiguration {
     return new TeePrintStream(((PrintStream[])Conversions.unwrapArray(this.out2, PrintStream.class)));
   }
 
+  @Parameter(names = "--batching", description = "Batch size for increments. ONLY FOR SH! (Number of measurements to add and remove in each iteration.)")
+  private int changesize = 1;
+
+  public int getChangeSize() {
+    return this.changesize;
+  }
+
+  @Parameter(names = "--plpattern", description = "Result extraction regex for ProbLog", converter = RegexPatternConverter.class)
+  protected Pattern pattern;
+
+  public Pattern getProbLogPattern() {
+    return this.pattern;
+  }
+
+  @Parameter(names = "--homes", description = "Number of homes to generate. SH ONLY!")
+  private int homes = 10;
+
+  public int getHomes() {
+    return this.homes;
+  }
+
+  @Parameter(names = "--persons", description = "Number of persons to generate. SH ONLY!")
+  private int persons = 1;
+
+  public int getPersons() {
+    return this.persons;
+  }
+
+  @Parameter(names = "--threshold", description = "Probability of removing an object in an iteration. SRV ONLY!")
+  private double threshold = 0.1;
+
+  public double getThreshold() {
+    return this.threshold;
+  }
+
   public static BaseConfiguration parse(final String... args) {
     final BaseConfiguration config = new BaseConfiguration();
-    final JCommander parser = JCommander.newBuilder().acceptUnknownOptions(true).addObject(config).build();
+    final JCommander parser = JCommander.newBuilder().addObject(config).build();
     if (((args == null) || (args.length == 0))) {
       parser.setProgramName("Base configuration");
       parser.usage();

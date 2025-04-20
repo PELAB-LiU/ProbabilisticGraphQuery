@@ -97,10 +97,30 @@ class BaseConfiguration {
 		return new TeePrintStream(out2)
 	}
 	
+	@Parameter(names = "--batching", description = "Batch size for increments. ONLY FOR SH! (Number of measurements to add and remove in each iteration.)")
+	var int changesize = 1
+	def int getChangeSize(){changesize}
+	
+	@Parameter(names = "--plpattern", description = "Result extraction regex for ProbLog", converter=RegexPatternConverter)
+	protected var Pattern pattern
+	def Pattern getProbLogPattern(){pattern}
+	
+	@Parameter(names = "--homes", description = "Number of homes to generate. SH ONLY!")
+	var int homes = 10;
+	def int getHomes(){homes}
+	
+	@Parameter(names = "--persons", description = "Number of persons to generate. SH ONLY!")
+	var int persons = 1;
+	def int getPersons(){persons}
+	
+	@Parameter(names = "--threshold", description = "Probability of removing an object in an iteration. SRV ONLY!")
+	var double threshold = 0.1;
+	def double getThreshold(){threshold}
+	
 	static def BaseConfiguration parse(String... args){
 		
 		val config = new BaseConfiguration
-		val parser = JCommander.newBuilder().acceptUnknownOptions(true)
+		val parser = JCommander.newBuilder()
   			.addObject(config)
   			.build()
   		if(args===null || args.length===0){
@@ -112,14 +132,14 @@ class BaseConfiguration {
   		return config
 	}
 	
+
 	
 	
 }
 class SatelliteConfiguration extends BaseConfiguration{
-	@Parameter(names = "--plpattern", description = "Result extraction regex for ProbLog", converter=RegexPatternConverter)
-	var Pattern pattern = Pattern.compile("(expected)\\((\\d\\.\\d+)\\):")
-	def Pattern getProbLogPattern(){pattern}
-	
+	new(){
+		pattern = Pattern.compile("(expected)\\((\\d\\.\\d+)\\):")
+	}
 	static def SatelliteConfiguration parse(String... args){
 		val config = new SatelliteConfiguration
 		JCommander.newBuilder()
@@ -130,17 +150,9 @@ class SatelliteConfiguration extends BaseConfiguration{
 	}	
 }
 class SmarthomeConfiguration extends BaseConfiguration{
-	@Parameter(names = "--homes", description = "Number of homes to generate.")
-	var int homes = 10;
-	def int getHomes(){homes}
-	
-	@Parameter(names = "--persons", description = "Number of persons to generate.")
-	var int persons = 1;
-	def int getPersons(){persons}
-	
-	@Parameter(names = "--plpattern", description = "Result extraction regex for ProbLog", converter=RegexPatternConverter)
-	var Pattern pattern = Pattern.compile("callprobability\\((\\d+),([01]\\.\\d*)\\)")
-	def Pattern getProbLogPattern(){pattern}
+	new(){
+		pattern = Pattern.compile("callprobability\\((\\d+),([01]\\.\\d*)\\)")
+	}
 	
 	static def SmarthomeConfiguration parse(String... args){
 		val config = new SmarthomeConfiguration
@@ -150,19 +162,11 @@ class SmarthomeConfiguration extends BaseConfiguration{
   			.parse(args)
   		return config
 	}
-	
-	@Parameter(names = "--batching", description = "Batch size for increments. (Number of measurements to add and remove in each iteration.)")
-	var int changesize = 1
-	def int getChangeSize(){changesize}
 }
 class SurveillanceConfiguration extends BaseConfiguration{
-	@Parameter(names = "--threshold", description = "Probability of removing an object in an iteration.")
-	var double threshold = 0.1;
-	def double getThreshold(){threshold}
-	
-	@Parameter(names = "--plpattern", description = "Result extraction regex for ProbLog", converter=RegexPatternConverter)
-	var Pattern pattern = Pattern.compile("result\\((\\d+),([01]\\.\\d*)\\)")
-	def Pattern getProbLogPattern(){pattern}
+	new(){
+		pattern = Pattern.compile("result\\((\\d+),([01]\\.\\d*)\\)")
+	}
 	
 	static def SurveillanceConfiguration parse(String... args){
 		val config = new SurveillanceConfiguration
