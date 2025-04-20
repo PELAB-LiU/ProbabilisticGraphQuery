@@ -142,7 +142,7 @@ public class BaseConfiguration {
 
   public static BaseConfiguration parse(final String... args) {
     final BaseConfiguration config = new BaseConfiguration();
-    final JCommander parser = JCommander.newBuilder().addObject(config).build();
+    final JCommander parser = JCommander.newBuilder().acceptUnknownOptions(true).addObject(config).build();
     if (((args == null) || (args.length == 0))) {
       parser.setProgramName("Base configuration");
       parser.usage();

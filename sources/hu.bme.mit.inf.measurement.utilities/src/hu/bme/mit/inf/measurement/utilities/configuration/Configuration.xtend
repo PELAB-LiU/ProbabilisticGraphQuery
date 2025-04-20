@@ -100,7 +100,7 @@ class BaseConfiguration {
 	static def BaseConfiguration parse(String... args){
 		
 		val config = new BaseConfiguration
-		val parser = JCommander.newBuilder()
+		val parser = JCommander.newBuilder().acceptUnknownOptions(true)
   			.addObject(config)
   			.build()
   		if(args===null || args.length===0){
