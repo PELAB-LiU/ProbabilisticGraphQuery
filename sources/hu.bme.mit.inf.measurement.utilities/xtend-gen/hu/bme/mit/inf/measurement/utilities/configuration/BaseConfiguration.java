@@ -50,6 +50,13 @@ public class BaseConfiguration {
     return this.timeout;
   }
 
+  @Parameter(names = "--skip-trafo", description = "Skip transformation/based approaches. Incremental analysis only.")
+  private boolean notrafo = false;
+
+  public boolean getSkipTrafo() {
+    return this.notrafo;
+  }
+
   @Parameter(names = "--prefix", description = "Prefix in csv.")
   private String prefix = "N/A";
 

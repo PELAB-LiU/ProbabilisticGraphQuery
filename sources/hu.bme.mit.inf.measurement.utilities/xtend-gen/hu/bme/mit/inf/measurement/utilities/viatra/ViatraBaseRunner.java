@@ -122,7 +122,7 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> impleme
             this.batch.acquire();
             this.runBatch(log);
             this.batch.dispose();
-            if (((i).intValue() < 2)) {
+            if ((((i).intValue() < 2) && (!this.cfg.getSkipTrafo()))) {
               this.gc();
               this.runProblog(log);
               this.gc();
@@ -167,10 +167,14 @@ public abstract class ViatraBaseRunner<Config extends BaseConfiguration> impleme
             this.batch.acquire();
             this.runBatch(log);
             this.batch.dispose();
-            this.gc();
-            this.runProblog(log);
-            this.gc();
-            this.runStorm(log);
+            boolean _skipTrafo = this.cfg.getSkipTrafo();
+            boolean _not = (!_skipTrafo);
+            if (_not) {
+              this.gc();
+              this.runProblog(log);
+              this.gc();
+              this.runStorm(log);
+            }
             log.log("iteration", iter);
             log.log("prefix", this.cfg.getPrefix());
             log.log("run", seed);

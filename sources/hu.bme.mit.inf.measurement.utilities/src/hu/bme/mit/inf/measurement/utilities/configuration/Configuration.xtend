@@ -34,6 +34,10 @@ class BaseConfiguration {
 	var long timeout = 60*20;
 	def long getTimeoutS(){timeout}
 	
+	@Parameter(names = "--skip-trafo", description = "Skip transformation/based approaches. Incremental analysis only.")
+	var boolean notrafo = false;
+	def boolean getSkipTrafo(){notrafo}
+	
 	@Parameter(names = "--prefix", description = "Prefix in csv.")
 	var String prefix = "N/A"
 	def String getPrefix(){prefix}

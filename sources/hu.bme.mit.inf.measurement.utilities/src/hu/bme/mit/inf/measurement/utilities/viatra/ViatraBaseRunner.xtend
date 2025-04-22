@@ -100,7 +100,7 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 				 * ProbLog and Storm is not affected by JVM warmup, thus it is safe to skip
 				 * Some runs are included to test if it works
 				 */
-				if(i<2){
+				if(i<2 && !cfg.skipTrafo){
 					gc()
 					runProblog(log)
 					
@@ -142,12 +142,14 @@ abstract class ViatraBaseRunner<Config extends BaseConfiguration> implements Via
 				batch.dispose
 				
 				
+				if(!cfg.skipTrafo){
+					gc()
+					runProblog(log)
+					
+					gc()
+					runStorm(log)
+				}
 				
-				gc()
-				runProblog(log)
-				
-				gc()
-				runStorm(log)
 				
 				log.log("iteration", iter)
 				log.log("prefix", cfg.prefix)

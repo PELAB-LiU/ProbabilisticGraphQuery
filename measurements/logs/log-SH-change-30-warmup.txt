@@ -1,0 +1,3181 @@
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout,storm.total[ms],storm.result,storm.trafo[ms],storm.evaluation[ms],storm.timeout,incremental.healthy,standalone.healthy,storm.healthy,problog.exitcode
+SH,150,0,0,951.4363390000001,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	}
+	]
+}
+",78.957659,253.9604,false,647.199165,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356862
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.10203987283341528
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	}
+	]
+}
+",27.792626,137.062971,false,,,,,,,,,,,true,true,,
+SH,150,0,1,176.852036,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698617
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590448
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	}
+	]
+}
+",10.71308,64.836771,false,374.573197,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992042
+	}
+	]
+}
+",10.691537,111.541394,false,,,,,,,,,,,true,true,,
+SH,150,1,0,517.999619,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	}
+	]
+}
+",12.764887,84.59884600000001,false,442.773571,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.10203987283341528
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125745
+	}
+	]
+}
+",8.844553,121.310696,false,,,,,,,,,,,true,true,,
+SH,150,1,1,182.951413,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	}
+	]
+}
+",7.294577,54.953617,false,301.125478,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234405
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698617
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	}
+	]
+}
+",8.268322,58.140397,false,,,,,,,,,,,true,true,,
+SH,150,2,0,362.88320699999997,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356864
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	}
+	]
+}
+",9.679443,122.811058,false,374.210194,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452178
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356862
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992042
+	}
+	]
+}
+",8.311328999999999,127.705484,false,,,,,,,,,,,true,true,,
+SH,150,2,1,192.703418,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698615
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984581
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117941
+	}
+	]
+}
+",6.134945,95.79061800000001,false,358.593272,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.855207830998458
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	}
+	]
+}
+",8.595833,61.337381,false,,,,,,,,,,,true,true,,
+SH,150,3,0,502.82815600000004,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.10203987283341528
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	}
+	]
+}
+",10.218332,130.29462900000001,false,406.78943300000003,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452178
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	}
+	]
+}
+",7.592041,109.61657000000001,false,,,,,,,,,,,true,true,,
+SH,150,3,1,196.199525,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234407
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698615
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984581
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	}
+	]
+}
+",6.571749,79.681737,false,290.933219,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.855207830998458
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698615
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756947
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756947
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117941
+	}
+	]
+}
+",7.518178,70.857861,false,,,,,,,,,,,true,true,,
+SH,150,4,0,374.591379,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	}
+	]
+}
+",8.41432,101.14386,false,375.43106300000005,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	}
+	]
+}
+",7.434617,85.389674,false,,,,,,,,,,,true,true,,
+SH,150,4,1,187.211865,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.855207830998458
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234404
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992042
+	}
+	]
+}
+",5.284188,78.72196000000001,false,285.89653000000004,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234405
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.855207830998458
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	}
+	]
+}
+",7.393717,66.44696,false,,,,,,,,,,,true,true,,
+SH,150,5,0,321.6955,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	}
+	]
+}
+",8.901888000000001,95.630205,false,371.462718,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356862
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.850332273611794
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.850332273611794
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	}
+	]
+}
+",7.925667000000001,101.981655,false,,,,,,,,,,,true,true,,
+SH,150,5,1,142.318198,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698617
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	}
+	]
+}
+",4.8265,54.85047,false,351.569651,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234405
+	}
+	]
+}
+",6.893322,70.47381200000001,false,,,,,,,,,,,true,true,,
+SH,150,6,0,346.789071,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356862
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992041
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	}
+	]
+}
+",8.95041,110.75756299999999,false,379.243336,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	}
+	]
+}
+",7.633767,136.110081,false,,,,,,,,,,,true,true,,
+SH,150,6,1,162.559038,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698615
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234405
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	}
+	]
+}
+",4.351384,71.642471,false,249.20067600000002,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	}
+	]
+}
+",7.328684,50.014685,false,,,,,,,,,,,true,true,,
+SH,150,7,0,393.166164,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952951
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	}
+	]
+}
+",10.067729,68.162166,false,294.712472,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	}
+	]
+}
+",6.238555,75.56217600000001,false,,,,,,,,,,,true,true,,
+SH,150,7,1,178.944885,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698617
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234405
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590453
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	}
+	]
+}
+",4.652357,62.417190999999995,false,286.790156,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698617
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09458224455590448
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	}
+	]
+}
+",7.466895,64.363769,false,,,,,,,,,,,true,true,,
+SH,150,8,0,368.05231,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452178
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	}
+	]
+}
+",8.084916,63.170627999999994,false,390.930885,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.855207831845218
+	}
+	]
+}
+",6.162152,75.472573,false,,,,,,,,,,,true,true,,
+SH,150,8,1,159.914433,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234405
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125744
+	}
+	]
+}
+",4.4846,50.071911,false,339.163673,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756949
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756949
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950894
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992041
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234407
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.855207830998458
+	}
+	]
+}
+",5.810118,70.694507,false,,,,,,,,,,,true,true,,
+SH,150,9,0,372.83680599999997,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950891
+	},
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.8309871616544269
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09458224455590451
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992044
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125743
+	}
+	]
+}
+",9.812833000000001,78.842897,false,407.873317,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement86"",
+		""probability"" : 0.830987161654427
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.7881853719952953
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.8357518006356863
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement93"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.8552078318452179
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement90"",
+		""probability"" : 0.7883189854125744
+	},
+	{
+		""measurement"" : ""measurement89"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement42"",
+		""probability"" : 0.1020398728334153
+	},
+	{
+		""measurement"" : ""measurement39"",
+		""probability"" : 0.8503322736117941
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement92"",
+		""probability"" : 0.8503322736117941
+	}
+	]
+}
+",6.270862,119.95273399999999,false,,,,,,,,,,,true,true,,
+SH,150,9,1,165.38983199999998,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950894
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.8503322736117942
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.855207831845218
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698616
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984579
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992042
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125743
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125745
+	}
+	]
+}
+",4.3937669999999995,54.736487000000004,false,313.880522,"{
+	""valid"" : true,
+	""matches"" : [
+	{
+		""measurement"" : ""measurement91"",
+		""probability"" : 0.09459827824950892
+	},
+	{
+		""measurement"" : ""measurement140"",
+		""probability"" : 0.0945822445559045
+	},
+	{
+		""measurement"" : ""measurement95"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement145"",
+		""probability"" : 0.7881853727756948
+	},
+	{
+		""measurement"" : ""measurement94"",
+		""probability"" : 0.850332273611794
+	},
+	{
+		""measurement"" : ""measurement139"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement87"",
+		""probability"" : 0.8503322727698617
+	},
+	{
+		""measurement"" : ""measurement142"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement137"",
+		""probability"" : 0.8552078309984581
+	},
+	{
+		""measurement"" : ""measurement88"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement138"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement141"",
+		""probability"" : 0.7883189854125745
+	},
+	{
+		""measurement"" : ""measurement136"",
+		""probability"" : 0.7702541052234406
+	},
+	{
+		""measurement"" : ""measurement143"",
+		""probability"" : 0.7881853712992043
+	},
+	{
+		""measurement"" : ""measurement144"",
+		""probability"" : 0.8552078318452179
+	}
+	]
+}
+",6.043323,65.499036,false,,,,,,,,,,,true,true,,

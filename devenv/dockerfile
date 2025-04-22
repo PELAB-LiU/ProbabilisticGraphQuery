@@ -46,7 +46,6 @@ RUN /opt/eclipse/eclipse -application org.eclipse.equinox.p2.director -repositor
 # Install python packages for diagrams
 RUN pip install --break-system-packages notebook
 RUN pip install --break-system-packages pandas==1.5.3 seaborn==0.12.2 matplotlib==3.7.1 numpy==1.26.4 itables
-RUN pip install --break-system-packages lckr-jupyterlab-variableinspector
 
 # Install storm 
 USER root

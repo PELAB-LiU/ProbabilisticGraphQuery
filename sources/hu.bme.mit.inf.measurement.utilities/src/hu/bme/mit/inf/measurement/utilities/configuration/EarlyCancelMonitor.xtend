@@ -23,14 +23,14 @@ class EarlyCancelMonitor {
 		success++
 	}
 	def boolean test(){
-		LOG4J.debug("Check {} of {} with minimum {}, threshold {} and mode {}", success, count, minimum, threshold, mode)
+		LOG4J.info("Check {} of {} with minimum {}, threshold {} and mode {}", success, count, minimum, threshold, mode)
 		if(count < minimum){
 			return true
 		}
-		if(mode === CancellationThresholdMode.IF_ABOVE){
-			return success > (count * threshold)
-		} else {
-			return success < (count * threshold)
+		val thresholdValue = (1.0 * success) / count
+		switch(mode){
+			case CancellationThresholdMode.IF_ABOVE: return ! (thresholdValue > threshold)
+			case CancellationThresholdMode.IF_BELOW: return ! (thresholdValue < threshold)
 		}
 	}
 	def boolean testAndStrat(){

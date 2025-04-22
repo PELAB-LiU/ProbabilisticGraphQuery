@@ -29,15 +29,23 @@ public class EarlyCancelMonitor {
   }
 
   public boolean test() {
-    EarlyCancelMonitor.LOG4J.debug("Check {} of {} with minimum {}, threshold {} and mode {}", Integer.valueOf(this.success), Integer.valueOf(this.count), Integer.valueOf(this.minimum), Double.valueOf(this.threshold), this.mode);
+    EarlyCancelMonitor.LOG4J.info("Check {} of {} with minimum {}, threshold {} and mode {}", Integer.valueOf(this.success), Integer.valueOf(this.count), Integer.valueOf(this.minimum), Double.valueOf(this.threshold), this.mode);
     if ((this.count < this.minimum)) {
       return true;
     }
-    if ((this.mode == CancellationThresholdMode.IF_ABOVE)) {
-      return (this.success > (this.count * this.threshold));
-    } else {
-      return (this.success < (this.count * this.threshold));
+    final double thresholdValue = ((1.0 * this.success) / this.count);
+    final CancellationThresholdMode mode = this.mode;
+    if (mode != null) {
+      switch (mode) {
+        case IF_ABOVE:
+          return (!(thresholdValue > this.threshold));
+        case IF_BELOW:
+          return (!(thresholdValue < this.threshold));
+        default:
+          break;
+      }
     }
+    return false;
   }
 
   public boolean testAndStrat() {

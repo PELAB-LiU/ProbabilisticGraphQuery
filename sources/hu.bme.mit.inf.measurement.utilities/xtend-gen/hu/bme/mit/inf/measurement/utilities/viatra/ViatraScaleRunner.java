@@ -119,18 +119,18 @@ public abstract class ViatraScaleRunner<Config extends BaseConfiguration> implem
   }
 
   public void measure(final CSVLog log) {
-    int _minimum = this.cfg.getMinimum();
-    double _rate = this.cfg.getRate();
-    final EarlyCancelMonitor viatraMonitor = new EarlyCancelMonitor(_minimum, _rate, CancellationThresholdMode.IF_BELOW);
-    int _minimum_1 = this.cfg.getMinimum();
-    double _rate_1 = this.cfg.getRate();
-    final EarlyCancelMonitor problogMonitor = new EarlyCancelMonitor(_minimum_1, _rate_1, CancellationThresholdMode.IF_BELOW);
-    int _minimum_2 = this.cfg.getMinimum();
-    double _rate_2 = this.cfg.getRate();
-    final EarlyCancelMonitor stormMonitor = new EarlyCancelMonitor(_minimum_2, _rate_2, CancellationThresholdMode.IF_BELOW);
     List<Integer> _seeds = this.cfg.seeds();
     for (final Integer seed : _seeds) {
       {
+        int _minimum = this.cfg.getMinimum();
+        double _rate = this.cfg.getRate();
+        final EarlyCancelMonitor viatraMonitor = new EarlyCancelMonitor(_minimum, _rate, CancellationThresholdMode.IF_BELOW);
+        int _minimum_1 = this.cfg.getMinimum();
+        double _rate_1 = this.cfg.getRate();
+        final EarlyCancelMonitor problogMonitor = new EarlyCancelMonitor(_minimum_1, _rate_1, CancellationThresholdMode.IF_BELOW);
+        int _minimum_2 = this.cfg.getMinimum();
+        double _rate_2 = this.cfg.getRate();
+        final EarlyCancelMonitor stormMonitor = new EarlyCancelMonitor(_minimum_2, _rate_2, CancellationThresholdMode.IF_BELOW);
         int _indexOf = this.cfg.seeds().indexOf(seed);
         int _plus = (_indexOf + 1);
         ViatraScaleRunner.LOG4J.info("[MEASURE {} ({} of {}) ]===============================================================", seed, Integer.valueOf(_plus), Integer.valueOf(this.cfg.seeds().size()));
