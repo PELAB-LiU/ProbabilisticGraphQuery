@@ -108,10 +108,10 @@ abstract class ViatraScaleRunner<Config extends BaseConfiguration> implements Vi
 		}
 	}
 	def void measure(CSVLog log){
+		val viatraMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
+		val problogMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
+		val stormMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
 		for(seed : cfg.seeds){
-			val viatraMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
-			val problogMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
-			val stormMonitor = new EarlyCancelMonitor(cfg.minimum, cfg.rate, IF_BELOW)
 			LOG4J.info("[MEASURE {} ({} of {}) ]===============================================================", seed, cfg.seeds.indexOf(seed)+1, cfg.seeds.size)
 			
 			initViatra()

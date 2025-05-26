@@ -1,11 +1,16 @@
 package hu.bme.mit.inf.measurement.utilities;
 
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.xtend2.lib.StringConcatenation;
 import org.eclipse.xtext.xbase.lib.ArrayExtensions;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.eclipse.xtext.xbase.lib.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,11 +26,42 @@ public class CSVLog {
 
   private final Map<String, Object> current;
 
+  private final AtomicBoolean unsaved;
+
+  private final Thread backup;
+
   public CSVLog(final String[] columns, final String separator) {
     this.columns = columns;
     this.separator = separator;
     this.logs = CollectionLiterals.<Map<String, String>>newLinkedList();
     this.current = CollectionLiterals.<String, Object>newHashMap();
+    final CSVLog host = this;
+    AtomicBoolean _atomicBoolean = new AtomicBoolean(false);
+    this.unsaved = _atomicBoolean;
+    this.backup = new Thread() {
+      @Override
+      public void run() {
+        try {
+          boolean _andSet = host.unsaved.getAndSet(false);
+          if (_andSet) {
+            final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd--HH-mm-ss");
+            StringConcatenation _builder = new StringConcatenation();
+            _builder.append("csvlog-");
+            Date _date = new Date();
+            String _format = format.format(_date);
+            _builder.append(_format);
+            _builder.append("-");
+            int _hashCode = host.hashCode();
+            _builder.append(_hashCode);
+            _builder.append(".backup.txt");
+            final FileWriter writer = new FileWriter(_builder.toString());
+            writer.write(host.toString());
+          }
+        } catch (Throwable _e) {
+          throw Exceptions.sneakyThrow(_e);
+        }
+      }
+    };
   }
 
   public Object log(final String key, final Object object) {
@@ -39,6 +75,7 @@ public class CSVLog {
   }
 
   public void commit() {
+    this.unsaved.set(true);
     final HashMap<String, String> entry = new HashMap<String, String>();
     for (final String key : this.columns) {
       {
@@ -56,6 +93,7 @@ public class CSVLog {
 
   @Override
   public String toString() {
+    this.unsaved.set(false);
     StringConcatenation _builder = new StringConcatenation();
     {
       boolean _hasElements = false;
@@ -87,6 +125,15 @@ public class CSVLog {
       }
     }
     return _builder.toString();
+  }
+
+  @Override
+  public void finalize() {
+    Runtime.getRuntime().removeShutdownHook(this.backup);
+    boolean _get = this.unsaved.get();
+    if (_get) {
+      this.backup.run();
+    }
   }
 
   public String stringify(final String source) {
