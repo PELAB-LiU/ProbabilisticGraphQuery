@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNS_UPPER=50
+RUNS_UPPER=49
 
 PGQ_JAR=pgq.jar
 LOGDIR=logs/

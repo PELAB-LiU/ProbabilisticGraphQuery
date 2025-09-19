@@ -2,6 +2,17 @@ import pandas as pd
 import numpy as np
 import json
 
+# Aspect ration is (Width, Height)
+def oneCol(w=1,h=1, scale=1, pagewidth=False):
+    figwidth = 2.99213 #in, (76mm)
+    if pagewidth:
+        figwidth = 6.29921 #in, (160 mm)
+    figwidth *= scale   
+    #w, h = aspect_ratio
+    figheight = (h/w)*figwidth
+    return (figwidth,figheight)
+    
+
 def load_incremental():
     df = pd.concat([
         pd.read_csv('logs/log-SAT-run-inc.txt'),

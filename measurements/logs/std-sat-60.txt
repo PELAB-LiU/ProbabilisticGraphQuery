@@ -1,0 +1,1930 @@
+
+/**
+ * Imports for stochastic queries
+ */
+import "http://www.eclipse.org/emf/2002/Ecore"
+import "http://www.example.org/tracemodel"
+
+import java reliability.mdd.COLLECT;
+import java reliability.mdd.OR;
+import java reliability.mdd.NOT;
+import java reliability.intreface.D;
+import java hu.bme.mit.delta.mdd.MddHandle; 
+import java reliability.mdd.MddHandleCollection;
+import java reliability.events.Event;
+
+/**
+ * Imports for weight functions
+ */
+import java hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+import java hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+
+/**
+ * Imports from the original model
+ */
+import "http://www.example.org/satellite1"
+
+/**
+ * User defined patterns
+ */
+ pattern onlineWithPayload(sat:Spacecraft,coverage:java ^java.lang.Double)
+{
+	Spacecraft.payload(sat,pld);
+	collectionOf_coverage == COLLECT find payloadAvailable(pld,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	coverage == eval(D.WeightCollection(collectionOf_coverage as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability.P(cnt)], internal_probabilities));
+}
+ pattern coverage(coverage:java ^java.lang.Double)
+{
+	collectionOf_coverage == COLLECT find payloadAvailable(_,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	coverage == eval(D.WeightCollection(collectionOf_coverage as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability.calculate(cnt)], internal_probabilities));
+}
+ pattern payloadAvailable(pld:Payload,event: java Event){
+	find ua_payloadAvailable(pld,_);
+	event == OR find ua_payloadAvailable(pld,#_);
+}
+private pattern ua_payloadAvailable(pld:Payload,event: java Event)
+{
+	Spacecraft.payload(sat,pld);
+	find online(sat,event);
+}
+ pattern ready(comm:CommSubsystem,event: java Event){
+	find ua_ready(comm,_);
+	event == OR find ua_ready(comm,#_);
+}
+private pattern ua_ready(comm:CommSubsystem,event: java Event)
+{
+	GroundStationNetwork.commSubsystem(_,comm);
+	TraceModel.mddTrue(_, event);
+} or 
+{
+	Spacecraft.commSubsystem(sat,comm);
+	find commHW(comm,event0);
+	find online(sat,event1);
+	event==eval(D.AND(event0,event1));
+}
+ pattern online(sat:Spacecraft,event: java Event){
+	find ua_online(sat,_);
+	event == OR find ua_online(sat,#_);
+}
+private pattern ua_online(sat:Spacecraft,event: java Event)
+{
+	Spacecraft.commSubsystem(sat,src);
+	find satHW(sat,event0);
+	find commHW(src,event1);
+	find link(src,trg);
+	find ready(trg,event2);
+	event==eval(D.AND(event0,event1,event2));
+}
+ pattern nolink(comm:CommSubsystem)
+{
+	neg find link(comm,_);
+}
+ pattern link(src:CommSubsystem,trg:CommSubsystem)
+{
+	CommSubsystem.target(src,trg);
+} or 
+{
+	CommSubsystem.fallback(src,trg);
+}
+ pattern clean_satHW(element:Spacecraft)
+{
+	find satHW(element,_);
+	//Stochastic constraint is ignored (always match):
+	//event_idx == NOT find commHW(element,#_);
+	a==count find satHW(_,_);
+}
+ pattern satHW(element:Spacecraft,event: java Event){
+	find ua_satHW(element,_);
+	event == OR find ua_satHW(element,#_);
+}
+private pattern ua_satHW(element:Spacecraft,event: java Event)
+{
+	find use_defC3U(element,_,event);
+} or 
+{
+	find use_defC6U(element,event);
+} or 
+{
+	find use_defSS(element,event);
+}
+ pattern commHW(element:CommSubsystem,event: java Event){
+	find ua_commHW(element,_);
+	event == OR find ua_commHW(element,#_);
+}
+private pattern ua_commHW(element:CommSubsystem,event: java Event)
+{
+	find use_defXComm(element,event);
+} or 
+{
+	find use_defKaComm(element,event);
+} or 
+{
+	find use_defUHFComm(element,event);
+}
+ pattern defC3U(element:CubeSat3U,p:java ^java.lang.Double)
+{
+	CubeSat3U(element);
+	p==0.98400034407713;
+}
+ pattern defC6U(element:CubeSat6U)
+{
+	CubeSat6U(element);
+}
+ pattern defSS(element:SmallSat)
+{
+	SmallSat(element);
+}
+ pattern defXComm(element:XCommSubsystem)
+{
+	XCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern defKaComm(element:KaCommSubsystem)
+{
+	KaCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern defUHFComm(element:UHFCommSubsystem)
+{
+	UHFCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern stochasticCount(cnt:java ^java.lang.Integer)
+{
+	cnt1==count find commHW(_,_);
+	cnt2==count find satHW(_,_);
+	cnt3==count find online(_,_);
+	cnt4==count find ready(_,_);
+	cnt5==count find payloadAvailable(_,_);
+	cnt==eval(cnt1 +
+	 cnt2 +
+	 cnt3 +
+	 cnt4 +
+	 cnt5);
+}
+
+/**
+ * Event require pattern
+ */
+pattern BERequiredName1(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find BERequiredName1_many(arg1,name, index, _);
+	probability == max find BERequiredName1_many(arg1,name, index, #_);
+}
+
+pattern BERequiredName1_many(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find defC3U(arg1,probability);
+	name == "defC3U";
+	index == 1;
+} or 
+{
+	find defC6U(arg1);
+	probability == 0.98496269152523;
+	name == "defC6U";
+	index == 1;
+} or 
+{
+	find defSS(arg1);
+	probability == 0.98581584235241;
+	name == "defSS";
+	index == 1;
+} or 
+{
+	find defXComm(arg1);
+	probability == 0.92596107864232;
+	name == "defXComm";
+	index == 1;
+} or 
+{
+	find defKaComm(arg1);
+	probability == 0.90483741803596;
+	name == "defKaComm";
+	index == 1;
+} or 
+{
+	find defUHFComm(arg1);
+	probability == 0.92004441462932;
+	name == "defUHFComm";
+	index == 1;
+}
+
+private pattern use_defC3U(element:CubeSat3U,p:java ^java.lang.Double, event: java Event){
+	//find defC3U(element,p);
+	find HandleOf1(element,"defC3U",event);
+	find BETrace1(element,"defC3U",1,trace);
+	Trace.probability(trace,p);
+	 
+}
+private pattern use_defC6U(element:CubeSat6U, event: java Event){
+	//find defC6U(element);
+	find HandleOf1(element,"defC6U",event);
+	 
+}
+private pattern use_defSS(element:SmallSat, event: java Event){
+	//find defSS(element);
+	find HandleOf1(element,"defSS",event);
+	 
+}
+private pattern use_defXComm(element:XCommSubsystem, event: java Event){
+	//find defXComm(element);
+	find HandleOf1(element,"defXComm",event);
+	 
+}
+private pattern use_defKaComm(element:KaCommSubsystem, event: java Event){
+	//find defKaComm(element);
+	find HandleOf1(element,"defKaComm",event);
+	 
+}
+private pattern use_defUHFComm(element:UHFCommSubsystem, event: java Event){
+	//find defUHFComm(element);
+	find HandleOf1(element,"defUHFComm",event);
+	 
+}
+
+/**
+ * Interface queries for event management
+ */
+pattern BETrace1(arg1:EObject, name: EString, index: EInt, trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, index);
+}
+
+pattern Insertion1(arg1:EObject, name: java String, from: java Integer, to: java Integer, probability: java Double){
+	find BERequiredName1(arg1, name, to, probability);
+	neg find BETrace1(arg1, name, _, _);
+	from == 0;
+} or {
+	find BERequiredName1(arg1, name, to, probability);
+	find BETrace1(arg1, name, _, _);
+	from == max find BETrace1(arg1, name, #_, _);
+	check(to > from);
+}
+
+pattern Removal1(trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	neg find BERequiredName1(arg1, name, _, _);
+} or {
+	find BERequiredName1(arg1, name, multiplicity, _);
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, idx);
+	check(idx > multiplicity);
+}
+
+pattern Update1(trace: Trace1, probability: java Double){
+	find BERequiredName1(arg1, name, multiplicity, probability);
+	find BETrace1(arg1, name, index, trace);
+	Trace.probability(trace, old);
+	old != probability;
+	check(index <= multiplicity);
+}
+
+pattern HandleOf1(arg1:EObject, name: EString, event: Handle){
+	find BETrace1(arg1, name, _, trace);
+	Trace.event(trace, event);
+}
+
+
+
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - Queries /**
+ * Imports for stochastic queries
+ */
+import "http://www.eclipse.org/emf/2002/Ecore"
+import "http://www.example.org/tracemodel"
+
+import java reliability.mdd.COLLECT;
+import java reliability.mdd.OR;
+import java reliability.mdd.NOT;
+import java reliability.intreface.D;
+import java hu.bme.mit.delta.mdd.MddHandle; 
+import java reliability.mdd.MddHandleCollection;
+import java reliability.events.Event;
+
+/**
+ * Imports for weight functions
+ */
+import java hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+import java hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability
+
+/**
+ * Imports from the original model
+ */
+import "http://www.example.org/satellite1"
+
+/**
+ * User defined patterns
+ */
+ pattern onlineWithPayload(sat:Spacecraft,coverage:java ^java.lang.Double)
+{
+	Spacecraft.payload(sat,pld);
+	collectionOf_coverage == COLLECT find payloadAvailable(pld,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	coverage == eval(D.WeightCollection(collectionOf_coverage as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability.P(cnt)], internal_probabilities));
+}
+ pattern coverage(coverage:java ^java.lang.Double)
+{
+	collectionOf_coverage == COLLECT find payloadAvailable(_,#_);
+	TraceModel.probabilities(_,internal_probabilities);
+	//Cast: to avoid a false error indication in eclipse
+	coverage == eval(D.WeightCollection(collectionOf_coverage as MddHandleCollection, [cnt | hu.bme.mit.inf.dslreasoner.domains.satellite1.performability.Performability.calculate(cnt)], internal_probabilities));
+}
+ pattern payloadAvailable(pld:Payload,event: java Event){
+	find ua_payloadAvailable(pld,_);
+	event == OR find ua_payloadAvailable(pld,#_);
+}
+private pattern ua_payloadAvailable(pld:Payload,event: java Event)
+{
+	Spacecraft.payload(sat,pld);
+	find online(sat,event);
+}
+ pattern ready(comm:CommSubsystem,event: java Event){
+	find ua_ready(comm,_);
+	event == OR find ua_ready(comm,#_);
+}
+private pattern ua_ready(comm:CommSubsystem,event: java Event)
+{
+	GroundStationNetwork.commSubsystem(_,comm);
+	TraceModel.mddTrue(_, event);
+} or 
+{
+	Spacecraft.commSubsystem(sat,comm);
+	find commHW(comm,event0);
+	find online(sat,event1);
+	event==eval(D.AND(event0,event1));
+}
+ pattern online(sat:Spacecraft,event: java Event){
+	find ua_online(sat,_);
+	event == OR find ua_online(sat,#_);
+}
+private pattern ua_online(sat:Spacecraft,event: java Event)
+{
+	Spacecraft.commSubsystem(sat,src);
+	find satHW(sat,event0);
+	find commHW(src,event1);
+	find link(src,trg);
+	find ready(trg,event2);
+	event==eval(D.AND(event0,event1,event2));
+}
+ pattern nolink(comm:CommSubsystem)
+{
+	neg find link(comm,_);
+}
+ pattern link(src:CommSubsystem,trg:CommSubsystem)
+{
+	CommSubsystem.target(src,trg);
+} or 
+{
+	CommSubsystem.fallback(src,trg);
+}
+ pattern clean_satHW(element:Spacecraft)
+{
+	find satHW(element,_);
+	//Stochastic constraint is ignored (always match):
+	//event_idx == NOT find commHW(element,#_);
+	a==count find satHW(_,_);
+}
+ pattern satHW(element:Spacecraft,event: java Event){
+	find ua_satHW(element,_);
+	event == OR find ua_satHW(element,#_);
+}
+private pattern ua_satHW(element:Spacecraft,event: java Event)
+{
+	find use_defC3U(element,_,event);
+} or 
+{
+	find use_defC6U(element,event);
+} or 
+{
+	find use_defSS(element,event);
+}
+ pattern commHW(element:CommSubsystem,event: java Event){
+	find ua_commHW(element,_);
+	event == OR find ua_commHW(element,#_);
+}
+private pattern ua_commHW(element:CommSubsystem,event: java Event)
+{
+	find use_defXComm(element,event);
+} or 
+{
+	find use_defKaComm(element,event);
+} or 
+{
+	find use_defUHFComm(element,event);
+}
+ pattern defC3U(element:CubeSat3U,p:java ^java.lang.Double)
+{
+	CubeSat3U(element);
+	p==0.98400034407713;
+}
+ pattern defC6U(element:CubeSat6U)
+{
+	CubeSat6U(element);
+}
+ pattern defSS(element:SmallSat)
+{
+	SmallSat(element);
+}
+ pattern defXComm(element:XCommSubsystem)
+{
+	XCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern defKaComm(element:KaCommSubsystem)
+{
+	KaCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern defUHFComm(element:UHFCommSubsystem)
+{
+	UHFCommSubsystem(element);
+	Spacecraft.commSubsystem(_,element);
+}
+ pattern stochasticCount(cnt:java ^java.lang.Integer)
+{
+	cnt1==count find commHW(_,_);
+	cnt2==count find satHW(_,_);
+	cnt3==count find online(_,_);
+	cnt4==count find ready(_,_);
+	cnt5==count find payloadAvailable(_,_);
+	cnt==eval(cnt1 +
+	 cnt2 +
+	 cnt3 +
+	 cnt4 +
+	 cnt5);
+}
+
+/**
+ * Event require pattern
+ */
+pattern BERequiredName1(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find BERequiredName1_many(arg1,name, index, _);
+	probability == max find BERequiredName1_many(arg1,name, index, #_);
+}
+
+pattern BERequiredName1_many(arg1:EObject,name: java String, index: java Integer, probability: java Double)
+{
+	find defC3U(arg1,probability);
+	name == "defC3U";
+	index == 1;
+} or 
+{
+	find defC6U(arg1);
+	probability == 0.98496269152523;
+	name == "defC6U";
+	index == 1;
+} or 
+{
+	find defSS(arg1);
+	probability == 0.98581584235241;
+	name == "defSS";
+	index == 1;
+} or 
+{
+	find defXComm(arg1);
+	probability == 0.92596107864232;
+	name == "defXComm";
+	index == 1;
+} or 
+{
+	find defKaComm(arg1);
+	probability == 0.90483741803596;
+	name == "defKaComm";
+	index == 1;
+} or 
+{
+	find defUHFComm(arg1);
+	probability == 0.92004441462932;
+	name == "defUHFComm";
+	index == 1;
+}
+
+private pattern use_defC3U(element:CubeSat3U,p:java ^java.lang.Double, event: java Event){
+	//find defC3U(element,p);
+	find HandleOf1(element,"defC3U",event);
+	find BETrace1(element,"defC3U",1,trace);
+	Trace.probability(trace,p);
+	 
+}
+private pattern use_defC6U(element:CubeSat6U, event: java Event){
+	//find defC6U(element);
+	find HandleOf1(element,"defC6U",event);
+	 
+}
+private pattern use_defSS(element:SmallSat, event: java Event){
+	//find defSS(element);
+	find HandleOf1(element,"defSS",event);
+	 
+}
+private pattern use_defXComm(element:XCommSubsystem, event: java Event){
+	//find defXComm(element);
+	find HandleOf1(element,"defXComm",event);
+	 
+}
+private pattern use_defKaComm(element:KaCommSubsystem, event: java Event){
+	//find defKaComm(element);
+	find HandleOf1(element,"defKaComm",event);
+	 
+}
+private pattern use_defUHFComm(element:UHFCommSubsystem, event: java Event){
+	//find defUHFComm(element);
+	find HandleOf1(element,"defUHFComm",event);
+	 
+}
+
+/**
+ * Interface queries for event management
+ */
+pattern BETrace1(arg1:EObject, name: EString, index: EInt, trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, index);
+}
+
+pattern Insertion1(arg1:EObject, name: java String, from: java Integer, to: java Integer, probability: java Double){
+	find BERequiredName1(arg1, name, to, probability);
+	neg find BETrace1(arg1, name, _, _);
+	from == 0;
+} or {
+	find BERequiredName1(arg1, name, to, probability);
+	find BETrace1(arg1, name, _, _);
+	from == max find BETrace1(arg1, name, #_, _);
+	check(to > from);
+}
+
+pattern Removal1(trace: Trace1){
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	neg find BERequiredName1(arg1, name, _, _);
+} or {
+	find BERequiredName1(arg1, name, multiplicity, _);
+	Trace1.arg1(trace, arg1);
+	Trace.generator(trace, name);
+	Trace.index(trace, idx);
+	check(idx > multiplicity);
+}
+
+pattern Update1(trace: Trace1, probability: java Double){
+	find BERequiredName1(arg1, name, multiplicity, probability);
+	find BETrace1(arg1, name, index, trace);
+	Trace.probability(trace, old);
+	old != probability;
+	check(index <= multiplicity);
+}
+
+pattern HandleOf1(arg1:EObject, name: EString, event: Handle){
+	find BETrace1(arg1, name, _, trace);
+	Trace.event(trace, event);
+}
+
+
+
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 0 (1 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1065.061334ms with result 0.16234361304388722
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 33218.832734999996ms with result 0.162343613043888 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 9749.887356000001ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 1 (2 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 6367.935261ms with result 0.19317976346354926
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 174618.447001ms with result 0.193179763463549 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 9313.626835000001ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 2 (3 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1910.429142ms with result 0.18773916024391765
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 3 (4 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 250.784187ms with result 0.09742479159998696
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 4 (5 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2043.74644ms with result 0.19251555146401245
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 5 (6 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1235.508596ms with result 0.09760157989307638
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 6 (7 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 53
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 255.069479ms with result 0.05436563953679393
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 7 (8 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 45
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 14555.480655ms with result 0.2406697623163948
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 8 (9 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1643.841808ms with result 0.1230583147395559
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 9 (10 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 437.71968699999996ms with result 0.11968279410262479
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [WARMUP 10 (11 of 11) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 675.3409300000001ms with result 0.14700287646316917
+Finally block executed.
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.trafo[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.evaluation[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. storm.healthy
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. problog.exitcode
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout,storm.total[ms],storm.result,storm.trafo[ms],storm.evaluation[ms],storm.timeout,incremental.healthy,standalone.healthy,storm.healthy,problog.exitcode
+SAT,60,0,0,1065.061334,0.16234361304388722,36.766152999999996,874.754414,false,,,,,,33218.832734999996,0.162343613043888,6.221584,33212.611151,false,9749.887356000001,0.16234361304388856,61.558424,9688.328932,false,true,,true,0
+SAT,60,1,0,6367.935261,0.19317976346354926,24.583361,6225.829411999999,false,,,,,,174618.447001,0.193179763463549,2.083712,174616.363289,false,9313.626835000001,0.19317976346354673,53.793365,9259.833470000001,false,true,,true,0
+SAT,60,2,0,1910.429142,0.18773916024391765,27.087946,1754.532978,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,3,0,250.784187,0.09742479159998696,4.44361,202.33464,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,4,0,2043.74644,0.19251555146401245,6.4166229999999995,1978.100244,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,5,0,1235.508596,0.09760157989307638,4.5501819999999995,1196.8908999999999,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,6,0,255.069479,0.05436563953679393,4.633183,212.572117,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,7,0,14555.480655,0.2406697623163948,3.4622100000000002,14520.975064999999,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,8,0,1643.841808,0.1230583147395559,3.7189810000000003,1598.881001,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,9,0,437.71968699999996,0.11968279410262479,3.9152750000000003,405.79325900000003,false,,,,,,,,,,,,,,,,true,,,
+SAT,60,10,0,675.3409300000001,0.14700287646316917,3.972141,641.660024,false,,,,,,,,,,,,,,,,true,,,
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 0 (1 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2478.300044ms with result 0.16234361304388717
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 33754.244974ms with result 0.162343613043888 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5649.748898ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 1 (2 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 7330.494517ms with result 0.19317976346354926
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 173635.12049ms with result 0.193179763463549 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5830.644182ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 2 (3 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 855.186553ms with result 0.18773916024391768
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 176834.949712ms with result 0.187739160243917 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6462.055582ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 3 (4 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 452.93032400000004ms with result 0.09742479159998697
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1872.297655ms with result 0.097424791599988 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3915.5368710000002ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 4 (5 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2417.6736889999997ms with result 0.19251555146401242
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 173485.29068200002ms with result 0.192515551464013 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6557.324567000001ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 5 (6 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1099.042989ms with result 0.09760157989307641
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 2037.496218ms with result 0.097601579893076 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4152.760826ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 6 (7 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 53
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 305.142088ms with result 0.054365639536793915
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 667.308968ms with result 0.054365639536793 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3245.7474270000002ms with result #7 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 7 (8 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 45
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 20781.767468ms with result 0.24066976231639484
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1200108.734007ms with result 0 (timeout: true)
+[main] WARN problog.ProblogSatelliteUtil - Exit code 137 with model: :- use_module(library(aggregate)).
+
+0.98496269152523::operational(189308836).
+payload(189308836) :- online(189308836).
+0.92596107864232::operational(1136795254).
+subsystem(189308836,1136795254).
+link(1136795254,516440151).
+link(1136795254,516440151).
+0.98496269152523::operational(2097190187).
+0.92596107864232::operational(846893200).
+subsystem(2097190187,846893200).
+link(846893200,516440151).
+link(846893200,516440151).
+0.98400034407713::operational(1637357831).
+payload(1637357831) :- online(1637357831).
+0.92596107864232::operational(1963400465).
+subsystem(1637357831,1963400465).
+link(1963400465,516440151).
+link(1963400465,1136795254).
+0.98496269152523::operational(1783601229).
+payload(1783601229) :- online(1783601229).
+0.92596107864232::operational(1270801442).
+subsystem(1783601229,1270801442).
+link(1270801442,846893200).
+link(1270801442,516440151).
+0.98400034407713::operational(835073418).
+payload(835073418) :- online(835073418).
+0.92596107864232::operational(660426255).
+subsystem(835073418,660426255).
+link(660426255,846893200).
+link(660426255,516440151).
+0.98581584235241::operational(2042498963).
+payload(2042498963) :- online(2042498963).
+0.90483741803596::operational(2043940683).
+subsystem(2042498963,2043940683).
+link(2043940683,1611995881).
+link(2043940683,1611995881).
+0.92004441462932::operational(875830088).
+subsystem(2042498963,875830088).
+0.98400034407713::operational(1466045836).
+payload(1466045836) :- online(1466045836).
+0.92596107864232::operational(236320380).
+subsystem(1466045836,236320380).
+link(236320380,660426255).
+link(236320380,1963400465).
+0.98400034407713::operational(243798430).
+payload(243798430) :- online(243798430).
+0.92596107864232::operational(1233234870).
+subsystem(243798430,1233234870).
+link(1233234870,1136795254).
+link(1233234870,1963400465).
+0.92004441462932::operational(1753613036).
+subsystem(243798430,1753613036).
+0.98400034407713::operational(1180056327).
+payload(1180056327) :- online(1180056327).
+0.92596107864232::operational(38728800).
+subsystem(1180056327,38728800).
+link(38728800,516440151).
+link(38728800,236320380).
+0.92004441462932::operational(1518802855).
+subsystem(1180056327,1518802855).
+0.98496269152523::operational(1140287262).
+payload(1140287262) :- online(1140287262).
+0.92004441462932::operational(921659124).
+subsystem(1140287262,921659124).
+link(921659124,1753613036).
+link(921659124,1518802855).
+0.98400034407713::operational(396243224).
+payload(396243224) :- online(396243224).
+0.92004441462932::operational(1864989538).
+subsystem(396243224,1864989538).
+link(1864989538,1753613036).
+link(1864989538,921659124).
+0.98400034407713::operational(1296665406).
+payload(1296665406) :- online(1296665406).
+0.92596107864232::operational(725185918).
+subsystem(1296665406,725185918).
+link(725185918,516440151).
+link(725185918,1270801442).
+0.98400034407713::operational(1314345368).
+payload(1314345368) :- online(1314345368).
+0.92596107864232::operational(1338389271).
+subsystem(1314345368,1338389271).
+link(1338389271,846893200).
+link(1338389271,1270801442).
+0.92596107864232::operational(791952660).
+subsystem(1314345368,791952660).
+0.98581584235241::operational(734832494).
+payload(734832494) :- online(734832494).
+0.92004441462932::operational(1433171851).
+subsystem(734832494,1433171851).
+link(1433171851,1864989538).
+link(1433171851,875830088).
+0.98581584235241::operational(455691885).
+0.92596107864232::operational(1435528625).
+subsystem(455691885,1435528625).
+link(1435528625,516440151).
+link(1435528625,1136795254).
+0.98496269152523::operational(1677105319).
+0.92596107864232::operational(1225198370).
+subsystem(1677105319,1225198370).
+link(1225198370,725185918).
+link(1225198370,791952660).
+0.92004441462932::operational(403467849).
+subsystem(1677105319,403467849).
+0.98496269152523::operational(1311204636).
+payload(1311204636) :- online(1311204636).
+0.92596107864232::operational(423886815).
+subsystem(1311204636,423886815).
+link(423886815,1233234870).
+link(423886815,516440151).
+0.92004441462932::operational(1760344526).
+subsystem(1311204636,1760344526).
+0.98496269152523::operational(1712550984).
+payload(1712550984) :- online(1712550984).
+0.92596107864232::operational(1621672530).
+subsystem(1712550984,1621672530).
+link(1621672530,1136795254).
+link(1621672530,423886815).
+0.92004441462932::operational(1829184832).
+subsystem(1712550984,1829184832).
+0.98496269152523::operational(1285241606).
+payload(1285241606) :- online(1285241606).
+0.92596107864232::operational(1778899605).
+subsystem(1285241606,1778899605).
+link(1778899605,791952660).
+link(1778899605,236320380).
+
+ready(1611995881).
+ready(516440151).
+
+utility(2,0.016666666666666666).
+utility(3,0.016683601754475096).
+utility(4,0.017643229166666666).
+utility(5,0.022713284266666665).
+utility(6,0.0340081965824993).
+utility(7,0.05123827970027445).
+utility(8,0.07298018137613932).
+utility(9,0.09767977688907874).
+utility(10,0.12404084906666672).
+utility(11,0.15109729941597852).
+utility(12,0.17817224955651245).
+utility(13,0.20481194704163214).
+utility(14,0.2307249822679746).
+utility(15,0.25573438272176674).
+utility(16,0.27974224283049504).
+
+online(Sat) :- subsystem(Sat,Comm),link(Comm,Other),operational(Sat),operational(Comm),ready(Other).
+ready(Comm) :- subsystem(Sat,Comm),operational(Comm),online(Sat).
+
+member(X,[X|R]).
+member(X,[H|R]) :- X\=H,member(X,R).
+
+unique([],0).
+unique([X|R],S) :- member(X,R),unique(R,S).
+unique([X|R],S) :- \+ member(X,R),unique(R,S1),S is S1 + 1.
+
+%available(Size) :- findall(Sat,payload(Sat),Payloads),unique(Payloads,Size),Size >= 2.
+available(length<P>) :- payload(P).
+coverage(Size,Reward) :- subquery(available(Size),Prob),utility(Size,Utility),Reward is Prob * Utility.
+expected(sum<Reward>) :- coverage(_,Reward).
+
+query(expected(S)).
+
+
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 7251.126488999998ms with result #15 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 8 (9 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 783.3845799999999ms with result 0.12305831473955588
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3869.584111ms with result 0.123058314739554 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4695.87498ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 9 (10 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 526.4973229999999ms with result 0.11968279410262475
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3733.2635950000004ms with result 0.119682794102626 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3906.4406910000002ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 10 (11 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1749.048636ms with result 0.14700287646316915
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 9060.391469ms with result 0.14700287646317 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4912.968315ms with result #11 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 11 (12 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1133.806889ms with result 0.14318830086026113
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 8961.653261ms with result 0.14318830086026 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5296.648796999999ms with result #11 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 12 (13 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 255.104602ms with result 0.09612175840677117
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1858.5492450000002ms with result 0.096121758406772 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3418.32049ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 13 (14 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 649.3102630000001ms with result 0.16589027788557223
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 34758.917279ms with result 0.165890277885572 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5313.183617000001ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 14 (15 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1742.79526ms with result 0.12058446276651813
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3748.688353ms with result 0.120584462766518 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5248.117188ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 15 (16 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2349.0224730000004ms with result 0.19177112360123855
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 177719.953797ms with result 0.191771123601237 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6430.935807ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 16 (17 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 773.708922ms with result 0.09728965767528253
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1849.6571159999999ms with result 0.097289657675282 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3832.5502769999994ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 17 (18 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 4164.863866ms with result 0.19374162328910882
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 175105.44994ms with result 0.193741623289108 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6347.4417ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 18 (19 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 7882.020621000001ms with result 0.21612488609186586
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1033590.167071ms with result 0.216124886091867 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 11848.667795000001ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 19 (20 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 53
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 175.407218ms with result 0.09552830800114165
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1883.244037ms with result 0.095528308001141 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3302.6704000000004ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 20 (21 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2115.0367969999998ms with result 0.14268831484141947
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 8979.501821ms with result 0.142688314841419 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5792.598583ms with result #11 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 21 (22 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 882.4690720000001ms with result 0.11944359748891999
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3893.228345ms with result 0.119443597488921 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4502.745260999999ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 22 (23 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2299.956601ms with result 0.12087152481539169
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3771.500805ms with result 0.120871524815391 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3880.467516ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 23 (24 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1234.102903ms with result 0.12113467951441755
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3710.633566ms with result 0.121134679514418 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4923.365384ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 24 (25 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2452.735639ms with result 0.16249614695737724
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 32895.830568ms with result 0.162496146957379 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5700.08282ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 25 (26 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 51
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 186.262582ms with result 0.07462376111230035
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1057.544089ms with result 0.0746237611123 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3555.3256349999997ms with result #8 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 26 (27 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 52
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2001.243146ms with result 0.09640921602564227
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1990.744133ms with result 0.096409216025642 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4216.168812ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 27 (28 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 505.298716ms with result 0.1434284114699929
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 8931.910795ms with result 0.143428411469992 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3205.3982ms with result #11 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 28 (29 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 6748.884873ms with result 0.18942981828177524
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 173563.73642899998ms with result 0.189429818281777 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6204.921633999999ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 29 (30 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 47
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 7841.577904ms with result 0.2096031525503279
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1026072.558905ms with result 0.209603152550328 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 10267.666198ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 30 (31 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2325.753799ms with result 0.11635453898114606
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3707.20224ms with result 0.116354538981146 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4422.176934ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 31 (32 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 47
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 445.71351699999997ms with result 0.16132347921804022
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 33259.437914ms with result 0.16132347921804 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5854.524087ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 32 (33 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1894.1783030000001ms with result 0.16948517660341805
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 32967.122469ms with result 0.169485176603419 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5722.640651ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 33 (34 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 52
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 279.318391ms with result 0.09698189383500672
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1918.9125390000002ms with result 0.096981893835005 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4007.6555329999997ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 34 (35 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1778.182195ms with result 0.19250236416700917
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 174321.477572ms with result 0.192502364167007 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6380.4790649999995ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 35 (36 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 858.9460300000001ms with result 0.1212247625383487
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3860.369259ms with result 0.121224762538349 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3999.1857760000007ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 36 (37 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 52
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 774.320495ms with result 0.09685799580746103
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1904.6027760000002ms with result 0.096857995807461 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 3056.2942679999996ms with result #9 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 37 (38 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 47
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 3769.0520610000003ms with result 0.23684441976291232
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1200060.545241ms with result 0 (timeout: true)
+[main] WARN problog.ProblogSatelliteUtil - Exit code 137 with model: :- use_module(library(aggregate)).
+
+0.98581584235241::operational(1108857910).
+payload(1108857910) :- online(1108857910).
+0.90483741803596::operational(1730037136).
+subsystem(1108857910,1730037136).
+link(1730037136,809680337).
+link(1730037136,809680337).
+0.90483741803596::operational(870299085).
+subsystem(1108857910,870299085).
+0.98581584235241::operational(1830698829).
+payload(1830698829) :- online(1830698829).
+0.92596107864232::operational(2017056187).
+subsystem(1830698829,2017056187).
+link(2017056187,277239270).
+link(2017056187,277239270).
+0.92004441462932::operational(906389164).
+subsystem(1830698829,906389164).
+0.98581584235241::operational(476424471).
+payload(476424471) :- online(476424471).
+0.92596107864232::operational(717697837).
+subsystem(476424471,717697837).
+link(717697837,277239270).
+link(717697837,2017056187).
+0.98496269152523::operational(1205121477).
+0.92596107864232::operational(1992852793).
+subsystem(1205121477,1992852793).
+link(1992852793,717697837).
+link(1992852793,2017056187).
+0.98496269152523::operational(1703251606).
+payload(1703251606) :- online(1703251606).
+0.92596107864232::operational(1120736770).
+subsystem(1703251606,1120736770).
+link(1120736770,277239270).
+link(1120736770,2017056187).
+0.98581584235241::operational(312894845).
+payload(312894845) :- online(312894845).
+0.90483741803596::operational(1528739969).
+subsystem(312894845,1528739969).
+link(1528739969,809680337).
+link(1528739969,870299085).
+0.98400034407713::operational(2145041965).
+payload(2145041965) :- online(2145041965).
+0.92596107864232::operational(1593221414).
+subsystem(2145041965,1593221414).
+link(1593221414,2017056187).
+link(1593221414,717697837).
+0.98581584235241::operational(1328785607).
+0.92596107864232::operational(1697795290).
+subsystem(1328785607,1697795290).
+link(1697795290,2017056187).
+link(1697795290,717697837).
+0.98581584235241::operational(237387467).
+payload(237387467) :- online(237387467).
+0.92596107864232::operational(1749332814).
+subsystem(237387467,1749332814).
+link(1749332814,1593221414).
+link(1749332814,1697795290).
+0.92004441462932::operational(979589905).
+subsystem(237387467,979589905).
+0.98400034407713::operational(1924082462).
+payload(1924082462) :- online(1924082462).
+0.92004441462932::operational(1060911302).
+subsystem(1924082462,1060911302).
+link(1060911302,906389164).
+link(1060911302,979589905).
+0.98581584235241::operational(1443821632).
+payload(1443821632) :- online(1443821632).
+0.90483741803596::operational(1576197700).
+subsystem(1443821632,1576197700).
+link(1576197700,870299085).
+link(1576197700,1730037136).
+0.92004441462932::operational(64366388).
+subsystem(1443821632,64366388).
+0.98400034407713::operational(117850247).
+payload(117850247) :- online(117850247).
+0.92596107864232::operational(1288548061).
+subsystem(117850247,1288548061).
+link(1288548061,1749332814).
+link(1288548061,277239270).
+0.98581584235241::operational(50420903).
+payload(50420903) :- online(50420903).
+0.90483741803596::operational(917911096).
+subsystem(50420903,917911096).
+link(917911096,809680337).
+link(917911096,1576197700).
+0.90483741803596::operational(388812149).
+subsystem(50420903,388812149).
+0.98581584235241::operational(1725319716).
+payload(1725319716) :- online(1725319716).
+0.92596107864232::operational(1633072944).
+subsystem(1725319716,1633072944).
+link(1633072944,277239270).
+link(1633072944,1120736770).
+0.92004441462932::operational(274761994).
+subsystem(1725319716,274761994).
+0.98496269152523::operational(1963013669).
+payload(1963013669) :- online(1963013669).
+0.92596107864232::operational(565895298).
+subsystem(1963013669,565895298).
+link(565895298,1120736770).
+link(565895298,1992852793).
+0.92596107864232::operational(889591142).
+subsystem(1963013669,889591142).
+0.98400034407713::operational(2127909432).
+payload(2127909432) :- online(2127909432).
+0.92596107864232::operational(144507792).
+subsystem(2127909432,144507792).
+link(144507792,1749332814).
+link(144507792,889591142).
+0.98400034407713::operational(1082330330).
+payload(1082330330) :- online(1082330330).
+0.92004441462932::operational(345227872).
+subsystem(1082330330,345227872).
+link(345227872,1060911302).
+link(345227872,906389164).
+0.98581584235241::operational(1429255477).
+0.90483741803596::operational(218990229).
+subsystem(1429255477,218990229).
+link(218990229,388812149).
+link(218990229,1528739969).
+0.90483741803596::operational(126342550).
+subsystem(1429255477,126342550).
+0.98581584235241::operational(1694530141).
+payload(1694530141) :- online(1694530141).
+0.92596107864232::operational(894038741).
+subsystem(1694530141,894038741).
+link(894038741,889591142).
+link(894038741,1749332814).
+0.90483741803596::operational(1418851271).
+subsystem(1694530141,1418851271).
+
+ready(809680337).
+ready(277239270).
+
+utility(2,0.016666666666666666).
+utility(3,0.016683601754475096).
+utility(4,0.017643229166666666).
+utility(5,0.022713284266666665).
+utility(6,0.0340081965824993).
+utility(7,0.05123827970027445).
+utility(8,0.07298018137613932).
+utility(9,0.09767977688907874).
+utility(10,0.12404084906666672).
+utility(11,0.15109729941597852).
+utility(12,0.17817224955651245).
+utility(13,0.20481194704163214).
+utility(14,0.2307249822679746).
+utility(15,0.25573438272176674).
+utility(16,0.27974224283049504).
+
+online(Sat) :- subsystem(Sat,Comm),link(Comm,Other),operational(Sat),operational(Comm),ready(Other).
+ready(Comm) :- subsystem(Sat,Comm),operational(Comm),online(Sat).
+
+member(X,[X|R]).
+member(X,[H|R]) :- X\=H,member(X,R).
+
+unique([],0).
+unique([X|R],S) :- member(X,R),unique(R,S).
+unique([X|R],S) :- \+ member(X,R),unique(R,S1),S is S1 + 1.
+
+%available(Size) :- findall(Sat,payload(Sat),Payloads),unique(Payloads,Size),Size >= 2.
+available(length<P>) :- payload(P).
+coverage(Size,Reward) :- subquery(available(Size),Prob),utility(Size,Utility),Reward is Prob * Utility.
+expected(sum<Reward>) :- coverage(_,Reward).
+
+query(expected(S)).
+
+
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 7528.678168999999ms with result #15 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 38 (39 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 48
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 8648.716096ms with result 0.21292689020147526
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1019356.980188ms with result 0.212926890201476 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 7762.655331000001ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 39 (40 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 47
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 2729.082389ms with result 0.20572967369376283
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1007290.083186ms with result 0.205729673693763 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 7695.75777ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 40 (41 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1773.610876ms with result 0.17305677675478082
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 173589.03774200001ms with result 0.173056776754782 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6560.823590999999ms with result #13 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 41 (42 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 45
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 3808.6720729999997ms with result 0.2159075127506541
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1014794.110354ms with result 0.215907512750653 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 8026.900432ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 42 (43 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 52
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1955.999278ms with result 0.11717857650726454
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3718.100508ms with result 0.117178576507266 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5456.000054ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 43 (44 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1496.2678999999998ms with result 0.11674217436374068
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3877.2897820000003ms with result 0.116742174363742 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4372.518663ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 44 (45 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 46
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 6636.198963999999ms with result 0.21310707816202884
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1015953.092794ms with result 0.213107078162029 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5945.706383000001ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 45 (46 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1050.224258ms with result 0.14565508615456235
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 9127.173932ms with result 0.145655086154563 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4977.025976ms with result #11 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 46 (47 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 47
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 4731.473558000001ms with result 0.21118161662274837
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 1018639.2369939999ms with result 0.211181616622747 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 6885.224922000001ms with result #14 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 47 (48 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 52
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 1246.467269ms with result 0.11839222812043344
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 3763.78238ms with result 0.118392228120433 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 4122.6910419999995ms with result #10 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 48 (49 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 49
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 3301.717078ms with result 0.16971120422122787
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 33310.981491ms with result 0.169711204221227 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 7184.866324999999ms with result #12 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+[main] INFO hu.bme.mit.inf.measurement.utilities.viatra.ViatraScaleRunner - [MEASURE 49 (50 of 50) ]===============================================================
+[main] INFO reliability.mdd.MddModel - Removed 0
+[main] INFO reliability.mdd.MddModel - Updated 0
+[main] INFO reliability.mdd.MddModel - Insertions 50
+[main] INFO hu.bme.mit.inf.dslreasoner.domains.satellite1.SatelliteScaleRunners - Viatra completed in 5275.198082000001ms with result 0.13552876103481196
+Finally block executed.
+[main] INFO problog.ProblogSatelliteUtil - ProbLog completed in 8953.421573000001ms with result 0.135528761034812 (timeout: false)
+[main] INFO se.liu.ida.sas.pelab.satellite1.storm.StormSatelliteUtil - Storm completed in 5896.904621000001ms with result #11 (timeout: false, healthy: true)
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.total[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.result
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.sync[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.prop[ms]
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.timeout
+[main] WARN hu.bme.mit.inf.measurement.utilities.CSVLog - Missing entry for key. standalone.healthy
+prefix,size,run,iteration,incremental.total[ms],incremental.result,incremental.sync[ms],incremental.prop[ms],incremental.timeout,standalone.total[ms],standalone.result,standalone.sync[ms],standalone.prop[ms],standalone.timeout,problog.total[ms],problog.result,problog.trafo[ms],problog.evaluation[ms],problog.timeout,storm.total[ms],storm.result,storm.trafo[ms],storm.evaluation[ms],storm.timeout,incremental.healthy,standalone.healthy,storm.healthy,problog.exitcode
+SAT,60,0,0,2478.300044,0.16234361304388717,3.521364,2443.924,false,,,,,,33754.244974,0.162343613043888,2.3384319999999996,33751.906542000004,false,5649.748898,0.16234361304388856,40.424468999999995,5609.324429,false,true,,true,0
+SAT,60,1,0,7330.494517,0.19317976346354926,3.204987,7295.876959,false,,,,,,173635.12049,0.193179763463549,1.920633,173633.199857,false,5830.644182,0.19317976346354673,41.03564999999999,5789.608532,false,true,,true,0
+SAT,60,2,0,855.186553,0.18773916024391768,3.581507,817.687323,false,,,,,,176834.949712,0.187739160243917,1.531021,176833.41869100003,false,6462.055582,0.18773916024391396,43.199112,6418.85647,false,true,,true,0
+SAT,60,3,0,452.93032400000004,0.09742479159998697,3.4544119999999996,423.46920400000005,false,,,,,,1872.297655,0.097424791599988,1.68046,1870.617195,false,3915.5368710000002,0.0974247915999854,30.340298000000008,3885.196573,false,true,,true,0
+SAT,60,4,0,2417.6736889999997,0.19251555146401242,3.4646999999999997,2383.782123,false,,,,,,173485.29068200002,0.192515551464013,1.7407059999999999,173483.549976,false,6557.324567000001,0.19251555146400934,44.765677,6512.55889,false,true,,true,0
+SAT,60,5,0,1099.042989,0.09760157989307641,3.684622,1068.237848,false,,,,,,2037.496218,0.097601579893076,1.378308,2036.11791,false,4152.760826,0.09760157989307651,31.769274,4120.9915519999995,false,true,,true,0
+SAT,60,6,0,305.142088,0.054365639536793915,3.0285219999999997,267.320996,false,,,,,,667.308968,0.054365639536793,1.363925,665.9450429999999,false,3245.7474270000002,0.054365639536791605,24.539237000000004,3221.2081900000003,false,true,,true,0
+SAT,60,7,0,20781.767468,0.24066976231639484,2.963954,20749.335853999997,false,,,,,,1200108.734007,0,1.567431,1200107.166576,true,7251.126488999998,0.24066976231639267,50.452634999999994,7200.673853999999,false,true,,true,137
+SAT,60,8,0,783.3845799999999,0.12305831473955588,3.26623,747.673769,false,,,,,,3869.584111,0.123058314739554,1.446966,3868.137145,false,4695.87498,0.12305831473955593,34.259886,4661.615094,false,true,,true,0
+SAT,60,9,0,526.4973229999999,0.11968279410262475,2.938663,500.896622,false,,,,,,3733.2635950000004,0.119682794102626,1.404894,3731.858701,false,3906.4406910000002,0.11968279410262443,32.069135,3874.371556,false,true,,true,0
+SAT,60,10,0,1749.048636,0.14700287646316915,3.1293800000000003,1721.229584,false,,,,,,9060.391469,0.14700287646317,1.475455,9058.916014,false,4912.968315,0.14700287646317237,34.690637,4878.277678,false,true,,true,0
+SAT,60,11,0,1133.806889,0.14318830086026113,3.7806390000000003,1102.1797,false,,,,,,8961.653261,0.14318830086026,1.439233,8960.214028,false,5296.648796999999,0.14318830086026182,36.044986,5260.603810999999,false,true,,true,0
+SAT,60,12,0,255.104602,0.09612175840677117,3.050413,223.495079,false,,,,,,1858.5492450000002,0.096121758406772,1.544874,1857.004371,false,3418.32049,0.09612175840677231,27.857630000000004,3390.46286,false,true,,true,0
+SAT,60,13,0,649.3102630000001,0.16589027788557223,2.697482,620.4994340000001,false,,,,,,34758.917279,0.165890277885572,1.442077,34757.475202,false,5313.183617000001,0.16589027788557364,38.71563,5274.467987000001,false,true,,true,0
+SAT,60,14,0,1742.79526,0.12058446276651813,2.9279,1705.68715,false,,,,,,3748.688353,0.120584462766518,1.585732,3747.102621,false,5248.117188,0.1205844627665189,33.505812999999996,5214.611375,false,true,,true,0
+SAT,60,15,0,2349.0224730000004,0.19177112360123855,2.884055,2320.5813369999996,false,,,,,,177719.953797,0.191771123601237,1.454606,177718.499191,false,6430.935807,0.19177112360124254,42.70688700000001,6388.22892,false,true,,true,0
+SAT,60,16,0,773.708922,0.09728965767528253,2.711534,744.523105,false,,,,,,1849.6571159999999,0.097289657675282,1.358457,1848.298659,false,3832.5502769999994,0.09728965767528158,29.764204999999997,3802.7860719999994,false,true,,true,0
+SAT,60,17,0,4164.863866,0.19374162328910882,2.943866,4134.3085040000005,false,,,,,,175105.44994,0.193741623289108,1.353655,175104.096285,false,6347.4417,0.19374162328910696,39.358444000000006,6308.083256,false,true,,true,0
+SAT,60,18,0,7882.020621000001,0.21612488609186586,2.468647,7853.539134,false,,,,,,1033590.167071,0.216124886091867,1.292541,1033588.8745299999,false,11848.667795000001,0.21612488609186328,54.33960700000001,11794.328188000001,false,true,,true,0
+SAT,60,19,0,175.407218,0.09552830800114165,3.9058,150.16886300000002,false,,,,,,1883.244037,0.095528308001141,1.38458,1881.859457,false,3302.6704000000004,0.09552830800114159,30.116357999999995,3272.554042,false,true,,true,0
+SAT,60,20,0,2115.0367969999998,0.14268831484141947,3.109856,2090.288035,false,,,,,,8979.501821,0.142688314841419,3.197956,8976.303865,false,5792.598583,0.14268831484141892,41.320076,5751.278507,false,true,,true,0
+SAT,60,21,0,882.4690720000001,0.11944359748891999,18.583804,784.411278,false,,,,,,3893.228345,0.119443597488921,3.24795,3889.980395,false,4502.745260999999,0.11944359748891985,33.998697,4468.746563999999,false,true,,true,0
+SAT,60,22,0,2299.956601,0.12087152481539169,27.974066,2173.897847,false,,,,,,3771.500805,0.120871524815391,4.4459409999999995,3767.054864,false,3880.467516,0.12087152481539294,35.291282,3845.176234,false,true,,true,0
+SAT,60,23,0,1234.102903,0.12113467951441755,14.87589,1119.0975740000001,false,,,,,,3710.633566,0.121134679514418,1.852632,3708.780934,false,4923.365384,0.121134679514416,35.914528,4887.4508559999995,false,true,,true,0
+SAT,60,24,0,2452.735639,0.16249614695737724,14.372164000000001,2355.4788369999997,false,,,,,,32895.830568,0.162496146957379,1.620903,32894.209665,false,5700.08282,0.16249614695737824,38.341096,5661.7417239999995,false,true,,true,0
+SAT,60,25,0,186.262582,0.07462376111230035,4.382823999999999,138.613043,false,,,,,,1057.544089,0.0746237611123,1.664913,1055.879176,false,3555.3256349999997,0.07462376111230185,26.785752,3528.539883,false,true,,true,0
+SAT,60,26,0,2001.243146,0.09640921602564227,4.133033999999999,1967.176874,false,,,,,,1990.744133,0.096409216025642,1.333355,1989.410778,false,4216.168812,0.09640921602564101,28.627901000000005,4187.540911,false,true,,true,0
+SAT,60,27,0,505.298716,0.1434284114699929,2.974052,479.049822,false,,,,,,8931.910795,0.143428411469992,1.339492,8930.571302999999,false,3205.3982,0.14342841146999494,33.464402,3171.933798,false,true,,true,0
+SAT,60,28,0,6748.884873,0.18942981828177524,2.581807,6719.621157,false,,,,,,173563.73642899998,0.189429818281777,1.427346,173562.309083,false,6204.921633999999,0.18942981828177471,42.423289999999994,6162.498344,false,true,,true,0
+SAT,60,29,0,7841.577904,0.2096031525503279,2.860973,7805.578945,false,,,,,,1026072.558905,0.209603152550328,1.382365,1026071.17654,false,10267.666198,0.2096031525503324,50.252758,10217.41344,false,true,,true,0
+SAT,60,30,0,2325.753799,0.11635453898114606,3.911549,2289.871917,false,,,,,,3707.20224,0.116354538981146,1.4935399999999999,3705.7087,false,4422.176934,0.11635453898114696,31.233805,4390.943129,false,true,,true,0
+SAT,60,31,0,445.71351699999997,0.16132347921804022,3.372326,419.84792300000004,false,,,,,,33259.437914,0.16132347921804,1.357405,33258.080509,false,5854.524087,0.16132347921803844,38.274214,5816.249873,false,true,,true,0
+SAT,60,32,0,1894.1783030000001,0.16948517660341805,2.8327080000000002,1869.970166,false,,,,,,32967.122469,0.169485176603419,1.193977,32965.928492,false,5722.640651,0.1694851766034198,38.719902999999995,5683.920748,false,true,,true,0
+SAT,60,33,0,279.318391,0.09698189383500672,3.0424450000000003,245.856695,false,,,,,,1918.9125390000002,0.096981893835005,1.079867,1917.832672,false,4007.6555329999997,0.09698189383500665,27.015011,3980.6405219999997,false,true,,true,0
+SAT,60,34,0,1778.182195,0.19250236416700917,2.695214,1751.47766,false,,,,,,174321.477572,0.192502364167007,1.3760109999999999,174320.101561,false,6380.4790649999995,0.19250236416700528,40.967037,6339.512027999999,false,true,,true,0
+SAT,60,35,0,858.9460300000001,0.1212247625383487,2.314384,830.329701,false,,,,,,3860.369259,0.121224762538349,1.125046,3859.244213,false,3999.1857760000007,0.12122476253834885,32.470254999999995,3966.7155210000005,false,true,,true,0
+SAT,60,36,0,774.320495,0.09685799580746103,2.679801,738.3669669999999,false,,,,,,1904.6027760000002,0.096857995807461,1.3634670000000002,1903.2393089999998,false,3056.2942679999996,0.09685799580746111,28.645671,3027.6485969999994,false,true,,true,0
+SAT,60,37,0,3769.0520610000003,0.23684441976291232,2.636192,3742.1053420000003,false,,,,,,1200060.545241,0,2.573736,1200057.971505,true,7528.678168999999,0.2368444197629121,46.413816999999995,7482.264351999999,false,true,,true,137
+SAT,60,38,0,8648.716096,0.21292689020147526,23.09828,8525.961778,false,,,,,,1019356.980188,0.212926890201476,7.901943,1019349.078245,false,7762.655331000001,0.21292689020147146,50.173967000000005,7712.481364000001,false,true,,true,0
+SAT,60,39,0,2729.082389,0.20572967369376283,29.050411,2576.591745,false,,,,,,1007290.083186,0.205729673693763,9.796906000000002,1007280.28628,false,7695.75777,0.20572967369376272,55.548064000000004,7640.209706000001,false,true,,true,0
+SAT,60,40,0,1773.610876,0.17305677675478082,32.304922,1609.4429169999999,false,,,,,,173589.03774200001,0.173056776754782,9.834637,173579.203105,false,6560.823590999999,0.17305677675478062,49.721266,6511.102325,false,true,,true,0
+SAT,60,41,0,3808.6720729999997,0.2159075127506541,27.539900000000003,3642.177895,false,,,,,,1014794.110354,0.215907512750653,6.201352,1014787.909002,false,8026.900432,0.2159075127506505,52.09231899999999,7974.808113,false,true,,true,0
+SAT,60,42,0,1955.999278,0.11717857650726454,29.9621,1779.8618940000001,false,,,,,,3718.100508,0.117178576507266,4.7838959999999995,3713.316612,false,5456.000054,0.11717857650726576,37.271045,5418.729009,false,true,,true,0
+SAT,60,43,0,1496.2678999999998,0.11674217436374068,28.498415,1351.72261,false,,,,,,3877.2897820000003,0.116742174363742,4.183892,3873.1058900000003,false,4372.518663,0.1167421743637425,34.302007999999994,4338.216655,false,true,,true,0
+SAT,60,44,0,6636.198963999999,0.21310707816202884,30.515939,6446.296153,false,,,,,,1015953.092794,0.213107078162029,4.568052,1015948.524742,false,5945.706383000001,0.21310707816202495,47.05758200000001,5898.648801,false,true,,true,0
+SAT,60,45,0,1050.224258,0.14565508615456235,12.268424000000001,978.3072,false,,,,,,9127.173932,0.145655086154563,1.828435,9125.345497,false,4977.025976,0.14565508615456094,34.612268,4942.413708,false,true,,true,0
+SAT,60,46,0,4731.473558000001,0.21118161662274837,5.348286,4690.825701000001,false,,,,,,1018639.2369939999,0.211181616622747,1.441143,1018637.795851,false,6885.224922000001,0.21118161662275178,47.380376999999996,6837.844545000001,false,true,,true,0
+SAT,60,47,0,1246.467269,0.11839222812043344,23.757837,1104.761962,false,,,,,,3763.78238,0.118392228120433,5.331994,3758.450386,false,4122.6910419999995,0.11839222812043308,35.303389,4087.3876529999993,false,true,,true,0
+SAT,60,48,0,3301.717078,0.16971120422122787,27.604568999999998,3132.003883,false,,,,,,33310.981491,0.169711204221227,8.650849000000001,33302.330642,false,7184.866324999999,0.16971120422122762,44.966170999999996,7139.900153999999,false,true,,true,0
+SAT,60,49,0,5275.198082000001,0.13552876103481196,36.349821000000006,5091.480105000001,false,,,,,,8953.421573000001,0.135528761034812,4.532763,8948.88881,false,5896.904621000001,0.13552876103481426,40.53798,5856.3666410000005,false,true,,true,0
