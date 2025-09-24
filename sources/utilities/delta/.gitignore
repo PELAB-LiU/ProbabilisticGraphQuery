@@ -1,0 +1,6 @@
+.settings/
+bin/
+libs/jsr305-3.0.2.jar
+libs/koloboke-api-jdk8-1.0.0.jar
+libs/koloboke-impl-common-jdk8-1.0.0.jar
+libs/koloboke-impl-jdk8-1.0.0.jar

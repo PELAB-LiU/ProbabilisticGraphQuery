@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pugin
+Bundle-SymbolicName: hu.bme.mit.delta.pugin
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: hu.bme.mit.delta.pugin
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.google.guava;bundle-version="30.1.0",
+ javax.annotation;bundle-version="1.3.5"
+Import-Package: hu.bme.mit.delta.collections,
+ hu.bme.mit.delta.collections.impl
+Export-Package: hu.bme.mit.delta.java.mdd,
+ hu.bme.mit.delta.mdd

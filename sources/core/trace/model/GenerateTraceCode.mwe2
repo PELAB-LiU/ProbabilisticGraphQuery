@@ -1,0 +1,24 @@
+module se.liu.ida.sas.pelab.probq.core.trace.GenerateTraceCode
+
+import org.eclipse.emf.mwe2.runtime.workflow.Workflow
+import org.eclipse.emf.mwe.utils.StandaloneSetup
+import org.eclipse.emf.mwe.utils.DirectoryCleaner
+import org.eclipse.emf.mwe2.ecore.EcoreGenerator
+
+
+var rootPath = "."
+var projectName = "trace"
+
+Workflow {
+    bean = StandaloneSetup {
+        platformUri = "${rootPath}"
+        scanClassPath = true
+    }
+    component = DirectoryCleaner {
+		directory = "src/main/emf-gen"
+	}
+    component = EcoreGenerator {
+        genModel = "platform:/resource/${projectName}/model/tracemodel.genmodel"
+		generateModel = true
+    }
+}
